@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-// 求平方
+// squre 求平方
 func squre[T ~int](i T) T {
 	return i * i
 }
 
-// 求指定数字内所有素数
+// prime 求指定数字内所有素数
 func prime(x int) (result []int) {
 	var i, j, k int
 	// 预估 x 以内素数的个数
@@ -39,6 +39,7 @@ func prime(x int) (result []int) {
 	return
 }
 
+// main 主函数
 func main() {
 	defer utils.TimeIt(time.Now())
 	x := 300000
