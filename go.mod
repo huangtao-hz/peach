@@ -6,13 +6,12 @@ require golang.org/x/text v0.29.0
 
 require (
 	github.com/extrame/xls v0.0.1
-	github.com/mattn/go-sqlite3 v1.14.30
+	github.com/ncruces/go-sqlite3 v0.29.0
 	github.com/xuri/excelize/v2 v2.9.1
 )
 
 require (
 	github.com/extrame/ole2 v0.0.0-20160812065207-d69429661ad7 // indirect
-	github.com/ncruces/go-sqlite3 v0.29.0 // indirect
 	github.com/ncruces/julianday v1.0.0 // indirect
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.4 // indirect

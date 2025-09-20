@@ -6,6 +6,7 @@ import (
 	"peach/utils"
 )
 
+// main 主程序入口
 func main() {
 	defer utils.Recover()
 	db, err := sqlite.Open("xgm")
