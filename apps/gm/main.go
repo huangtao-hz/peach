@@ -16,6 +16,7 @@ func main() {
 	load := flag.Bool("load", false, "导入数据")
 	query_sql := flag.String("query", "", "执行查询")
 	jhbb := flag.String("jhbb", "", "查询计划版本")
+	restore := flag.Bool("restore", false, "导入数据")
 
 	flag.Parse()
 	if *init_db {
@@ -30,6 +31,9 @@ func main() {
 	}
 	if *jhbb != "" {
 		show_jhbb(db, *jhbb)
+	}
+	if *restore {
+		Restore(db)
 	}
 	if len(flag.Args()) > 0 {
 		PrintVersion(db)

@@ -1,11 +1,16 @@
 package main
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"fmt"
+	"io"
+	"os"
 	"peach/data"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
+	"strings"
 )
 
 // 打印当前数据版本
@@ -88,6 +93,9 @@ func load_gzb(db *sqlite.DB) {
 	path := utils.NewPath("~/Downloads").Find("*数智综合运营系统问题跟踪表*.xlsx")
 	if path != "" {
 		fmt.Println("处理文件：", utils.NewPath(path).FileInfo().Name())
+	} else {
+		fmt.Println("未找到文件！")
+		return
 	}
 	ver := utils.Extract(`\d{8}`, path)
 	fmt.Println("Version:", ver)
@@ -98,4 +106,40 @@ func load_gzb(db *sqlite.DB) {
 	ch := make(chan []any, 100)
 	go r.ReadSheet(0, 1, ch, data.FixedColumn(13), conv_gzb)
 	utils.ChPrintln(ch)
+}
+
+// Restore 从备份文件中恢复数据
+func Restore(db *sqlite.DB) {
+	path := utils.NewPath("~/Downloads").Find("新柜面简报*.tgz")
+	if path != "" {
+		fmt.Println("处理文件：", utils.NewPath(path).FileInfo().Name())
+	} else {
+		fmt.Println("未找到文件！")
+		return
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	r, err := gzip.NewReader(f)
+	if err != nil {
+		return
+	}
+	t := tar.NewReader(r)
+	for header, err := t.Next(); err != io.EOF; header, err = t.Next() {
+		name := header.FileInfo().Name()
+		if strings.Contains(name, "新柜面存量交易迁移计划") {
+			fmt.Println("处理文件：", name)
+			ver := utils.Extract(`\d{8}`, name)
+			fmt.Println("Version:", ver)
+			r, err := excel.NewXlsxFile(t)
+			utils.CheckFatal(err)
+			fmt.Println(r.GetSheetList())
+			ch := make(chan []any, 100)
+			go r.ReadSheet(4, 1, ch, data.FixedColumn(16))
+			utils.ChPrintln(ch)
+		}
+	}
+
 }
