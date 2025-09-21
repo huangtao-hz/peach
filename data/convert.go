@@ -34,9 +34,11 @@ func Include(columns ...int) ConvertFunc {
 		for i, k := range columns {
 			if k < 0 {
 				k += source_length
+			} else if k < source_length {
+				dest[i] = source[k]
 			}
-			dest[i] = source[k]
 		}
+		fmt.Println(len(dest), dest)
 		return
 	}
 }

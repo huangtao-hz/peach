@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -182,8 +182,12 @@ func InitLog() {
 	filename := dir.Join(name).WithExt(".log")
 	f, err := os.OpenFile(filename.String(), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	CheckFatal(err)
-	log.SetOutput(f)
-	log.SetFlags(log.Ldate | log.Ltime)
+	options := slog.HandlerOptions{}
+	handler := slog.NewJSONHandler(f, &options)
+	slog.SetLogLoggerLevel(slog.LevelWarn)
+	slog.SetDefault(slog.New(handler))
+	//log.SetOutput(f)
+	//log.SetFlags(log.Ldate | log.Ltime)
 }
 
 // 检查扩展名是否在指定的名称内

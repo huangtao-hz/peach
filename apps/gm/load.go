@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"peach/data"
 	"peach/excel"
@@ -13,7 +14,7 @@ import (
 	"strings"
 )
 
-// 打印当前数据版本
+// PrintVersion 打印当前数据版本
 func PrintVersion(db *sqlite.DB) {
 	var ver string
 	if err := db.QueryRow("select ver from loadfile where name='xmjh'").Scan(&ver); err == nil {
@@ -21,48 +22,44 @@ func PrintVersion(db *sqlite.DB) {
 	}
 }
 
-// 新旧交易对照表
-func LoadXjdzb(db *sqlite.DB, path string, r *excel.ExcelReader, ver string) {
+type ExcelReader interface {
+	Read(sheets any, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc)
+}
+
+// LoadXjdzb 新旧交易对照表
+func LoadXjdzb(db *sqlite.DB, fileinfo fs.FileInfo, r ExcelReader, ver string) {
+	fmt.Println("导入新旧交易对照表")
 	ch := make(chan []any, 100)
-	loader := sqlite.LoadFile(path, "jydzb", ch)
+	loader := sqlite.NewLoader(fileinfo, "jydzb", ch)
 	loader.Ver = ver
-	go r.ReadSheet(7, 1, ch, data.FixedColumn(7))
+	go r.Read("投产交易一览表", 1, ch, data.FixedColumn(7))
 	loader.Load(db)
 	//utils.ChPrintln(ch)
 }
 
 // 项目计划
-func LoadXmjh(db *sqlite.DB, path string, r *excel.ExcelReader, ver string) {
+func LoadXmjh(db *sqlite.DB, fileinfo fs.FileInfo, r ExcelReader, ver string) {
+	fmt.Println("导入项目计划表")
 	ch := make(chan []any, 100)
-	loader := sqlite.LoadFile(path, "xmjh", ch)
+	loader := sqlite.NewLoader(fileinfo, "xmjh", ch)
 	loader.Ver = ver
-	go r.ReadSheet(6, 1, ch, data.FixedColumn(16))
+	//loader.Check = false
+	go r.Read("全量表", 1, ch, data.FixedColumn(16))
 	loader.Load(db)
 	//utils.ChPrintln(ch)
 }
 
-func conv_kfjh(s []string) (d []string, err error) {
-	idx := []int{0, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}
-	for len(s) < 24 {
-		s = append(s, "")
-	}
-	d = make([]string, len(idx))
-	for i := range len(idx) {
-		d[i] = s[idx[i]]
-	}
-	return
-}
-
-// 开发计划
-func LoadKfjh(db *sqlite.DB, path string, r *excel.ExcelReader, ver string) {
+// LoadKfjh 开发计划
+func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, r ExcelReader, ver string) {
+	fmt.Println("导入开发计划表")
 	ch := make(chan []any, 100)
-	loader := sqlite.LoadFile(path, "kfjh", ch)
+	loader := sqlite.NewLoader(fileinfo, "kfjh", ch)
 	loader.Ver = ver
-	go r.ReadSheet(3, 1, ch, conv_kfjh)
+	go r.Read("开发计划", 1, ch, excel.UseCols("A,M:X"))
 	loader.Load(db)
 }
 
-// 导入数据文件
+// Load 导入数据文件
 func Load(db *sqlite.DB) {
 	path := utils.NewPath("~/Downloads").Find("*新柜面存量交易迁移*.xlsx")
 	if path != "" {
@@ -70,12 +67,13 @@ func Load(db *sqlite.DB) {
 	}
 	ver := utils.Extract(`\d{8}`, path)
 	fmt.Println("Version:", ver)
-	r, err := excel.NewExcelReader(path)
+	r, err := excel.NewExcelFile(path)
 	utils.CheckFatal(err)
 	defer r.Close()
-	LoadKfjh(db, path, r, ver)
-	LoadXjdzb(db, path, r, ver)
-	LoadXmjh(db, path, r, ver)
+	fileinfo := utils.NewPath(path).FileInfo()
+	LoadKfjh(db, fileinfo, r, ver)
+	LoadXjdzb(db, fileinfo, r, ver)
+	LoadXmjh(db, fileinfo, r, ver)
 	load_gzb(db)
 }
 
@@ -99,12 +97,12 @@ func load_gzb(db *sqlite.DB) {
 	}
 	ver := utils.Extract(`\d{8}`, path)
 	fmt.Println("Version:", ver)
-	r, err := excel.NewExcelReader(path)
+	r, err := excel.NewExcelFile(path)
 	utils.CheckFatal(err)
 	defer r.Close()
 
 	ch := make(chan []any, 100)
-	go r.ReadSheet(0, 1, ch, data.FixedColumn(13), conv_gzb)
+	go r.Read(0, 1, ch, data.FixedColumn(13), conv_gzb)
 	utils.ChPrintln(ch)
 }
 
@@ -128,17 +126,17 @@ func Restore(db *sqlite.DB) {
 	}
 	t := tar.NewReader(r)
 	for header, err := t.Next(); err != io.EOF; header, err = t.Next() {
-		name := header.FileInfo().Name()
+		fileinfo := header.FileInfo()
+		name := fileinfo.Name()
 		if strings.Contains(name, "新柜面存量交易迁移计划") {
 			fmt.Println("处理文件：", name)
 			ver := utils.Extract(`\d{8}`, name)
 			fmt.Println("Version:", ver)
-			r, err := excel.NewXlsxFile(t)
+			r, err := excel.NewExcelBook(t, name)
 			utils.CheckFatal(err)
-			fmt.Println(r.GetSheetList())
-			ch := make(chan []any, 100)
-			go r.ReadSheet(4, 1, ch, data.FixedColumn(16))
-			utils.ChPrintln(ch)
+			LoadKfjh(db, fileinfo, r, ver)
+			LoadXjdzb(db, fileinfo, r, ver)
+			LoadXmjh(db, fileinfo, r, ver)
 		}
 	}
 

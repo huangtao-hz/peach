@@ -2,7 +2,6 @@ package main
 
 import (
 	"peach/excel"
-	"peach/sqlite"
 	"peach/utils"
 )
 
@@ -15,23 +14,10 @@ create table if not exists test(
 
 func main() {
 	defer utils.Recover()
-
-	db, err := sqlite.Open("test")
+	book, err := excel.NewExcelFile("~/Downloads/abc.xlsx")
 	utils.CheckFatal(err)
-	defer db.Close()
-
-	db.ExecScript(create_sql)
-	sqlite.InitLoadFile(db)
-
-	file := "~/abc.xlsx"
-	r, err := excel.NewExcelReader(file)
-	utils.CheckFatal(err)
-	ch := make(chan []any)
-	go r.ReadSheet(1, 0, ch)
-	//utils.ChPrintln(data.Data)
-	loader := sqlite.LoadFile(file, "test", ch)
-	loader.FieldCount = 2
-	loader.Load(db)
-	db.Printf("select * from test", "%-12s   %6,d\n", "姓名             年龄", true)
-	db.PrintRow("select * from test limit 1", "姓名,年龄")
+	defer book.Close()
+	ch := make(chan []any, 100)
+	go book.Read(0, 0, ch, excel.UseCols("a:c"))
+	utils.ChPrintln(ch)
 }

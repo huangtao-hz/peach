@@ -11,9 +11,10 @@ import (
 	"peach/utils"
 	"strings"
 
-	//_ "github.com/mattn/go-sqlite3"
-	_ "github.com/ncruces/go-sqlite3/driver"
-	_ "github.com/ncruces/go-sqlite3/embed"
+	//_ "modernc.org/sqlite"
+	_ "github.com/mattn/go-sqlite3"
+	//_ "github.com/ncruces/go-sqlite3/driver"
+	//_ "github.com/ncruces/go-sqlite3/embed"
 )
 
 // 数据库连接
