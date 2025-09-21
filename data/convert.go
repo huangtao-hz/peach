@@ -27,10 +27,6 @@ func Include(columns ...int) ConvertFunc {
 	return func(source []string) (dest []string, err error) {
 		dest = make([]string, dest_length)
 		source_length := len(source)
-		if source_length < dest_length {
-			err = fmt.Errorf("源切片长度不足")
-			return
-		}
 		for i, k := range columns {
 			if k < 0 {
 				k += source_length
