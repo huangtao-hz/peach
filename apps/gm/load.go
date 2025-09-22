@@ -30,14 +30,14 @@ type ExcelReader interface {
 func LoadXjdzb(db *sqlite.DB, fileinfo fs.FileInfo, r ExcelReader, ver string) {
 	fmt.Println("导入新旧交易对照表")
 	ch := make(chan []any, 100)
-	loader := sqlite.NewLoader(fileinfo, "jydzb", ch)
+	loader := sqlite.NewLoader(fileinfo, "xjdz", ch)
 	loader.Ver = ver
 	go r.Read("投产交易一览表", 1, ch, data.FixedColumn(7))
 	loader.Load(db)
 	//utils.ChPrintln(ch)
 }
 
-// 项目计划
+// LoadXmjh 项目计划
 func LoadXmjh(db *sqlite.DB, fileinfo fs.FileInfo, r ExcelReader, ver string) {
 	fmt.Println("导入项目计划表")
 	ch := make(chan []any, 100)
@@ -74,7 +74,7 @@ func Load(db *sqlite.DB) {
 	LoadKfjh(db, fileinfo, r, ver)
 	LoadXjdzb(db, fileinfo, r, ver)
 	LoadXmjh(db, fileinfo, r, ver)
-	load_gzb(db)
+	//load_gzb(db)
 }
 
 // conv_gzb 转换故障表的数据
@@ -116,14 +116,10 @@ func Restore(db *sqlite.DB) {
 		return
 	}
 	f, err := os.Open(path)
-	if err != nil {
-		return
-	}
+	utils.CheckFatal(err)
 	defer f.Close()
 	r, err := gzip.NewReader(f)
-	if err != nil {
-		return
-	}
+	utils.CheckFatal(err)
 	t := tar.NewReader(r)
 	for header, err := t.Next(); err != io.EOF; header, err = t.Next() {
 		fileinfo := header.FileInfo()

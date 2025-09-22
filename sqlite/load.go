@@ -23,12 +23,12 @@ mtime	text,                 -- 文件修改时间
 ver		text		          -- 文件版本
 )`
 
-// 创建重复导入检查的数据库表
+// InitLoadFile 创建重复导入检查的数据库表
 func InitLoadFile(db *DB) {
 	db.Exec(loadFileSQL)
 }
 
-// 数据装入类
+// Loader 数据装入类
 type Loader struct {
 	tablename, LoadSQL string       // 表名，导入的SQL语句
 	fileinfo           os.FileInfo  // 文件信息
@@ -42,18 +42,18 @@ type Loader struct {
 	Method             string       // 导入方法，默认为 insert，可以为：replace
 }
 
-// 构造函数
+// NewLoader 构造函数
 func NewLoader(fileinfo os.FileInfo, tablename string, data <-chan []any) *Loader {
 	return &Loader{tablename: tablename, fileinfo: fileinfo, data: data, Clear: true, Check: true, Method: "insert"}
 }
 
-// 导入文件
+// LoadFile 导入文件
 func LoadFile(path string, tablename string, data <-chan []any) *Loader {
 	fileinfo := utils.NewPath(path).FileInfo()
 	return &Loader{tablename: tablename, fileinfo: fileinfo, data: data, Clear: true, Check: true, Method: "insert"}
 }
 
-// 生成导入的 sql 语句
+// GetLoadSQL 生成导入的 sql 语句
 func (l *Loader) GetLoadSQL(tx *Tx) string {
 	if l.LoadSQL != "" {
 		return l.LoadSQL
@@ -82,7 +82,7 @@ func (l *Loader) GetLoadSQL(tx *Tx) string {
 	return builder.String()
 }
 
-// 重复导入检查
+// DoCheck 重复导入检查
 func (l *Loader) DoCheck(tx *Tx) (err error) {
 	if l.Check {
 		var count int
@@ -104,20 +104,20 @@ func (l *Loader) DoCheck(tx *Tx) (err error) {
 	return
 }
 
-// 执行测试，完整跑通流程，但是不在数据库中执行
+// DoTest 执行测试，完整跑通流程，但是不在数据库中执行
 func (l *Loader) DoTest(tx *Tx) (err error) {
 	fmt.Println("导入SQL：", l.GetLoadSQL(tx))
 	return errors.New("测试成功")
 }
 
-// 测试导入数据
+// Test 测试导入数据
 func (l *Loader) Test(db *DB) {
 	if err := db.ExecTx(l.DoCheck, l.DoClear, l.DoLoad, l.DoTest); err != nil {
 		fmt.Println(err)
 	}
 }
 
-// 执行清理
+// DoClear 执行清理
 func (l *Loader) DoClear(tx *Tx) (err error) {
 	if l.Clear && strings.Contains(l.Method, "insert") {
 		if l.ClearSQL == "" {
@@ -128,14 +128,14 @@ func (l *Loader) DoClear(tx *Tx) (err error) {
 	return
 }
 
-// 导入成功后的提示语
+// Success 导入成功后的提示语
 func (l *Loader) Success(r sql.Result, err error) error {
 	c, _ := r.RowsAffected()
 	utils.Printf("文件 %s 导入成功, 共 %,d 行数据。\n", l.fileinfo.Name(), c)
 	return nil
 }
 
-// 执行导入流程
+// DoLoad 执行导入流程
 func (l *Loader) DoLoad(tx *Tx) (err error) {
 	return ExecMany(l.GetLoadSQL(tx), l.Success, l.data)(tx)
 }

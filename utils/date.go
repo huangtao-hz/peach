@@ -147,7 +147,7 @@ func (d Date) PrevDay() Date {
 	return d.Add(0, 0, -1)
 }
 
-// 统计一个函数运行所耗费的时间
+// TimeIt 统计一个函数运行所耗费的时间
 // 使用方法，在函数的开始运行： defer TimeIt(time.Now())
 func TimeIt(begin time.Time) {
 	t := time.Since(begin)

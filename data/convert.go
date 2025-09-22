@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"peach/utils"
 	"slices"
 )
@@ -34,7 +33,6 @@ func Include(columns ...int) ConvertFunc {
 				dest[i] = source[k]
 			}
 		}
-		fmt.Println(len(dest), dest)
 		return
 	}
 }
