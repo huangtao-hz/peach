@@ -10,12 +10,12 @@ import (
 	"peach/data"
 )
 
-// 数据库事务
+// Tx 数据库事务
 type Tx struct {
 	*sql.Tx
 }
 
-// 批量执行
+// ExecMany 批量执行
 func (t *Tx) ExecMany(query string, data *data.Data) (r sql.Result, err error) {
 	stmt, err := t.Prepare(query)
 	if err != nil {
@@ -48,12 +48,12 @@ func (t *Tx) ExecMany(query string, data *data.Data) (r sql.Result, err error) {
 	}
 }
 
-// 查询多行数据
+// Query 查询多行数据
 func (t *Tx) Query(query string, args ...any) (rows *Rows, err error) {
 	return Query(t.Tx, query, args...)
 }
 
-// 查询指定数据库表的字段数量
+// GetColumnCount 查询指定数据库表的字段数量
 func (t *Tx) GetColumnCount(tablename string) (count int, err error) {
 	var rows *Rows
 	rows, err = t.Query(fmt.Sprintf("select * from %s where 0", tablename))

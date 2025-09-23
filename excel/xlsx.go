@@ -12,7 +12,7 @@ import (
 )
 
 // XlsxBook 对 xlsx 工作簿的封装
-type XlsxBook struct {
+type xlsxBook struct {
 	*excelize.File
 }
 
@@ -38,16 +38,16 @@ func UseCols(cols string) func([]string) ([]string, error) {
 }
 
 // NewXlsxBook  XlsxBook 的构造函数
-func NewXlsxBook(reader io.Reader, opts ...excelize.Options) (r *XlsxBook, err error) {
+func newXlsxBook(reader io.Reader, opts ...excelize.Options) (r *xlsxBook, err error) {
 	book, err := excelize.OpenReader(reader, opts...)
 	if err != nil {
 		return
 	}
-	r = &XlsxBook{book}
+	r = &xlsxBook{book}
 	return
 }
 
-func (b *XlsxBook) IterRows(sheetIdx int, skipRows int) iter.Seq[[]string] {
+func (b *xlsxBook) IterRows(sheetIdx int, skipRows int) iter.Seq[[]string] {
 	return func(yield func([]string) bool) {
 		name := b.GetSheetName(sheetIdx)
 		rows, _ := b.Rows(name)
@@ -64,7 +64,7 @@ func (b *XlsxBook) IterRows(sheetIdx int, skipRows int) iter.Seq[[]string] {
 }
 
 // ReedSheet 逐行读取数据
-func (b *XlsxBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc) {
+func (b *xlsxBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc) {
 	defer close(ch)
 	name := b.GetSheetName(num)
 	rows, _ := b.Rows(name)
@@ -81,7 +81,7 @@ func (b *XlsxBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...da
 		}
 	}
 }
-func (b *XlsxBook) GetValues(num int) (values [][]string, err error) {
+func (b *xlsxBook) GetValues(num int) (values [][]string, err error) {
 	name := b.GetSheetName(num)
 	if name == "" {
 		err = errors.New("sheet 不存在")

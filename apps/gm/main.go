@@ -52,8 +52,8 @@ func main() {
 		}
 	}
 	if *load {
-		Load(db)
-		//load_gzb(db)
+		//Load(db)
+		LoadWtgzb(db)
 	}
 	if *query_sql != "" {
 		db.Println(*query_sql)

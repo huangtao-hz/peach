@@ -44,12 +44,6 @@ type Loader struct {
 	db                 *DB
 }
 
-// LoadFile 导入文件
-func LoadFile(path string, tablename string, reader data.DataReader) *Loader {
-	fileinfo := utils.NewPath(path).FileInfo()
-	return &Loader{tablename: tablename, fileinfo: fileinfo, reader: reader, Clear: true, Check: true, Method: "insert"}
-}
-
 // GetLoadSQL 生成导入的 sql 语句
 func (l *Loader) GetLoadSQL(tx *Tx) string {
 	if l.LoadSQL != "" {

@@ -12,24 +12,19 @@ import (
 )
 
 // Book 定义工作簿接口
-type Book interface {
+type book interface {
 	GetSheetList() []string
 	IterRows(sheetIdx int, skipRows int) iter.Seq[[]string]
 }
 
 // ExcelBook 定义工作簿的类
 type ExcelBook struct {
-	Book
-}
-
-// ExcelReader ExcelReader 接口
-type ExcelReader interface {
-	Read(sheets any, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc)
+	book
 }
 
 // NewExcelBook 构造行数
-func NewExcelBook(reader io.Reader, path string) (book *ExcelBook, err error) {
-	var _book Book
+func NewExcelBook(reader io.Reader, path string) (ebook *ExcelBook, err error) {
+	var _book book
 	ext := utils.NewPath(path).Ext()
 	if ext == ".xls" {
 		var (
@@ -40,17 +35,17 @@ func NewExcelBook(reader io.Reader, path string) (book *ExcelBook, err error) {
 			b, _ := io.ReadAll(reader)
 			r = bytes.NewReader(b)
 		}
-		_book, err = NewXlsBook(r)
+		_book, err = newXlsBook(r)
 		if err != nil {
 			return
 		}
-		book = &ExcelBook{_book}
+		ebook = &ExcelBook{_book}
 	} else if slices.Contains([]string{".xlsx", ".xlsxm"}, ext) {
-		_book, err = NewXlsxBook(reader)
+		_book, err = newXlsxBook(reader)
 		if err != nil {
 			return
 		}
-		book = &ExcelBook{_book}
+		ebook = &ExcelBook{_book}
 	}
 	return
 }
@@ -100,20 +95,6 @@ func (b *ExcelBook) NewReader(sheets any, useCols string, skipRows int, cvfns ..
 	return
 }
 
-// Read 读取 ExcelBook 文件内容
-func (b *ExcelBook) Read(sheets any, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc) {
-	defer close(ch)
-	var convert = data.Convert(cvfns...)
-	sheetlist, _ := b.GetSheets(sheets)
-	for _, idx := range sheetlist {
-		for row := range b.IterRows(idx, skipRows) {
-			if r, err := convert(row); r != nil && err == nil {
-				ch <- r
-			}
-		}
-	}
-}
-
 // ExcelFile 定义 Excel
 type ExcelFile struct {
 	fp io.ReadSeekCloser
@@ -124,7 +105,7 @@ type ExcelFile struct {
 func NewExcelFile(path string) (f *ExcelFile, err error) {
 	var (
 		fp   io.ReadSeekCloser
-		book Book
+		book book
 	)
 	fp, err = os.Open(utils.Expand(path))
 	if err != nil {

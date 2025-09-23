@@ -9,17 +9,17 @@ import (
 	"peach/utils"
 )
 
-// sql 的查询接口，进行转接
+// querier sql 的查询接口，进行转接
 type querier interface {
 	Query(query string, args ...any) (rows *sql.Rows, err error)
 }
 
-// 查询结果
+// Rows 查询结果
 type Rows struct {
 	*sql.Rows
 }
 
-// 执行查询
+// Query 执行查询
 func Query(querier querier, query string, args ...any) (rows *Rows, err error) {
 	var _rows *sql.Rows
 	if _rows, err = querier.Query(query, args...); err != nil {
@@ -29,7 +29,7 @@ func Query(querier querier, query string, args ...any) (rows *Rows, err error) {
 	return
 }
 
-// 提取所有结果数据，数据读取完成后自动关闭数据集
+// FetchAll 提取所有结果数据，数据读取完成后自动关闭数据集
 func (rows *Rows) FetchAll(ch chan<- []any) {
 	defer rows.Close() // 关闭数据集
 	defer close(ch)    // 关闭数据通道
@@ -50,14 +50,14 @@ func (rows *Rows) FetchAll(ch chan<- []any) {
 	}
 }
 
-// 逐行打印数据
+// Println 逐行打印数据
 func (r *Rows) Println() {
 	ch := make(chan []any, 100)
 	go r.FetchAll(ch)
 	utils.ChPrintln(ch)
 }
 
-// 逐行格式化打印数据
+// Printf 逐行格式化打印数据
 func (r *Rows) Printf(format string, print_rows bool) {
 	ch := make(chan []any, 100)
 	go r.FetchAll(ch)

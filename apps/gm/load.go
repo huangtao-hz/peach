@@ -7,11 +7,11 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"peach/data"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
 	"strings"
+	"time"
 )
 
 // PrintVersion 打印当前数据版本
@@ -89,8 +89,8 @@ func conv_gzb(src []string) (dest []string, err error) {
 	return
 }
 
-// load_gzb 导入问题跟踪表数据
-func load_gzb(db *sqlite.DB) {
+// LoadWtgzb 导入问题跟踪表数据
+func LoadWtgzb(db *sqlite.DB) {
 	path := utils.NewPath("~/Downloads").Find("*数智综合运营系统问题跟踪表*.xlsx")
 	if path != "" {
 		fmt.Println("处理文件：", utils.NewPath(path).FileInfo().Name())
@@ -98,19 +98,27 @@ func load_gzb(db *sqlite.DB) {
 		fmt.Println("未找到文件！")
 		return
 	}
-	ver := utils.Extract(`\d{8}`, path)
-	fmt.Println("Version:", ver)
-	r, err := excel.NewExcelFile(path)
+	f, err := excel.NewExcelFile(path)
 	utils.CheckFatal(err)
-	defer r.Close()
+	defer f.Close()
+	load_wtgzb(db, &f.ExcelBook, utils.NewPath(path).FileInfo())
+}
 
-	ch := make(chan []any, 100)
-	go r.Read(0, 1, ch, data.FixedColumn(13), conv_gzb)
-	utils.ChPrintln(ch)
+// load_wtgzb 导入问题跟踪表
+func load_wtgzb(db *sqlite.DB, book *excel.ExcelBook, fileinfo fs.FileInfo) {
+	ver := utils.Extract(`\d{8}`, fileinfo.Name())
+	fmt.Println("Version:", ver)
+	r, err := book.NewReader(0, "A:M", 1, conv_gzb)
+	utils.CheckFatal(err)
+	loader := db.NewLoader(fileinfo, "wtgzb", r)
+	loader.Ver = ver
+	loader.Check = false
+	loader.Load()
 }
 
 // Restore 从备份文件中恢复数据
 func Restore(db *sqlite.DB) {
+	defer utils.TimeIt(time.Now())
 	path := utils.NewPath("~/Downloads").Find("新柜面简报*.tgz")
 	if path != "" {
 		fmt.Println("处理文件：", utils.NewPath(path).FileInfo().Name())
@@ -136,6 +144,11 @@ func Restore(db *sqlite.DB) {
 			LoadKfjh(db, fileinfo, r, ver)
 			LoadXjdzb(db, fileinfo, r, ver)
 			LoadXmjh(db, fileinfo, r, ver)
+		} else if strings.Contains(name, "数智综合运营系统问题跟踪表") {
+			fmt.Println("处理文件：", name)
+			book, err := excel.NewExcelBook(t, name)
+			utils.CheckFatal(err)
+			load_wtgzb(db, book, fileinfo)
 		}
 	}
 

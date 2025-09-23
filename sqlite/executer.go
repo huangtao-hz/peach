@@ -9,10 +9,10 @@ import (
 	"peach/data"
 )
 
-// 回调函数
+// CallbackFunc 回调函数
 type CallbackFunc func(sql.Result, error) error
 
-// 执行单条 sql 语句
+// ExceOne 执行单条 sql 语句
 func ExecOne(query string, callback CallbackFunc, args ...any) ExecFunc {
 	return func(tx *Tx) (err error) {
 		r, err := tx.Exec(query, args...)
@@ -23,7 +23,7 @@ func ExecOne(query string, callback CallbackFunc, args ...any) ExecFunc {
 	}
 }
 
-// 执行多条语句
+// ExecMany 执行多条语句
 func ExecMany(query string, callback CallbackFunc, data *data.Data) ExecFunc {
 	return func(tx *Tx) (err error) {
 		r, err := tx.ExecMany(query, data)

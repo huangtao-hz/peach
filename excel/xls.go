@@ -10,22 +10,22 @@ import (
 )
 
 // XlsBook 对 xls 工作簿的封装
-type XlsBook struct {
+type xlsBook struct {
 	*xls.WorkBook
 }
 
 // NewXlsBook XlsBook 的构造函数
-func NewXlsBook(reader io.ReadSeeker) (r *XlsBook, err error) {
+func newXlsBook(reader io.ReadSeeker) (r *xlsBook, err error) {
 	book, err := xls.OpenReader(reader, "utf8")
 	if err != nil {
 		return
 	}
-	r = &XlsBook{book}
+	r = &xlsBook{book}
 	return
 }
 
 // GetSheetList 获取工作表列表
-func (b *XlsBook) GetSheetList() (names []string) {
+func (b *xlsBook) GetSheetList() (names []string) {
 	num := b.NumSheets()
 	names = make([]string, num)
 	for i := range num {
@@ -35,7 +35,7 @@ func (b *XlsBook) GetSheetList() (names []string) {
 }
 
 // GetRows 获取每一行的数据
-func (b *XlsBook) IterRows(sheetIdx int, skipRows int) iter.Seq[[]string] {
+func (b *xlsBook) IterRows(sheetIdx int, skipRows int) iter.Seq[[]string] {
 	return func(yield func([]string) bool) {
 		sheet := b.GetSheet(sheetIdx)
 		for i := skipRows; i <= int(sheet.MaxRow); i++ {
@@ -51,7 +51,7 @@ func (b *XlsBook) IterRows(sheetIdx int, skipRows int) iter.Seq[[]string] {
 	}
 }
 
-func (b *XlsBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc) {
+func (b *xlsBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc) {
 	defer close(ch)
 	sheet := b.GetSheet(num)
 	rowcount := int(sheet.MaxRow) + 1
@@ -68,7 +68,7 @@ func (b *XlsBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...dat
 	}
 }
 
-func (b *XlsBook) GetValues(num int) (data [][]string, err error) {
+func (b *xlsBook) GetValues(num int) (data [][]string, err error) {
 	var rowcount int
 	if num < 0 && num >= b.NumSheets() {
 		err = errors.New("表格录入错误")

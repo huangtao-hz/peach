@@ -8,7 +8,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-// 把坐标转换成单位元格
+// Cell 把坐标转换成单位元格
 func Cell(col any, row int) (cell string) {
 	var err error
 	switch column := col.(type) {
@@ -22,17 +22,17 @@ func Cell(col any, row int) (cell string) {
 	return
 }
 
-// Excel 文件
+// File Excel 文件
 type File struct {
 	*excelize.File
 }
 
-// 新建 Excel 文件
+// NewFile 新建 Excel 文件
 func NewFile() *File {
 	return &File{excelize.NewFile()}
 }
 
-// 获取工作表
+// GetSheet 获取工作表
 func (f *File) GetSheet(index any) *WorkSheet {
 	var name string
 	switch idx := index.(type) {
@@ -48,18 +48,18 @@ func (f *File) GetSheet(index any) *WorkSheet {
 	return &WorkSheet{f, name}
 }
 
-// 保存文件
+// SaveAs 保存文件
 func (f *File) SaveAs(path string) {
 	f.File.SaveAs(utils.Expand(path))
 }
 
-// 工作表
+// WorkSheet 工作表
 type WorkSheet struct {
 	file *File
 	name string
 }
 
-// 设置表格的宽度
+// SetWidth 设置表格的宽度
 func (s *WorkSheet) SetWidth(widthes map[string]float64) {
 	for col, width := range widthes {
 		aa := strings.Split(col, ":")
@@ -73,16 +73,16 @@ func (s *WorkSheet) SetWidth(widthes map[string]float64) {
 	}
 }
 
-// 修改工作表名称
+// Rename 修改工作表名称
 func (s *WorkSheet) Rename(newName string) {
 	s.file.SetSheetName(s.name, newName)
 	s.name = newName
 }
 
-// TableFormat 单位元样式
-const TableFormat = `{"table_style":"TableStyleMedium6", "show_first_column":false,"show_last_column":false,"show_row_stripes":true,"show_column_stripes":false}`
+// tableFormat 单位元样式
+const tableFormat = `{"table_style":"TableStyleMedium6", "show_first_column":false,"show_last_column":false,"show_row_stripes":true,"show_column_stripes":false}`
 
-// 写入表格
+// WriteTable 写入表格
 func (s *WorkSheet) WriteTable(axis string, header any, ch <-chan []any) {
 	var count int
 	var table *excelize.Table

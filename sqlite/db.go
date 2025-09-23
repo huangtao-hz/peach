@@ -37,18 +37,18 @@ func Open(database string) (db *DB, err error) {
 	return
 }
 
-// 执行查询
+// Query 执行查询
 func (db *DB) Query(query string, args ...any) (*Rows, error) {
 	return Query(db.DB, query, args...)
 }
 
-// 执行 DDL 语句，一般用来生成库表
+// ExecScript 执行 DDL 语句，一般用来生成库表
 func (db *DB) ExecScript(query string) {
 	_, err := db.Exec(query)
 	utils.CheckFatal(err)
 }
 
-// 开启事物
+// Begin 开启事物
 func (db *DB) Begin() (tx *Tx, err error) {
 	if tx_, err := db.DB.Begin(); err == nil {
 		tx = &Tx{tx_}
@@ -56,10 +56,10 @@ func (db *DB) Begin() (tx *Tx, err error) {
 	return
 }
 
-// 执行 sql 语句
+// ExecFunc 执行 sql 语句
 type ExecFunc func(*Tx) error
 
-// 执行事务
+// ExecTx 执行事务
 func (db *DB) ExecTx(execFuncs ...ExecFunc) (err error) {
 	tx, err := db.Begin() // 开启事务
 	if err != nil {
@@ -74,7 +74,7 @@ func (db *DB) ExecTx(execFuncs ...ExecFunc) (err error) {
 	return tx.Commit() // 无异常则提交数据库
 }
 
-// 执行查询，并格式化打印结果
+// Printf 执行查询，并格式化打印结果
 func (db *DB) Printf(query string, format string, head string, print_rows bool, args ...any) {
 	r, err := db.Query(query, args...)
 	utils.CheckFatal(err)
@@ -84,14 +84,14 @@ func (db *DB) Printf(query string, format string, head string, print_rows bool, 
 	r.Printf(format, print_rows)
 }
 
-// 执行查询，并格式化打印结果
+// Println 执行查询，并格式化打印结果
 func (db *DB) Println(query string, args ...any) {
 	r, err := db.Query(query, args...)
 	utils.CheckFatal(err)
 	r.Println()
 }
 
-// 打印一行数据，采用 Key-Value 的格式输出
+// PrintRow 打印一行数据，采用 Key-Value 的格式输出
 func (db *DB) PrintRow(query string, header string, args ...any) (err error) {
 	var width int
 	headers := strings.Split(header, ",")
@@ -124,5 +124,20 @@ func (db *DB) NewLoader(fileinfo os.FileInfo, tablename string, reader data.Data
 		Clear:     true,
 		Check:     true,
 		Method:    "insert",
-		db:        db}
+		db:        db,
+	}
+}
+
+// LoadFile 导入文件
+func (db *DB) NewLoadFile(path string, tablename string, reader data.DataReader) *Loader {
+	fileinfo := utils.NewPath(path).FileInfo()
+	return &Loader{
+		db:        db,
+		tablename: tablename,
+		fileinfo:  fileinfo,
+		reader:    reader,
+		Clear:     true,
+		Check:     true,
+		Method:    "insert",
+	}
 }
