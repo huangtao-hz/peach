@@ -4,18 +4,19 @@
 // 创建：2025-08-31
 package sqlite
 
+// result 批量执行结果
 type result struct {
 	rowsAffected int64
 	lastInsertId int64
 	err          error
 }
 
-// 返回最后插入的 Id
+// LastInsertId 返回最后插入的 Id
 func (r *result) LastInsertId() (int64, error) {
 	return r.lastInsertId, r.err
 }
 
-// 返回影响的行数
+// RowsAffected 返回影响的行数
 func (r *result) RowsAffected() (int64, error) {
 	return r.rowsAffected, r.err
 }

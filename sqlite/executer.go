@@ -6,6 +6,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"peach/data"
 )
 
 // 回调函数
@@ -23,11 +24,14 @@ func ExecOne(query string, callback CallbackFunc, args ...any) ExecFunc {
 }
 
 // 执行多条语句
-func ExecMany(query string, callback CallbackFunc, ch <-chan []any) ExecFunc {
+func ExecMany(query string, callback CallbackFunc, data *data.Data) ExecFunc {
 	return func(tx *Tx) (err error) {
-		r, err := tx.ExecMany(query, ch)
+		r, err := tx.ExecMany(query, data)
 		if callback != nil {
-			return callback(r, err)
+			err = callback(r, err)
+		}
+		if err != nil {
+			data.Cancel(err)
 		}
 		return
 	}

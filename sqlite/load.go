@@ -13,6 +13,7 @@ import (
 	"slices"
 	"strings"
 
+	"peach/data"
 	"peach/utils"
 )
 
@@ -30,27 +31,23 @@ func InitLoadFile(db *DB) {
 
 // Loader 数据装入类
 type Loader struct {
-	tablename, LoadSQL string       // 表名，导入的SQL语句
-	fileinfo           os.FileInfo  // 文件信息
-	Ver                string       // 导入数据版本
-	data               <-chan []any // 数据读取程序
-	Check              bool         // 是否需要检查文件重复导入
-	Clear              bool         // 是否清理数据库，默认为是
-	ClearSQL           string       // 自定义清理语句
-	Fields             string       // 插入字段清单，用半角逗号分隔
-	FieldCount         int          // 字段总数，如有 Fields，优先使用 Fields
-	Method             string       // 导入方法，默认为 insert，可以为：replace
-}
-
-// NewLoader 构造函数
-func NewLoader(fileinfo os.FileInfo, tablename string, data <-chan []any) *Loader {
-	return &Loader{tablename: tablename, fileinfo: fileinfo, data: data, Clear: true, Check: true, Method: "insert"}
+	tablename, LoadSQL string          // 表名，导入的SQL语句
+	fileinfo           os.FileInfo     // 文件信息
+	Ver                string          // 导入数据版本
+	reader             data.DataReader // 数据读取程序
+	Check              bool            // 是否需要检查文件重复导入
+	Clear              bool            // 是否清理数据库，默认为是
+	ClearSQL           string          // 自定义清理语句
+	Fields             string          // 插入字段清单，用半角逗号分隔
+	FieldCount         int             // 字段总数，如有 Fields，优先使用 Fields
+	Method             string          // 导入方法，默认为 insert，可以为：replace
+	db                 *DB
 }
 
 // LoadFile 导入文件
-func LoadFile(path string, tablename string, data <-chan []any) *Loader {
+func LoadFile(path string, tablename string, reader data.DataReader) *Loader {
 	fileinfo := utils.NewPath(path).FileInfo()
-	return &Loader{tablename: tablename, fileinfo: fileinfo, data: data, Clear: true, Check: true, Method: "insert"}
+	return &Loader{tablename: tablename, fileinfo: fileinfo, reader: reader, Clear: true, Check: true, Method: "insert"}
 }
 
 // GetLoadSQL 生成导入的 sql 语句
@@ -112,7 +109,7 @@ func (l *Loader) DoTest(tx *Tx) (err error) {
 
 // Test 测试导入数据
 func (l *Loader) Test(db *DB) {
-	if err := db.ExecTx(l.DoCheck, l.DoClear, l.DoLoad, l.DoTest); err != nil {
+	if err := l.db.ExecTx(l.DoCheck, l.DoClear, l.DoLoad, l.DoTest); err != nil {
 		fmt.Println(err)
 	}
 }
@@ -137,14 +134,16 @@ func (l *Loader) Success(r sql.Result, err error) error {
 
 // DoLoad 执行导入流程
 func (l *Loader) DoLoad(tx *Tx) (err error) {
-	return ExecMany(l.GetLoadSQL(tx), l.Success, l.data)(tx)
+	d := data.NewData()
+	go l.reader.Read(d)
+	return ExecMany(l.GetLoadSQL(tx), l.Success, d)(tx)
 }
 
 // Load 导入数据
-func (l *Loader) Load(db *DB) (err error) {
-	if err = db.ExecTx(
+func (l *Loader) Load() (err error) {
+	if err = l.db.ExecTx(
 		l.DoCheck, // 重复导入检查
-		l.DoClear, //清理历史数据
+		l.DoClear, // 清理历史数据
 		l.DoLoad,  // 执行导入数据
 	); err != nil {
 		fmt.Println(err)

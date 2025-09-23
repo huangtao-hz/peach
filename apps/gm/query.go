@@ -58,14 +58,14 @@ order by a.jym`
 func show_tongji(db *sqlite.DB) {
 	header := "投产日期   交易数量 迁移交易数量 新交易数量    占比（%）"
 	sql := `select tcrq,count(distinct jym),sum(iif(yjym<>"",1,0)),sum(iif(yjym="",1,0)),
-    cast(sum(iif(yjym<>"",1,0))*100/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))as real)
+    sum(iif(yjym<>"",1,0))*100.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
     from xjdz
     where tcrq<=date('now')
     group by tcrq
     union
     -- 显示合计数据
     select '合计',count(distinct jym),sum(iif(yjym<>"",1,0)),sum(iif(yjym="",1,0)),
-    cast(sum(iif(yjym<>"",1,0))*100/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))as real)
+    sum(iif(yjym<>"",1,0))*100.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
     from xjdz
     where tcrq<=date('now')
 `

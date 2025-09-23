@@ -1,30 +1,173 @@
 package excel
 
 import (
+	"bytes"
 	"fmt"
-	"regexp"
-	"strconv"
-	"strings"
+	"io"
+	"iter"
+	"os"
+	"peach/data"
+	"peach/utils"
+	"slices"
 )
 
-var (
-	dateFormat1 *regexp.Regexp = regexp.MustCompile(`^\d{2}-\d{2}-\d{2}$`)
-	dateFormat2 *regexp.Regexp = regexp.MustCompile(`^\d+$`)
-)
+// Book 定义工作簿接口
+type Book interface {
+	GetSheetList() []string
+	IterRows(sheetIdx int, skipRows int) iter.Seq[[]string]
+}
 
-// FormatDate 格式化 Excel 文件中的日期
-// 将日期统格式化成 YYYY-MM-DD 格式，
-// 无法格式化的，沿用原来的值
-func FormatDate(s string) string {
-	if dateFormat1.MatchString(s) {
-		h := strings.Split(s, "-")
-		return fmt.Sprintf("20%s-%s-%s", h[2], h[0], h[1])
+// ExcelBook 定义工作簿的类
+type ExcelBook struct {
+	Book
+}
+
+// ExcelReader ExcelReader 接口
+type ExcelReader interface {
+	Read(sheets any, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc)
+}
+
+// NewExcelBook 构造行数
+func NewExcelBook(reader io.Reader, path string) (book *ExcelBook, err error) {
+	var _book Book
+	ext := utils.NewPath(path).Ext()
+	if ext == ".xls" {
+		var (
+			r  io.ReadSeeker
+			ok bool
+		)
+		if r, ok = reader.(io.ReadSeeker); !ok {
+			b, _ := io.ReadAll(reader)
+			r = bytes.NewReader(b)
+		}
+		_book, err = NewXlsBook(r)
+		if err != nil {
+			return
+		}
+		book = &ExcelBook{_book}
+	} else if slices.Contains([]string{".xlsx", ".xlsxm"}, ext) {
+		_book, err = NewXlsxBook(reader)
+		if err != nil {
+			return
+		}
+		book = &ExcelBook{_book}
 	}
-	if dateFormat2.MatchString(s) {
-		if f, err := strconv.ParseFloat(s, 64); err == nil {
-			d, _ := Date(f)
-			return d[:10]
+	return
+}
+
+// GetSheets 根据指定的参数获取列表
+func (b *ExcelBook) GetSheets(sheets any) (result []int, err error) {
+	sheetList := b.GetSheetList()
+	if sheets == nil {
+		result = make([]int, len(sheetList))
+		for i := range sheetList {
+			result[i] = i
+		}
+	} else {
+		switch sheets := sheets.(type) {
+		case int:
+			result = []int{sheets}
+		case string:
+			i := slices.Index(sheetList, sheets)
+			if i >= 0 {
+				result = []int{i}
+			}
+		case []int:
+			result = sheets
+		case []string:
+			result = make([]int, 0)
+			for _, v := range sheets {
+				i := slices.Index(sheetList, v)
+				fmt.Println(i, v)
+				if i >= 0 {
+					result = append(result, i)
+				}
+			}
 		}
 	}
-	return s
+	return
+}
+
+// NewReader 新建 ExcelReader
+func (b *ExcelBook) NewReader(sheets any, useCols string, skipRows int, cvfns ...data.ConvertFunc) (r *Reader, err error) {
+	var sheetlist []int
+	if useCols != "" {
+		cvfns = slices.Insert(cvfns, 0, UseCols(useCols))
+	}
+	if sheetlist, err = b.GetSheets(sheets); err == nil {
+		r = &Reader{b, sheetlist, skipRows, cvfns}
+	}
+	return
+}
+
+// Read 读取 ExcelBook 文件内容
+func (b *ExcelBook) Read(sheets any, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc) {
+	defer close(ch)
+	var convert = data.Convert(cvfns...)
+	sheetlist, _ := b.GetSheets(sheets)
+	for _, idx := range sheetlist {
+		for row := range b.IterRows(idx, skipRows) {
+			if r, err := convert(row); r != nil && err == nil {
+				ch <- r
+			}
+		}
+	}
+}
+
+// ExcelFile 定义 Excel
+type ExcelFile struct {
+	fp io.ReadSeekCloser
+	ExcelBook
+}
+
+// NewExcelFile 构造函数
+func NewExcelFile(path string) (f *ExcelFile, err error) {
+	var (
+		fp   io.ReadSeekCloser
+		book Book
+	)
+	fp, err = os.Open(utils.Expand(path))
+	if err != nil {
+		return
+	}
+	book, err = NewExcelBook(fp, path)
+	if err != nil {
+		return
+	}
+	f = &ExcelFile{fp, ExcelBook{book}}
+	return
+}
+
+// Close 关闭 ExcelReader
+func (f *ExcelFile) Close() error {
+	return f.fp.Close()
+}
+
+// Reader 定义读取 Excel 的机构体
+type Reader struct {
+	book     *ExcelBook
+	sheets   []int
+	SkipRows int
+	cvfns    []data.ConvertFunc
+}
+
+// Read 读取 Excel 数据
+func (r *Reader) Read(d *data.Data) {
+	defer close(d.Data)
+	var convert = data.Convert(r.cvfns...)
+	for _, idx := range r.sheets {
+		for row := range r.book.IterRows(idx, r.SkipRows) {
+			if r, err := convert(row); err != nil {
+				d.Cancel(err)
+			} else if r != nil {
+				select {
+				case d.Data <- r:
+				case <-d.Done():
+					return
+				}
+			} else {
+				break
+			}
+		}
+	}
 }

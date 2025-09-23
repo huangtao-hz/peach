@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"peach/data"
 	"peach/excel"
 	"peach/utils"
 )
@@ -17,7 +19,13 @@ func main() {
 	book, err := excel.NewExcelFile("~/Downloads/abc.xlsx")
 	utils.CheckFatal(err)
 	defer book.Close()
-	ch := make(chan []any, 100)
-	go book.Read(0, 0, ch, excel.UseCols("a:c"))
-	utils.ChPrintln(ch)
+	data := data.NewData()
+	reader, err := book.NewReader("Sheet1", "A,C", 0)
+	if err == nil {
+		go reader.Read(data)
+		data.Println()
+	} else {
+		fmt.Println(err)
+	}
+
 }

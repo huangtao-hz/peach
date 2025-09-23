@@ -8,6 +8,8 @@ package sqlite
 import (
 	"database/sql"
 	"fmt"
+	"os"
+	"peach/data"
 	"peach/utils"
 	"strings"
 
@@ -111,4 +113,16 @@ func (db *DB) PrintRow(query string, header string, args ...any) (err error) {
 		fmt.Println(utils.Sprintf(format, header, fmt.Sprint(values[i])))
 	}
 	return
+}
+
+// NewLoader 新建导入模块
+func (db *DB) NewLoader(fileinfo os.FileInfo, tablename string, reader data.DataReader) *Loader {
+	return &Loader{
+		tablename: tablename,
+		fileinfo:  fileinfo,
+		reader:    reader,
+		Clear:     true,
+		Check:     true,
+		Method:    "insert",
+		db:        db}
 }

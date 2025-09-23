@@ -22,41 +22,43 @@ func PrintVersion(db *sqlite.DB) {
 	}
 }
 
-type ExcelReader interface {
-	Read(sheets any, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc)
-}
-
 // LoadXjdzb 新旧交易对照表
-func LoadXjdzb(db *sqlite.DB, fileinfo fs.FileInfo, r ExcelReader, ver string) {
+func LoadXjdzb(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver string) {
 	fmt.Println("导入新旧交易对照表")
-	ch := make(chan []any, 100)
-	loader := sqlite.NewLoader(fileinfo, "xjdz", ch)
-	loader.Ver = ver
-	go r.Read("投产交易一览表", 1, ch, data.FixedColumn(7))
-	loader.Load(db)
-	//utils.ChPrintln(ch)
+	if r, err := book.NewReader("投产交易一览表", "A:G", 1); err == nil {
+		loader := db.NewLoader(fileinfo, "xjdz", r)
+		loader.Ver = ver
+		loader.Check = false
+		loader.Load()
+	} else {
+		fmt.Println(err)
+	}
 }
 
 // LoadXmjh 项目计划
-func LoadXmjh(db *sqlite.DB, fileinfo fs.FileInfo, r ExcelReader, ver string) {
+func LoadXmjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver string) {
 	fmt.Println("导入项目计划表")
-	ch := make(chan []any, 100)
-	loader := sqlite.NewLoader(fileinfo, "xmjh", ch)
-	loader.Ver = ver
-	//loader.Check = false
-	go r.Read("全量表", 1, ch, data.FixedColumn(16))
-	loader.Load(db)
-	//utils.ChPrintln(ch)
+	if r, err := book.NewReader("全量表", "A:P", 1); err == nil {
+		loader := db.NewLoader(fileinfo, "xmjh", r)
+		loader.Ver = ver
+		loader.Check = false
+		loader.Load()
+	} else {
+		fmt.Println(err)
+	}
 }
 
 // LoadKfjh 开发计划
-func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, r ExcelReader, ver string) {
+func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver string) {
 	fmt.Println("导入开发计划表")
-	ch := make(chan []any, 100)
-	loader := sqlite.NewLoader(fileinfo, "kfjh", ch)
-	loader.Ver = ver
-	go r.Read("开发计划", 1, ch, excel.UseCols("A,M:X"))
-	loader.Load(db)
+	if r, err := book.NewReader("全量表", "A,M:X", 1); err == nil {
+		loader := db.NewLoader(fileinfo, "kfjh", r)
+		loader.Ver = ver
+		loader.Check = false
+		loader.Load()
+	} else {
+		fmt.Println(err)
+	}
 }
 
 // Load 导入数据文件
@@ -67,13 +69,14 @@ func Load(db *sqlite.DB) {
 	}
 	ver := utils.Extract(`\d{8}`, path)
 	fmt.Println("Version:", ver)
-	r, err := excel.NewExcelFile(path)
+	f, err := excel.NewExcelFile(path)
 	utils.CheckFatal(err)
-	defer r.Close()
+	defer f.Close()
+	book := f.ExcelBook
 	fileinfo := utils.NewPath(path).FileInfo()
-	LoadKfjh(db, fileinfo, r, ver)
-	LoadXjdzb(db, fileinfo, r, ver)
-	LoadXmjh(db, fileinfo, r, ver)
+	LoadKfjh(db, fileinfo, &book, ver)
+	LoadXjdzb(db, fileinfo, &book, ver)
+	LoadXmjh(db, fileinfo, &book, ver)
 	//load_gzb(db)
 }
 

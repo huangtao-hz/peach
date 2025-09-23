@@ -7,6 +7,7 @@ package sqlite
 import (
 	"database/sql"
 	"fmt"
+	"peach/data"
 )
 
 // 数据库事务
@@ -15,7 +16,7 @@ type Tx struct {
 }
 
 // 批量执行
-func (t *Tx) ExecMany(query string, ch <-chan []any) (sql.Result, error) {
+func (t *Tx) ExecMany(query string, data *data.Data) (r sql.Result, err error) {
 	stmt, err := t.Prepare(query)
 	if err != nil {
 		return nil, err
@@ -27,16 +28,24 @@ func (t *Tx) ExecMany(query string, ch <-chan []any) (sql.Result, error) {
 		count   int64 = 0
 		lastId  int64
 	)
-	for row := range ch {
-		_result, err = stmt.Exec(row...)
-		if err != nil {
-			return nil, err
+	for {
+		select {
+		case <-data.Done():
+			err = data.Err()
+			return
+		case row := <-data.Data:
+			if row == nil {
+				lastId, err = _result.LastInsertId()
+				r = &result{count, lastId, err}
+				return
+			} else if _result, err = stmt.ExecContext(data.Context, row...); err == nil {
+				c, _ = _result.RowsAffected()
+				count += c
+			} else {
+				return
+			}
 		}
-		c, _ = _result.RowsAffected()
-		count += c
 	}
-	lastId, err = _result.LastInsertId()
-	return &result{count, lastId, err}, err
 }
 
 // 查询多行数据
