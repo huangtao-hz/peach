@@ -23,7 +23,7 @@ func Extract(pattern, s string) string {
 	return r.FindString(s)
 }
 
-// 提取所有匹配记录
+// FindAll 提取所有匹配记录
 func FindAll(pattern, s string) []string {
 	r := regexp.MustCompile(pattern)
 	return r.FindAllString(s, 0)

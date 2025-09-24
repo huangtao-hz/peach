@@ -39,7 +39,7 @@ func Decode(b []byte) (string, error) {
 	return Decoder.String(string(b))
 }
 
-// // 计算字符串的长度，汉字算两个字节
+// Wlen 计算字符串的长度，汉字算两个字节
 func Wlen(s string) int {
 	bytes, err := Encode(s)
 	CheckFatal(err)

@@ -14,7 +14,7 @@ type xlsBook struct {
 	*xls.WorkBook
 }
 
-// NewXlsBook XlsBook 的构造函数
+// newXlsBook XlsBook 的构造函数
 func newXlsBook(reader io.ReadSeeker) (r *xlsBook, err error) {
 	book, err := xls.OpenReader(reader, "utf8")
 	if err != nil {

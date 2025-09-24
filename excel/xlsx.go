@@ -5,8 +5,8 @@ import (
 	"io"
 	"iter"
 	"peach/data"
+	"peach/utils"
 	"strings"
-	"time"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -24,13 +24,16 @@ func UseCols(cols string) func([]string) ([]string, error) {
 	for c := range strings.SplitSeq(cols, ",") {
 		if strings.Contains(c, ":") {
 			x := strings.Split(c, ":")
-			a, _ := excelize.ColumnNameToNumber(x[0])
-			b, _ := excelize.ColumnNameToNumber(x[1])
+			a, err := excelize.ColumnNameToNumber(x[0])
+			utils.CheckFatal(err)
+			b, err := excelize.ColumnNameToNumber(x[1])
+			utils.CheckFatal(err)
 			for i := a; i <= b; i++ {
 				columns = append(columns, i-1)
 			}
 		} else {
-			i, _ := excelize.ColumnNameToNumber(c)
+			i, err := excelize.ColumnNameToNumber(c)
+			utils.CheckFatal(err)
 			columns = append(columns, i-1)
 		}
 	}
@@ -81,6 +84,8 @@ func (b *xlsxBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...da
 		}
 	}
 }
+
+// GetValues 读取所有数据
 func (b *xlsxBook) GetValues(num int) (values [][]string, err error) {
 	name := b.GetSheetName(num)
 	if name == "" {
@@ -88,11 +93,4 @@ func (b *xlsxBook) GetValues(num int) (values [][]string, err error) {
 		return
 	}
 	return b.GetRows(name)
-}
-
-func Date(d float64) (date string, err error) {
-	var t time.Time
-	t, err = excelize.ExcelDateToTime(d, false)
-	date = t.Format("2006-01-02 15:04:05")
-	return
 }

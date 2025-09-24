@@ -129,7 +129,7 @@ func (db *DB) NewLoader(fileinfo os.FileInfo, tablename string, reader data.Data
 }
 
 // LoadFile 导入文件
-func (db *DB) NewLoadFile(path string, tablename string, reader data.DataReader) *Loader {
+func (db *DB) NewFileLoader(path string, tablename string, reader data.DataReader) *Loader {
 	fileinfo := utils.NewPath(path).FileInfo()
 	return &Loader{
 		db:        db,

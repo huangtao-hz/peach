@@ -83,7 +83,7 @@ func Load(db *sqlite.DB) {
 // conv_gzb 转换故障表的数据
 func conv_gzb(src []string) (dest []string, err error) {
 	for _, k := range []int{4, 10} {
-		src[k] = excel.FormatDate(src[k])
+		src[k] = excel.FormatDate(src[k], "2006-01-02")
 	}
 	dest = src
 	return

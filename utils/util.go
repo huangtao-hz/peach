@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-// 检查系统是否有致命错误
+// CheckFatal 检查系统是否有致命错误
 // 如有则退出系统
 func CheckFatal(err error) {
 	if err != nil {
@@ -19,7 +19,7 @@ func CheckFatal(err error) {
 	}
 }
 
-// 捕获错误并提示，避免程序崩溃
+// Recover 捕获错误并提示，避免程序崩溃
 // 在主程序开始时使用 defer 调用
 func Recover() {
 	if err := recover(); err != nil {
@@ -27,7 +27,7 @@ func Recover() {
 	}
 }
 
-// 将任意类型转换为 []any
+// Slice 将任意类型转换为 []any
 func Slice[T any](s []T) (d []any) {
 	var ok bool
 	if d, ok = any(s).([]any); ok {
@@ -41,7 +41,7 @@ func Slice[T any](s []T) (d []any) {
 	return
 }
 
-// format 对整数进行格式化，增加千分节
+// formatInt 对整数进行格式化，增加千分节
 func formatInt(k string) string {
 	length := len(k)
 	c, m := length/3, length%3
@@ -55,7 +55,7 @@ func formatInt(k string) string {
 	return strings.Replace(strings.Join(b, ","), "-,", "-", 1)
 }
 
-// 字符串格式化，解决汉字宽度及数字无千分节问题
+// Sprintf 字符串格式化，解决汉字宽度及数字无千分节问题
 func Sprintf(format string, args ...any) (d string) {
 	StrPattern := regexp.MustCompile(`%(-)?(\d+)s`)
 	IntPattern := regexp.MustCompile(`%(\d+)?,d`)
@@ -111,19 +111,19 @@ func Sprintf(format string, args ...any) (d string) {
 	return
 }
 
-// 格式化打印
+// Printf 格式化打印
 func Printf(format string, a ...any) {
 	fmt.Print(Sprintf(format, a...))
 }
 
-// 打印通道中的数据
+// ChPrintln 打印通道中的数据
 func ChPrintln[T any](ch <-chan []T) {
 	for row := range ch {
 		fmt.Println(Slice(row)...)
 	}
 }
 
-// 格式化打印通道数据
+// ChPrintf 格式化打印通道数据
 func ChPrintf[T any](format string, ch <-chan []T, print_rows bool) {
 	i := 0
 	for row := range ch {
