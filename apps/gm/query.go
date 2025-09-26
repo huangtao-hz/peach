@@ -18,26 +18,36 @@ const (
 
 func show_new_jy(db *sqlite.DB, jym string) {
 	db.PrintRow("select distinct jym,jymc,tcrq,zs,bz from xjdz where jym=?", xjyHeader, jym)
-
 	fmt.Println("                      --  对应老交易清单  --")
 	db.Printf(XjyQuery, "%4s  %-30s %-12s  %-12s  %12s\n", XyjOldHeader, true, jym)
 }
 
 func show_old_jy(db *sqlite.DB, jym string) {
-	const (
-		LjyHeader = "交易码,交易名称,交易组,菜单,业务部门,联系人,方案,业务量,投产版本,技术经理,开发组长,对应新交易,投产日期"
-		LjyQuery  = `select a.jym,a.jymc,printf('%s-%s',a.jyz,a.jyzm),printf('%s -> %s',a.yjcd,a.ejcd),
-printf('%s-%s',a.ywbm,a.zx),a.lxr,a.fa,a.bs,
-ifnull(b.jhbb,''),ifnull(b.kjfzr,''),ifnull(b.kfzz,''),
-printf("%s-%s",c.jym,c.jymc),ifnull(c.tcrq,'')
-from xmjh a
-left join kfjh b on a.jym=b.jym
-left join xjdz c on a.jym=c.yjym
-where a.jym=?`
-	)
-	err := db.PrintRow(LjyQuery, LjyHeader, jym)
+	var fa, zt, jhbb string
+	err := db.QueryRow("select fa,sfwc,ifnull(jhbb,'') from xmjh a left join kfjh b on a.jym=b.jym where a.jym=?", jym).Scan(&fa, &zt, &jhbb)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("交易 %s 不存在\n", jym)
+		return
+	}
+	if fa[0] == '1' || fa[0] == '5' {
+		header := "交易码,交易名称,交易笔数,类型,业务部门,中心,业务联系人,改造方案"
+		sql := "select a.jym,a.jymc,a.bs,a.lx,a.ywbm,a.zx,a.lxr,a.fa from xmjh a left join kfjh b on a.jym=b.jym where a.jym=?"
+		db.PrintRow(sql, header, jym)
+	} else if zt[0] == '5' {
+		header := "交易码,交易名称,交易笔数,类型,业务部门,中心,业务联系人,改造方案,状态,对应新交易,投产日期"
+		sql := `select a.jym,a.jymc,a.bs,a.lx,a.ywbm,a.zx,a.lxr,a.fa,a.sfwc,printf('%s-%s',c.jym,c.jymc),c.tcrq
+    from xmjh a
+    left join xjdz c on a.jym=c.yjym
+    where a.jym=?`
+		db.PrintRow(sql, header, jym)
+	} else if jhbb == "" {
+		header := "交易码,交易名称,交易笔数,类型,业务部门,中心,业务联系人,改造方案,状态"
+		sql := `select a.jym,a.jymc,a.bs,a.lx,a.ywbm,a.zx,a.lxr,a.fa,printf("%s（未制定计划）",a.sfwc) from xmjh a where a.jym=?`
+		db.PrintRow(sql, header, jym)
+	} else {
+		header := "交易码,交易名称,交易笔数,类型,业务部门,中心,业务联系人,改造方案,计划版本,技术经理,开发组长"
+		sql := "select a.jym,a.jymc,a.bs,a.lx,a.ywbm,a.zx,a.lxr,a.fa,b.jhbb,b.kjfzr,b.kfzz from xmjh a left join kfjh b on a.jym=b.jym where a.jym=?"
+		db.PrintRow(sql, header, jym)
 	}
 }
 

@@ -146,10 +146,10 @@ func (p *Path) Match(pattern string) (matched bool) {
 }
 
 // Find 在目录中查找记录
-func (p *Path) Find(pattern string) (path string) {
+func (p *Path) Find(pattern string) (path *Path) {
 	matches := p.Glob(pattern)
 	if len(matches) > 0 {
-		path = matches[len(matches)-1]
+		path = NewPath(matches[len(matches)-1])
 	}
 	return
 }

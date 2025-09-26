@@ -100,11 +100,11 @@ func (db *DB) PrintRow(query string, header string, args ...any) (err error) {
 	addrs := make([]any, count)
 	for i := range headers {
 		addrs[i] = &values[i]
-		if l := utils.Wlen(headers[i]); l > width {
-			width = l
+		if k := utils.Wlen(headers[i]); k > width {
+			width = k
 		}
 	}
-	format := fmt.Sprintf("%%%ds  %%s", width)
+	format := fmt.Sprintf("%%%ds    %%s", width)
 	err = db.QueryRow(query, args...).Scan(addrs...)
 	if err != nil {
 		return

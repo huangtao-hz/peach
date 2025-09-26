@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"os"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
@@ -51,7 +50,7 @@ func LoadXmjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver st
 // LoadKfjh 开发计划
 func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver string) {
 	fmt.Println("导入开发计划表")
-	if r, err := book.NewReader("全量表", "A,M:X", 1); err == nil {
+	if r, err := book.NewReader("开发计划", "A,M:X", 1); err == nil {
 		loader := db.NewLoader(fileinfo, "kfjh", r)
 		loader.Ver = ver
 		loader.Check = false
@@ -64,19 +63,20 @@ func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver st
 // Load 导入数据文件
 func Load(db *sqlite.DB) {
 	path := utils.NewPath("~/Downloads").Find("*新柜面存量交易迁移*.xlsx")
-	if path != "" {
-		fmt.Println("处理文件：", utils.NewPath(path).FileInfo().Name())
+	if path != nil {
+		fmt.Println("处理文件：", path.FileInfo().Name())
 	}
-	ver := utils.Extract(`\d{8}`, path)
+	ver := utils.Extract(`\d{8}`, path.String())
 	fmt.Println("Version:", ver)
-	f, err := excel.NewExcelFile(path)
+	f, err := excel.NewExcelFile(path.String())
 	utils.CheckFatal(err)
 	defer f.Close()
 	book := f.ExcelBook
-	fileinfo := utils.NewPath(path).FileInfo()
+	fileinfo := path.FileInfo()
 	LoadKfjh(db, fileinfo, &book, ver)
 	LoadXjdzb(db, fileinfo, &book, ver)
 	LoadXmjh(db, fileinfo, &book, ver)
+	Update_ytc(db)
 	//load_gzb(db)
 }
 
@@ -92,16 +92,13 @@ func conv_gzb(src []string) (dest []string, err error) {
 // LoadWtgzb 导入问题跟踪表数据
 func LoadWtgzb(db *sqlite.DB) {
 	path := utils.NewPath("~/Downloads").Find("*数智综合运营系统问题跟踪表*.xlsx")
-	if path != "" {
-		fmt.Println("处理文件：", utils.NewPath(path).FileInfo().Name())
-	} else {
-		fmt.Println("未找到文件！")
-		return
+	if path != nil {
+		fmt.Println("处理文件：", path.FileInfo().Name())
 	}
-	f, err := excel.NewExcelFile(path)
+	f, err := excel.NewExcelFile(path.String())
 	utils.CheckFatal(err)
 	defer f.Close()
-	load_wtgzb(db, &f.ExcelBook, utils.NewPath(path).FileInfo())
+	load_wtgzb(db, &f.ExcelBook, path.FileInfo())
 }
 
 // load_wtgzb 导入问题跟踪表
@@ -120,17 +117,15 @@ func load_wtgzb(db *sqlite.DB, book *excel.ExcelBook, fileinfo fs.FileInfo) {
 func Restore(db *sqlite.DB) {
 	defer utils.TimeIt(time.Now())
 	path := utils.NewPath("~/Downloads").Find("新柜面简报*.tgz")
-	if path != "" {
-		fmt.Println("处理文件：", utils.NewPath(path).FileInfo().Name())
-	} else {
-		fmt.Println("未找到文件！")
-		return
+	if path != nil {
+		fmt.Println("处理文件：", path.FileInfo().Name())
 	}
-	f, err := os.Open(path)
+	f, err := path.Open()
 	utils.CheckFatal(err)
 	defer f.Close()
 	r, err := gzip.NewReader(f)
 	utils.CheckFatal(err)
+	defer r.Close()
 	t := tar.NewReader(r)
 	for header, err := t.Next(); err != io.EOF; header, err = t.Next() {
 		fileinfo := header.FileInfo()
@@ -151,5 +146,5 @@ func Restore(db *sqlite.DB) {
 			load_wtgzb(db, book, fileinfo)
 		}
 	}
-
+	Update_ytc(db)
 }

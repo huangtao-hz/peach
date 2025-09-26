@@ -41,8 +41,9 @@ func UseCols(cols string) func([]string) ([]string, error) {
 }
 
 // NewXlsxBook  XlsxBook 的构造函数
-func newXlsxBook(reader io.Reader, opts ...excelize.Options) (r *xlsxBook, err error) {
-	book, err := excelize.OpenReader(reader, opts...)
+func newXlsxBook(reader io.Reader) (r *xlsxBook, err error) {
+	opt := excelize.Options{ShortDatePattern: "yyyy-mm-dd"}
+	book, err := excelize.OpenReader(reader, opt)
 	if err != nil {
 		return
 	}
