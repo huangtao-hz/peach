@@ -64,7 +64,7 @@ func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver st
 func Load(db *sqlite.DB) {
 	path := utils.NewPath("~/Downloads").Find("*新柜面存量交易迁移*.xlsx")
 	if path != nil {
-		fmt.Println("处理文件：", path.FileInfo().Name())
+		fmt.Println("处理文件：", path.Name())
 	}
 	ver := utils.Extract(`\d{8}`, path.String())
 	fmt.Println("Version:", ver)
@@ -93,7 +93,7 @@ func conv_gzb(src []string) (dest []string, err error) {
 func LoadWtgzb(db *sqlite.DB) {
 	path := utils.NewPath("~/Downloads").Find("*数智综合运营系统问题跟踪表*.xlsx")
 	if path != nil {
-		fmt.Println("处理文件：", path.FileInfo().Name())
+		fmt.Println("处理文件：", path.Name())
 	}
 	f, err := excel.NewExcelFile(path.String())
 	utils.CheckFatal(err)
@@ -118,7 +118,7 @@ func Restore(db *sqlite.DB) {
 	defer utils.TimeIt(time.Now())
 	path := utils.NewPath("~/Downloads").Find("新柜面简报*.tgz")
 	if path != nil {
-		fmt.Println("处理文件：", path.FileInfo().Name())
+		fmt.Println("处理文件：", path.Name())
 	}
 	f, err := path.Open()
 	utils.CheckFatal(err)

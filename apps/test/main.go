@@ -15,5 +15,6 @@ create table if not exists test(
 func main() {
 	defer utils.Recover()
 	fmt.Println("hello world.")
-
+	path := utils.NewPath("huangtao/abc.txt")
+	fmt.Println(path.Base())
 }

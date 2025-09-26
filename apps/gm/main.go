@@ -18,14 +18,10 @@ func main() {
 	jhbb := flag.String("jhbb", "", "查询计划版本")
 	restore := flag.Bool("restore", false, "导入数据")
 	tongji := flag.Bool("tongji", false, "导入数据")
-	fix := flag.Bool("fix", false, "修正数据")
 
 	flag.Parse()
 	if *init_db {
 		CreateDatabse(db)
-	}
-	if *fix {
-		Update_ytc(db)
 	}
 	if *load {
 		//Load(db)
@@ -47,9 +43,9 @@ func main() {
 		PrintVersion(db)
 	}
 	for _, jym := range flag.Args() {
-		if utils.FullMatch("\\d{5}", jym) {
+		if utils.FullMatch(`\d{5}`, jym) {
 			show_new_jy(db, jym)
-		} else if utils.FullMatch("\\d{4}", jym) {
+		} else if utils.FullMatch(`\d{4}`, jym) {
 			show_old_jy(db, jym)
 		}
 	}

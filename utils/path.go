@@ -120,6 +120,11 @@ func (p *Path) Base() string {
 	return filepath.Base(p.path)
 }
 
+// Name 返回文件名
+func (p *Path) Name() string {
+	return filepath.Base(p.path)
+}
+
 // Join 连接目录
 func (p *Path) Join(elem ...string) (path *Path) {
 	pa := filepath.Join(p.path, filepath.Join(elem...))
