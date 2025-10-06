@@ -7,19 +7,19 @@ import (
 
 const (
 	xjyHeader = "交易码,交易名称,投产日期,状态,备注"
-	XjyQuery  = `select b.jym,b.jymc,b.ywbm,b.zx,b.lxr
+	XjyQuery  = `select b.jym,b.jymc,b.ywbm,b.zx,b.lxr,a.tcrq
 	from xjdz a
 	left join xmjh b
 	on a.yjym=b.jym
 	where a.jym=?`
 
-	XyjOldHeader = `交易码       交易名称                 业务部门      中心          联系人`
+	XyjOldHeader = `交易码       交易名称                 业务部门       中心               联系人   投产日期`
 )
 
 func show_new_jy(db *sqlite.DB, jym string) {
-	db.PrintRow("select distinct jym,jymc,tcrq,zs,bz from xjdz where jym=?", xjyHeader, jym)
+	db.PrintRow("select jym,jymc,min(tcrq),zs,bz from xjdz where jym=? group by jym", xjyHeader, jym)
 	fmt.Println("                      --  对应老交易清单  --")
-	db.Printf(XjyQuery, "%4s  %-30s %-12s  %-12s  %12s\n", XyjOldHeader, true, jym)
+	db.Printf(XjyQuery, "%4s  %-30s %-12s  %-12s  %12s    %10s\n\n", XyjOldHeader, true, jym)
 }
 
 func show_old_jy(db *sqlite.DB, jym string) {
@@ -49,6 +49,7 @@ func show_old_jy(db *sqlite.DB, jym string) {
 		sql := "select a.jym,a.jymc,a.bs,a.lx,a.ywbm,a.zx,a.lxr,a.fa,b.jhbb,b.kjfzr,b.kfzz from xmjh a left join kfjh b on a.jym=b.jym where a.jym=?"
 		db.PrintRow(sql, header, jym)
 	}
+	fmt.Println("")
 }
 
 // show_jhbb 查询指定版本的交易明细

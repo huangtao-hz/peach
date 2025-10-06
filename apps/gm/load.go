@@ -108,8 +108,7 @@ func load_wtgzb(db *sqlite.DB, book *excel.ExcelBook, fileinfo fs.FileInfo) {
 	r, err := book.NewReader(0, "A:M", 1, conv_gzb)
 	utils.CheckFatal(err)
 	loader := db.NewLoader(fileinfo, "wtgzb", r)
-	loader.Ver = ver
-	loader.Check = false
+	loader.Ver = strings.Join([]string{ver[:4], ver[4:6], ver[6:]}, "-")
 	loader.Load()
 }
 

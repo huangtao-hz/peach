@@ -2,19 +2,28 @@ package main
 
 import (
 	"fmt"
+	"peach/archive"
+	"peach/excel"
 	"peach/utils"
 )
 
-const create_sql = `
-create table if not exists test(
-	name    text,
-	age     int
-)
-`
+func proc(file archive.File) {
+	if !file.FileInfo().IsDir() {
+		fmt.Println("File:", file.FileInfo().Name())
+		if book, err := excel.OpenFile(file); err == nil {
+			fmt.Println(book.GetSheetList())
+		} else {
+			fmt.Println("Error:", err)
+		}
+	}
+}
 
 func main() {
 	defer utils.Recover()
-	fmt.Println("hello world.")
-	path := utils.NewPath("huangtao/abc.txt")
-	fmt.Println(path.Base())
+	file := utils.NewPath("~/Downloads").Find("20250905.tgz")
+	if file != nil {
+		fmt.Println(file.String())
+		//fmt.Println(file.FileInfo().Name())
+		archive.ExtractTar(file.String(), proc)
+	}
 }

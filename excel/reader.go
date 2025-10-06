@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"iter"
-	"os"
+	"peach/archive"
 	"peach/data"
 	"peach/utils"
 	"slices"
@@ -46,6 +46,8 @@ func NewExcelBook(reader io.Reader, path string) (ebook *ExcelBook, err error) {
 			return
 		}
 		ebook = &ExcelBook{_book}
+	} else {
+		err = fmt.Errorf("%s 不是 excel 文件", path)
 	}
 	return
 }
@@ -97,22 +99,25 @@ func (b *ExcelBook) NewReader(sheets any, useCols string, skipRows int, cvfns ..
 
 // ExcelFile 定义 Excel
 type ExcelFile struct {
-	fp io.ReadSeekCloser
+	fp io.ReadCloser
 	ExcelBook
 }
 
 // NewExcelFile 构造函数
 func NewExcelFile(path string) (f *ExcelFile, err error) {
+	return OpenFile(utils.NewPath(path))
+}
+
+// OpenFile 打开 Excel 文件
+func OpenFile(path archive.File) (f *ExcelFile, err error) {
 	var (
-		fp   io.ReadSeekCloser
+		fp   io.ReadCloser
 		book book
 	)
-	fp, err = os.Open(utils.Expand(path))
-	if err != nil {
+	if fp, err = path.Open(); err != nil {
 		return
 	}
-	book, err = NewExcelBook(fp, path)
-	if err != nil {
+	if book, err = NewExcelBook(fp, path.FileInfo().Name()); err != nil {
 		return
 	}
 	f = &ExcelFile{fp, ExcelBook{book}}
