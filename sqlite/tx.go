@@ -35,10 +35,10 @@ func (t *Tx) ExecMany(query string, data *data.Data) (r sql.Result, err error) {
 			return
 		case row := <-data.Data:
 			if row == nil {
-				lastId, err = _result.LastInsertId()
 				r = &result{count, lastId, err}
 				return
 			} else if _result, err = stmt.ExecContext(data.Context, row...); err == nil {
+				lastId, err = _result.LastInsertId()
 				c, _ = _result.RowsAffected()
 				count += c
 			} else {

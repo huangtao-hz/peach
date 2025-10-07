@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"peach/data"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
+	"slices"
 	"strings"
 	"time"
 )
@@ -27,7 +29,7 @@ func LoadXjdzb(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver s
 	if r, err := book.NewReader("投产交易一览表", "A:G", 1); err == nil {
 		loader := db.NewLoader(fileinfo, "xjdz", r)
 		loader.Ver = ver
-		loader.Check = false
+		//loader.Check = false
 		loader.Load()
 	} else {
 		fmt.Println(err)
@@ -40,7 +42,7 @@ func LoadXmjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver st
 	if r, err := book.NewReader("全量表", "A:P", 1); err == nil {
 		loader := db.NewLoader(fileinfo, "xmjh", r)
 		loader.Ver = ver
-		loader.Check = false
+		//loader.Check = false
 		loader.Load()
 	} else {
 		fmt.Println(err)
@@ -53,19 +55,65 @@ func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver st
 	if r, err := book.NewReader("开发计划", "A,M:X", 1); err == nil {
 		loader := db.NewLoader(fileinfo, "kfjh", r)
 		loader.Ver = ver
-		loader.Check = false
+		//loader.Check = false
 		loader.Load()
 	} else {
 		fmt.Println(err)
 	}
 }
 
-// Load 导入数据文件
-func Load(db *sqlite.DB) {
+// Update 更新计划表
+func Update(db *sqlite.DB) (err error) {
 	path := utils.NewPath("~/Downloads").Find("*新柜面存量交易迁移*.xlsx")
-	if path != nil {
-		fmt.Println("处理文件：", path.Name())
+	if path == nil {
+		return fmt.Errorf("未找到文件：新柜面存量交易迁移*.xlsx")
 	}
+	fmt.Println("处理文件：", path.Name())
+	ver := utils.Extract(`\d{8}`, path.String())
+	if f, err := excel.OpenFile(path); err == nil {
+		defer f.Close()
+		book := f.ExcelBook
+		fileinfo := path.FileInfo()
+		LoadKfjh(db, fileinfo, &book, ver)
+		LoadXjdzb(db, fileinfo, &book, ver)
+		LoadXmjh2(db, fileinfo, &book, ver)
+	}
+	Update_ytc(db)
+	return Export(db, path)
+}
+
+// LoadXmjh2 项目计划
+func LoadXmjh2(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver string) {
+	fmt.Println("导入项目计划表")
+	names := make([]string, 0)
+	Sheets := []string{"完成表", "计划表", "全量表"}
+	for _, name := range book.GetSheetList() {
+		if slices.Contains(Sheets, name) {
+			names = append(names, name)
+		}
+	}
+	fmt.Println("导入表格：", names)
+	if r, err := book.NewReader(names, "A:Q", 1, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2)); err == nil {
+		loader := db.NewLoader(fileinfo, "xmjh", r)
+		loader.Ver = ver
+		loader.Method = "insert or replace"
+		loader.Clear = false
+		//loader.Check = false
+		//loader.Test(db)
+		loader.Load()
+
+	} else {
+		fmt.Println(err)
+	}
+}
+
+// Load 导入数据文件
+func Load(db *sqlite.DB) (err error) {
+	path := utils.NewPath("~/Downloads").Find("*新柜面存量交易迁移*.xlsx")
+	if path == nil {
+		return fmt.Errorf("未找到文件：新柜面存量交易迁移*.xlsx")
+	}
+	fmt.Println("处理文件：", path.Name())
 	ver := utils.Extract(`\d{8}`, path.String())
 	fmt.Println("Version:", ver)
 	f, err := excel.NewExcelFile(path.String())
@@ -78,6 +126,7 @@ func Load(db *sqlite.DB) {
 	LoadXmjh(db, fileinfo, &book, ver)
 	Update_ytc(db)
 	//load_gzb(db)
+	return
 }
 
 // conv_gzb 转换故障表的数据

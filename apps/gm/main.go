@@ -2,13 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"peach/sqlite"
 	"peach/utils"
 )
 
 // main 主程序入口
 func main() {
-	defer utils.Recover()
+	//defer utils.Recover()
 	db, err := sqlite.Open("xgm2025-03")
 	utils.CheckFatal(err)
 	defer db.Close()
@@ -18,13 +19,14 @@ func main() {
 	jhbb := flag.String("jhbb", "", "查询计划版本")
 	restore := flag.Bool("restore", false, "导入数据")
 	tongji := flag.Bool("tongji", false, "导入数据")
+	update := flag.Bool("update", false, "更新计划表")
 
 	flag.Parse()
 	if *init_db {
 		CreateDatabse(db)
 	}
 	if *load {
-		//Load(db)
+		err = Load(db)
 		LoadWtgzb(db)
 	}
 	if *query_sql != "" {
@@ -39,6 +41,10 @@ func main() {
 	if *tongji {
 		show_tongji(db)
 	}
+	if *update {
+		err = Update(db)
+		//err = Export(db, nil)
+	}
 	if len(flag.Args()) > 0 {
 		PrintVersion(db)
 	}
@@ -48,5 +54,9 @@ func main() {
 		} else if utils.FullMatch(`\d{4}`, jym) {
 			show_old_jy(db, jym)
 		}
+	}
+
+	if err != nil {
+		fmt.Println("Error:", err)
 	}
 }

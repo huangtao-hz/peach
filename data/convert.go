@@ -20,6 +20,37 @@ func FixedColumn(count int) ConvertFunc {
 	}
 }
 
+// Hashier 生成 md5 校验位
+func Hashier(columns ...int) ConvertFunc {
+	var include_func = Include(columns...)
+	return func(source []string) (dest []string, err error) {
+		var check []string
+		if check, err = include_func(source); err == nil {
+			sum := utils.GetMd5(check...)
+			dest = append(source, sum)
+		}
+		return
+	}
+}
+
+// HashFilter 对指定的数据进行 md5 校验，过滤掉校验通过的数据
+func HashFilter(sumCol int, columns ...int) ConvertFunc {
+	var include_func = Include(columns...)
+	return func(source []string) (dest []string, err error) {
+		var check []string
+		if check, err = include_func(source); err == nil {
+			sum := utils.GetMd5(check...)
+			if sumCol < 0 {
+				sumCol += len(source)
+			}
+			if sum != source[sumCol] {
+				dest = append(source[:sumCol], source[sumCol+1:]...)
+			}
+		}
+		return
+	}
+}
+
 // Include 包含指定列
 func Include(columns ...int) ConvertFunc {
 	dest_length := len(columns)
@@ -29,7 +60,8 @@ func Include(columns ...int) ConvertFunc {
 		for i, k := range columns {
 			if k < 0 {
 				k += source_length
-			} else if k < source_length {
+			}
+			if k < source_length {
 				dest[i] = source[k]
 			}
 		}

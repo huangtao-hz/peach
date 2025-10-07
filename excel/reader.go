@@ -75,7 +75,6 @@ func (b *ExcelBook) GetSheets(sheets any) (result []int, err error) {
 			result = make([]int, 0)
 			for _, v := range sheets {
 				i := slices.Index(sheetList, v)
-				fmt.Println(i, v)
 				if i >= 0 {
 					result = append(result, i)
 				}
@@ -151,8 +150,6 @@ func (r *Reader) Read(d *data.Data) {
 				case <-d.Done():
 					return
 				}
-			} else {
-				break
 			}
 		}
 	}

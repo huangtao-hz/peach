@@ -5,6 +5,8 @@
 package utils
 
 import (
+	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -133,4 +135,19 @@ func ChPrintf[T any](format string, ch <-chan []T, print_rows bool) {
 	if print_rows {
 		Printf("共 %,d 行数据\n", i)
 	}
+}
+
+// PrintStruct 以 JSON 的格式打印结构化数据
+func PrintStruct(v any) {
+	if b, err := json.MarshalIndent(v, "", "    "); err == nil {
+		fmt.Println(string(b))
+	} else {
+		CheckFatal(err)
+	}
+}
+
+// GetMd5 获取指定字符的 md5 值
+func GetMd5(strs ...string) string {
+	b := []byte(strings.Join(strs, ""))
+	return fmt.Sprintf("%x", md5.Sum(b))
 }

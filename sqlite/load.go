@@ -102,7 +102,7 @@ func (l *Loader) DoTest(tx *Tx) (err error) {
 }
 
 // Test 测试导入数据
-func (l *Loader) Test(db *DB) {
+func (l *Loader) Test() {
 	if err := l.db.ExecTx(l.DoCheck, l.DoClear, l.DoLoad, l.DoTest); err != nil {
 		fmt.Println(err)
 	}
