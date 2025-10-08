@@ -57,7 +57,7 @@ func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
 	}
 	ch := make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	sheet.WriteTable("A1", header, ch)
+	sheet.AddTable("A1", header, ch)
 	return
 }
 
@@ -71,7 +71,7 @@ func export_kfjh(db *sqlite.DB, book *excel.Writer) (err error) {
 	}
 	ch := make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	sheet.WriteTable("A1", KfjhHeader, ch)
+	sheet.AddTable("A1", KfjhHeader, ch)
 	return
 }
 
@@ -117,7 +117,7 @@ func export_xmjh(db *sqlite.DB, book *excel.Writer) (err error) {
 					outch <- utils.Slice(dest)
 				}
 			}()
-			sheet.WriteTable("A1", header, outch)
+			sheet.AddTable("A1", header, outch)
 		} else {
 			return err
 		}
@@ -191,7 +191,7 @@ func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 	}
 	ch := make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	sheet.WriteTable("B1", header, ch)
+	sheet.AddTable("B1", header, ch)
 
 	header = "中心,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
 	rows, err = db.Query(tongji_gzx_sql)
@@ -202,7 +202,7 @@ func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 
 	ch = make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	sheet.WriteTable("B8", header, ch)
+	sheet.AddTable("B8", header, ch)
 
 	header = "联系人,中心,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
 	rows, err = db.Query(tongji_sql)
@@ -212,7 +212,7 @@ func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 	}
 	ch = make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	sheet.WriteTable("A19", header, ch)
+	sheet.AddTable("A19", header, ch)
 
 	return
 }

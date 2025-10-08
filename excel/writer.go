@@ -119,7 +119,7 @@ func (s *WorkSheet) Rename(newName string) {
 const tableFormat = `{"table_style":"TableStyleMedium6", "show_first_column":false,"show_last_column":false,"show_row_stripes":true,"show_column_stripes":false}`
 
 // WriteTable 写入表格
-func (s *WorkSheet) WriteTable(axis string, header string, ch <-chan []any) (err error) {
+func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any) (err error) {
 	var row, col int
 	col, row, err = excelize.CellNameToCoordinates(axis) // 读取初始
 	if err != nil {
@@ -171,10 +171,13 @@ func (s *WorkSheet) SetMergeCell(rng string, value any, styleName string) error 
 	if cell1, cell2, err := Range2Cells(rng); err == nil {
 		s.MergeCell(cell1, cell2)
 		s.SetCellValue(cell1, value)
-		return s.SetCellStyle(rng, styleName)
+		if styleName != "" {
+			return s.SetCellStyle(rng, styleName)
+		}
 	} else {
 		return err
 	}
+	return nil
 }
 
 // SetCellStyle 设置单元格样式
@@ -206,10 +209,9 @@ func (s *WorkSheet) SetCell(col any, row int, value any, styleName string) (err 
 // SetBorder 设置边框
 func (s *WorkSheet) SetBorder(rng string) (err error) {
 	var (
-		col1, row1, col2, row2   int
-		style                    *excelize.Style
-		left, right, top, bottom excelize.Border
-		id                       int
+		col1, row1, col2, row2 int
+		style                  *excelize.Style
+		id                     int
 	)
 	if col1, row1, col2, row2, err = RangeToCoordinates(rng); err != nil {
 		return
@@ -220,27 +222,25 @@ func (s *WorkSheet) SetBorder(rng string) (err error) {
 			if style, err = s.GetCellStyle(cell); err != nil {
 				return
 			}
+			left_style, right_style, top_style, bottom_style := InnerBorderStyle, InnerBorderStyle, InnerBorderStyle, InnerBorderStyle
 			if c == col1 {
-				left = excelize.Border{Type: "left", Style: OuterBorderStyle, Color: BorderColor}
-			} else {
-				left = excelize.Border{Type: "left", Style: InnerBorderStyle, Color: BorderColor}
+				left_style = OuterBorderStyle
 			}
 			if c == col2 {
-				right = excelize.Border{Type: "right", Style: OuterBorderStyle, Color: BorderColor}
-			} else {
-				right = excelize.Border{Type: "right", Style: InnerBorderStyle, Color: BorderColor}
+				right_style = OuterBorderStyle
 			}
 			if r == row1 {
-				top = excelize.Border{Type: "top", Style: OuterBorderStyle, Color: BorderColor}
-			} else {
-				top = excelize.Border{Type: "top", Style: InnerBorderStyle, Color: BorderColor}
+				top_style = OuterBorderStyle
 			}
 			if r == row2 {
-				bottom = excelize.Border{Type: "bottom", Style: OuterBorderStyle, Color: BorderColor}
-			} else {
-				bottom = excelize.Border{Type: "bottom", Style: InnerBorderStyle, Color: BorderColor}
+				bottom_style = OuterBorderStyle
 			}
-			style.Border = []excelize.Border{left, top, right, bottom}
+			style.Border = []excelize.Border{
+				excelize.Border{Type: "left", Style: left_style, Color: BorderColor},
+				excelize.Border{Type: "right", Style: right_style, Color: BorderColor},
+				excelize.Border{Type: "top", Style: top_style, Color: BorderColor},
+				excelize.Border{Type: "bottom", Style: bottom_style, Color: BorderColor},
+			}
 			if id, err = s.writer.NewStyle(style); err != nil {
 				return
 			}

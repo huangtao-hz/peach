@@ -26,8 +26,8 @@ func main() {
 		CreateDatabse(db)
 	}
 	if *load {
-		err = Load(db)
-		LoadWtgzb(db)
+		err = load_jyjh(db)
+		//LoadWtgzb(db)
 	}
 	if *query_sql != "" {
 		db.Println(*query_sql)
@@ -55,7 +55,6 @@ func main() {
 			show_old_jy(db, jym)
 		}
 	}
-
 	if err != nil {
 		fmt.Println("Error:", err)
 	}

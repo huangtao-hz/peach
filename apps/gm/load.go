@@ -70,7 +70,7 @@ func Update(db *sqlite.DB) (err error) {
 	}
 	fmt.Println("处理文件：", path.Name())
 	ver := utils.Extract(`\d{8}`, path.String())
-	if f, err := excel.OpenFile(path); err == nil {
+	if f, err := excel.Open(path); err == nil {
 		defer f.Close()
 		book := f.ExcelBook
 		fileinfo := path.FileInfo()
@@ -195,4 +195,25 @@ func Restore(db *sqlite.DB) {
 		}
 	}
 	Update_ytc(db)
+}
+
+func load_jyjh(db *sqlite.DB) (err error) {
+	path := utils.NewPath("~/Downloads").Find("*新柜面剩余交易的迁移计划-*.xlsx")
+	if path == nil {
+		return fmt.Errorf("未找到 新柜面剩余交易的迁移计划 文件")
+	}
+	fmt.Println("处理文件：", path.Base())
+	f, err := excel.Open(path)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	r, err := f.NewReader("2026年交易开发计划", "B,R,U,K,AE,AF,AP,AQ,AR,AH,AI,AI,AJ", 1)
+	if err != nil {
+		return
+	}
+	d := data.NewData()
+	go r.Read(d)
+	d.Println()
+	return
 }

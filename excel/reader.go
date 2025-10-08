@@ -104,11 +104,11 @@ type ExcelFile struct {
 
 // NewExcelFile 构造函数
 func NewExcelFile(path string) (f *ExcelFile, err error) {
-	return OpenFile(utils.NewPath(path))
+	return Open(utils.NewPath(path))
 }
 
-// OpenFile 打开 Excel 文件
-func OpenFile(path archive.File) (f *ExcelFile, err error) {
+// Open 打开 Excel 文件
+func Open(path archive.File) (f *ExcelFile, err error) {
 	var (
 		fp   io.ReadCloser
 		book book

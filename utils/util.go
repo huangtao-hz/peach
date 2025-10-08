@@ -151,3 +151,10 @@ func GetMd5(strs ...string) string {
 	b := []byte(strings.Join(strs, ""))
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
+
+var Sep = regexp.MustCompile(`[|,\t]| +`)
+
+// split 分隔字符串
+func Split(s string) []string {
+	return Sep.Split(s, -1)
+}
