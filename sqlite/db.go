@@ -14,9 +14,9 @@ import (
 	"strings"
 
 	//_ "modernc.org/sqlite"
-	_ "github.com/mattn/go-sqlite3"
-	//_ "github.com/ncruces/go-sqlite3/driver"
-	//_ "github.com/ncruces/go-sqlite3/embed"
+	// "github.com/mattn/go-sqlite3"
+	_ "github.com/ncruces/go-sqlite3/driver"
+	_ "github.com/ncruces/go-sqlite3/embed"
 )
 
 // 数据库连接
@@ -77,7 +77,10 @@ func (db *DB) ExecTx(execFuncs ...ExecFunc) (err error) {
 // Printf 执行查询，并格式化打印结果
 func (db *DB) Printf(query string, format string, head string, print_rows bool, args ...any) {
 	r, err := db.Query(query, args...)
-	utils.CheckFatal(err)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	if head != "" {
 		fmt.Println(head)
 	}
