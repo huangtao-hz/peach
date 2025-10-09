@@ -12,8 +12,10 @@ import (
 var create_sql string
 
 func CreateDatabse(db *sqlite.DB) {
-	db.ExecScript(create_sql)
-	fmt.Println("创建数据库成功！")
+		fmt.Println("初始化数据库表")
+		db.ExecScript(create_sql)
+		sqlite.InitLoadFile(db)
+		fmt.Println("初始化数据库成功！")
 }
 
 // main 主程序入口
