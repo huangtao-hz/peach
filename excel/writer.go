@@ -3,9 +3,11 @@ package excel
 import (
 	"fmt"
 	"peach/utils"
+	"slices"
 	"strings"
 
-	"github.com/xuri/excelize/v2"
+	"github.com/BurntSushi/toml"
+	"github.com/huangtao-hz/excelize"
 )
 
 const (
@@ -115,28 +117,76 @@ func (s *WorkSheet) Rename(newName string) {
 	s.name = newName
 }
 
-// tableFormat 单位元样式
-const tableFormat = `{"table_style":"TableStyleMedium6", "show_first_column":false,"show_last_column":false,"show_row_stripes":true,"show_column_stripes":false}`
+// AddTableToml 使用 Toml 来描述表格
+func (s *WorkSheet) AddTableToml(cell string, table string, ch <-chan []any) (err error) {
+	table_ := &excelize.Table{}
+	toml.Decode(table, table_)
+	//utils.PrintStruct(table_)
+	return s.AddTable(cell, "", ch, table_)
+}
 
-// WriteTable 写入表格
-func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any) (err error) {
-	var row, col int
+// AddTable 写入表格
+func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ...*excelize.Table) (err error) {
+	var (
+		row, col int
+		table    *excelize.Table
+	)
+	if opt == nil {
+		table = &excelize.Table{}
+	} else {
+		table = opt[0]
+	}
+	if table.ShowHeaderRow == nil {
+		showHeaderRow := true
+		table.ShowHeaderRow = &showHeaderRow
+	}
 	col, row, err = excelize.CellNameToCoordinates(axis) // 读取初始
 	if err != nil {
 		return
 	}
 	colname, _ := excelize.ColumnNumberToName(col)
-	s.AddHeader(colname, row, header)
-	row++
+	if *table.ShowHeaderRow {
+		row++
+	}
 	for rowdata := range ch {
 		s.AddRow(colname, row, rowdata...)
 		row++
 	}
-	count := len(strings.Split(header, ","))
+	count := slices.Max([]int{len(strings.Split(header, ",")), len(table.Columns)})
 	end, _ := excelize.CoordinatesToCellName(col+count-1, row-1)
-	table := &excelize.Table{
-		Range:     fmt.Sprintf("%s:%s", axis, end),
-		StyleName: "TableStyleMedium6",
+
+	table.Range = fmt.Sprintf("%s:%s", axis, end)
+	if table.StyleName == "" {
+		table.StyleName = "TableStyleMedium6"
+	}
+	var proc_style = func(style *string) {
+		if *style != "" {
+			if styleId, ok := s.writer.Styles[*style]; ok {
+				*style = fmt.Sprint(styleId)
+			} else {
+				*style = ""
+			}
+		}
+	}
+	if table.Columns != nil {
+		for i := range len(table.Columns) {
+			column := &table.Columns[i]
+			if column.HeaderRowCellStyle == "" {
+				column.HeaderRowCellStyle = "Header"
+			}
+			proc_style(&column.DataCellStyle)
+			proc_style(&column.TotalsRowCellStyle)
+			proc_style(&column.HeaderRowCellStyle)
+			if column.TotalsRowCellStyle == "" && column.DataCellStyle != "" {
+				column.TotalsRowCellStyle = column.DataCellStyle
+			}
+		}
+	} else if header != "" {
+		columns := make([]excelize.TableColumn, 0)
+		for h := range strings.SplitSeq(header, ",") {
+			columns = append(columns, excelize.TableColumn{Name: h})
+		}
+		table.Columns = columns
 	}
 	s.writer.AddTable(s.name, table)
 	return

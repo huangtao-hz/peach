@@ -1,0 +1,37 @@
+name = "各部门统计表"
+range = "B1"
+
+[[column]]
+name = "类型"
+total_string = "合计"
+
+[[column]]
+name = "未提交需求"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "已完成需求"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "开发中"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "已投产"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "总数"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "投产完成率"
+format = "Percent"
+formula = "[已投产]/[总数]"
+total_function = "各部门统计表[[#Totals],[已投产]]/各部门统计表[[#Totals],[总数]]"

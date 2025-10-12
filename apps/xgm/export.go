@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"peach/data"
 	"peach/excel"
@@ -132,8 +133,7 @@ sum(iif((sfwc is null or sfwc ='0-尚未开始' or sfwc='' ),1,0)),       -- 未
 sum(iif(sfwc in('1-已编写初稿','2-已提交需求/确认需规'),1,0)),       -- 已完成需求
 sum(iif(sfwc in('3-已完成开发','4-已完成验收测试'),1,0)),       -- 开发中
 sum(iif(sfwc = '5-已投产' ,1,0)) ,       -- 已投产
-count(jym) as zs,         -- 总数
-sum(iif(fa <> '1-下架交易' and sfwc = '5-已投产',1,0))*1.0/count(jym)
+count(jym) as zs         -- 总数
 from xmjh
 where ywbm='运营管理部' and fa not in('1-下架交易','5-移出柜面系统')
 group by zx,lxr
@@ -146,8 +146,7 @@ sum(iif((sfwc is null or sfwc ='0-尚未开始' or sfwc='' ),1,0)),       -- 未
 sum(iif(sfwc in('1-已编写初稿','2-已提交需求/确认需规'),1,0)),       -- 已完成需求
 sum(iif(sfwc in('3-已完成开发','4-已完成验收测试'),1,0)),       -- 开发中
 sum(iif(sfwc = '5-已投产' ,1,0)) ,       -- 已完成需求
-count(jym) as zs,         -- 总数
-sum(iif(fa <> '1-下架交易' and sfwc = '5-已投产',1,0))*1.0/count(jym)
+count(jym) as zs        -- 总数
 from xmjh
 where ywbm='运营管理部' and fa not in('1-下架交易','5-移出柜面系统')
 group by zx
@@ -160,8 +159,7 @@ sum(iif(fa <> '1-下架交易' and(sfwc is null or sfwc ='0-尚未开始' or sfw
 sum(iif(fa <> '1-下架交易' and sfwc in('1-已编写初稿','2-已提交需求/确认需规'),1,0)),       -- 已完成需求
 sum(iif(fa <> '1-下架交易' and sfwc in('3-已完成开发','4-已完成验收测试'),1,0)),       -- 开发中
 sum(iif(fa <> '1-下架交易' and sfwc = '5-已投产',1,0)),       -- 已完成需求
-count(jym) as zs,         -- 总数
-sum(iif(fa <> '1-下架交易' and sfwc = '5-已投产',1,0))*1.0/count(jym)
+count(jym) as zs         -- 总数
 from xmjh
 where fa not in('1-下架交易','5-移出柜面系统')
 group by lx
@@ -169,10 +167,19 @@ order by zs desc
 `
 )
 
+var (
+	//go:embed tables/tjbtable.toml
+	table_tjb string
+	//go:embed tables/gbmtable.toml
+	table_gbm string
+	//go:embed tables/gzxtable.toml
+	table_gzx string
+)
+
 func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 	sheet := book.GetSheet(0)
 	sheet.Rename("统计表")
-	header := "类型,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
+	//header := "类型,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
 	sheet.SetWidth(map[string]float64{
 		"A":   12,
 		"B":   20,
@@ -191,9 +198,9 @@ func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 	}
 	ch := make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	sheet.AddTable("B1", header, ch)
+	sheet.AddTableToml("B1", table_gbm, ch)
 
-	header = "中心,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
+	//header = "中心,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
 	rows, err = db.Query(tongji_gzx_sql)
 	if err != nil {
 		fmt.Println(err)
@@ -202,9 +209,10 @@ func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 
 	ch = make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	sheet.AddTable("B8", header, ch)
+	//sheet.AddTable("B8", header, ch)
+	sheet.AddTableToml("B8", table_gzx, ch)
 
-	header = "联系人,中心,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
+	//header = "联系人,中心,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
 	rows, err = db.Query(tongji_sql)
 	if err != nil {
 		fmt.Println(err)
@@ -212,8 +220,12 @@ func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 	}
 	ch = make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	sheet.AddTable("A19", header, ch)
-
+	//sheet.AddTable("A19", header, ch)
+	err = sheet.AddTableToml("A19", table_tjb, ch)
+	if err != nil {
+		fmt.Println(err)
+	}
+	//fmt.Println(table_tjb)
 	return
 }
 func Export(db *sqlite.DB, path *utils.Path) (err error) {

@@ -5,10 +5,9 @@ import (
 	"peach/archive"
 	"peach/excel"
 	"peach/utils"
-	"strings"
 	"time"
 
-	"github.com/xuri/excelize/v2"
+	"github.com/huangtao-hz/excelize"
 )
 
 func proc(file archive.File) {
@@ -57,10 +56,6 @@ func archivetest() {
 	}
 }
 
-var s = `<?xml version="1.0" encoding="UTF-8"?>
-<table xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" id="1" name="Table1" displayName="Table1" ref="A1:C3"><autoFilter ref="A1:C3"></autoFilter><tableColumns count="3"><tableColumn id="1" name="姓名"></tableColumn><tableColumn id="2" name="别客气"></tableColumn><tableColumn id="3" name="学校"></tableColumn></tableColumns><tableStyleInfo name="TableStyleMedium6" showFirstColumn="false" showLastColumn="false" showRowStripes="true" showColumnStripes="false"></tableStyleInfo></table>
-`
-
 func main() {
 	defer utils.Recover()
 	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
@@ -73,16 +68,6 @@ func main() {
 		Range:     "A1:C3",
 		StyleName: "TableStyleMedium6",
 	})
-	var f = func(a, b any) bool {
-		if strings.HasPrefix(a.(string), "xl/tables") {
-			fmt.Println(a)
-			if c, ok := b.([]byte); ok {
-				fmt.Println(string(c))
-			}
-		}
-		return true
-	}
-	book.Pkg.Store("xl/tables/table1.xml", []byte(s))
-	book.Pkg.Range(f)
+
 	book.SaveAs("~/abc.xlsx")
 }

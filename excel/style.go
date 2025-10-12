@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/xuri/excelize/v2"
+	"github.com/huangtao-hz/excelize"
 )
 
 var NumberFmtMap = map[string]int{

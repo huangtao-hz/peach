@@ -12,10 +12,10 @@ import (
 var create_sql string
 
 func CreateDatabse(db *sqlite.DB) {
-		fmt.Println("初始化数据库表")
-		db.ExecScript(create_sql)
-		sqlite.InitLoadFile(db)
-		fmt.Println("初始化数据库成功！")
+	fmt.Println("初始化数据库表")
+	db.ExecScript(create_sql)
+	sqlite.InitLoadFile(db)
+	fmt.Println("初始化数据库成功！")
 }
 
 // main 主程序入口
@@ -69,4 +69,11 @@ func main() {
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
+	/*
+		fmt.Println(s)
+		table := &excelize.Table{}
+		err = toml.Unmarshal([]byte(s), table)
+		fmt.Println(err)
+		utils.PrintStruct(table)
+	*/
 }
