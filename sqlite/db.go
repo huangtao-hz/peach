@@ -14,9 +14,9 @@ import (
 	"strings"
 
 	//_ "modernc.org/sqlite"
-	// "github.com/mattn/go-sqlite3"
-	_ "github.com/ncruces/go-sqlite3/driver"
-	_ "github.com/ncruces/go-sqlite3/embed"
+	_ "github.com/mattn/go-sqlite3"
+	//"github.com/ncruces/go-sqlite3/driver"
+	//"github.com/ncruces/go-sqlite3/embed"
 )
 
 // 数据库连接
