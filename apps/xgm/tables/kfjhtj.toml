@@ -1,0 +1,16 @@
+name = "开发计划统计"
+range = "A1"
+
+[[column]]
+name = "计划版本"
+total_string = "合计"
+
+[[column]]
+name = "交易数量"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "占比"
+format = "Percent"
+total_function = "sum"

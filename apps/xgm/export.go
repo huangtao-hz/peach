@@ -35,6 +35,7 @@ var KfjhStyle = map[string]string{
 	"A:S": "Normal-NoWrap",
 }
 
+// export_xjdzb 导出投产交易一览表
 func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
 	sheet := book.GetSheet("投产交易一览表")
 	header := "交易码,交易码称,原交易码,原交易码称,投产日期,状态,备注"
@@ -73,6 +74,7 @@ func export_kfjh(db *sqlite.DB, book *excel.Writer) (err error) {
 	return
 }
 
+// export_xmjh 导出项目计划表
 func export_xmjh(db *sqlite.DB, book *excel.Writer) (err error) {
 	header := "交易码,交易名称,交易组,交易组名,一级菜单,二级菜单,近一年交易量,类型,部门,中心,联系人,方案,计划需求完成时间,当前进度,备注,新交易"
 	querys := map[string]string{
@@ -171,8 +173,11 @@ var (
 	table_gbm string
 	//go:embed tables/gzxtable.toml
 	table_gzx string
+	//go:embed tables/kfjhtj.toml
+	table_kfjhtj string
 )
 
+// export_tjb 导出统计表
 func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 	sheet := book.GetSheet(0)
 	sheet.Rename("统计表")
@@ -225,10 +230,39 @@ func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
 	//fmt.Println(table_tjb)
 	return
 }
+
+// export_kfjhtj 导出开发计划统计表
+func export_kfjhtj(db *sqlite.DB, book *excel.Writer) (err error) {
+	sheet := book.GetSheet("开发计划统计")
+	sheet.SetWidth(map[string]float64{
+		"A:C": 12,
+	})
+	query := `
+select a.jhbb,count(a.jym),count(a.jym)*1.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
+from kfjh a
+left join xmjh b
+on a.jym=b.jym
+where b.sfwc not like "5%"
+group by jhbb
+order by jhbb
+	`
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	ch := make(chan []any, BufferSize)
+	go rows.FetchAll(ch)
+	sheet.AddTableToml("A1", table_kfjhtj, ch)
+	return
+}
+
+// Export 更新项目计划表-导出文件
 func Export(db *sqlite.DB, path *utils.Path) (err error) {
 	fmt.Println("更新文件：", path)
 	book := excel.NewWriter()
 	export_tjb(db, book)
+	export_kfjhtj(db, book)
 	export_kfjh(db, book)
 	export_xmjh(db, book)
 	export_xjdzb(db, book)
