@@ -52,7 +52,7 @@ func LoadXmjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver st
 // LoadKfjh 开发计划
 func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver string) {
 	fmt.Println("导入开发计划表")
-	if r, err := book.NewReader("开发计划", "A,M:X", 1); err == nil {
+	if r, err := book.NewReader("开发计划", "A,H:S", 1); err == nil {
 		loader := db.NewLoader(fileinfo, "kfjh", r)
 		loader.Ver = ver
 		//loader.Check = false

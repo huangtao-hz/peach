@@ -62,7 +62,6 @@ func (s *Style) AsStyle() (style *excelize.Style, err error) {
 			style.CustomNumFmt = &s.NumFmt
 		}
 	}
-
 	return
 }
 

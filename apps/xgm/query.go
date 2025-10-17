@@ -83,3 +83,23 @@ func show_tongji(db *sqlite.DB) {
 	format := "%10s  %8,d  %8,d  %8,d        %5.2f %%\n"
 	db.Printf(sql, format, header, true)
 }
+
+// kaifajihua 打印计划版本的统计信息
+func kaifajihua(db *sqlite.DB) {
+	header := "计划版本   交易数量    占比（%）"
+	sql := `
+    select a.jhbb,count(a.jym),count(a.jym)*100.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
+    from kfjh a
+    left join xmjh b
+    on a.jym=b.jym
+    where b.sfwc not like "5%"
+    group by jhbb
+    union
+    select "合计",(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统") and sfwc not like "5%"),
+    (select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统") and sfwc not like "5%")*100.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
+    order by jhbb
+    `
+	header = "计划版本 交易数量        占比"
+	format := "10s  5,d      5.2f%\n"
+	db.Printf(sql, format, header, true)
+}

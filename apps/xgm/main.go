@@ -31,13 +31,15 @@ func main() {
 	restore := flag.Bool("restore", false, "导入数据")
 	tongji := flag.Bool("tongji", false, "导入数据")
 	update := flag.Bool("update", false, "更新计划表")
+	jihua := flag.Bool("jihua", false, "投产交易清单Ï")
 
 	flag.Parse()
 	if *init_db {
 		CreateDatabse(db)
 	}
 	if *load {
-		err = load_jyjh(db)
+		//err = load_jyjh(db)
+		err = Load(db)
 		//LoadWtgzb(db)
 	}
 	if *query_sql != "" {
@@ -55,6 +57,9 @@ func main() {
 	if *update {
 		err = Update(db)
 		//err = Export(db, nil)
+	}
+	if *jihua {
+		kaifajihua(db)
 	}
 	if len(flag.Args()) > 0 {
 		PrintVersion(db)
