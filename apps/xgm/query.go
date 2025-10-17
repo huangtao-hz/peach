@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"peach/sqlite"
 )
@@ -66,40 +67,22 @@ order by a.jym`
 }
 
 // show_tongji 打印各版本的统计信息
+//
+//go:embed query/touchan.sql
+var touchan_query string
+
 func show_tongji(db *sqlite.DB) {
 	header := "投产日期   交易数量 迁移交易数量 新交易数量    占比（%）"
-	sql := `select tcrq,count(distinct jym),sum(iif(yjym<>'',1,0)),sum(iif(yjym='',1,0)),
-    sum(iif(yjym<>'',1,0))*100.0/(select count(jym)from xmjh where fa not in ('1-下架交易','5-移出柜面系统'))
-    from xjdz
-    where tcrq<=date('now')
-    group by tcrq
-    union
-    -- 显示合计数据
-    select '合计',count(distinct jym),sum(iif(yjym<>'',1,0)),sum(iif(yjym='',1,0)),
-    sum(iif(yjym<>'',1,0))*100.0/(select count(jym)from xmjh where fa not in ('1-下架交易','5-移出柜面系统'))
-    from xjdz
-    where tcrq<=date('now')
-`
 	format := "%10s  %8,d  %8,d  %8,d        %5.2f %%\n"
-	db.Printf(sql, format, header, true)
+	db.Printf(touchan_query, format, header, true)
 }
+
+//go:embed query/kaifajihua.sql
+var kaifajihua_query string
 
 // kaifajihua 打印计划版本的统计信息
 func kaifajihua(db *sqlite.DB) {
-	header := "计划版本   交易数量    占比（%）"
-	sql := `
-    select a.jhbb,count(a.jym),count(a.jym)*100.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
-    from kfjh a
-    left join xmjh b
-    on a.jym=b.jym
-    where b.sfwc not like "5%"
-    group by jhbb
-    union
-    select "合计",(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统") and sfwc not like "5%"),
-    (select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统") and sfwc not like "5%")*100.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
-    order by jhbb
-    `
-	header = "计划版本 交易数量        占比"
-	format := "10s  5,d      5.2f%\n"
-	db.Printf(sql, format, header, true)
+	header := "计划版本 交易数量        占比"
+	format := "%10s  %5,d      %5.2f%\n"
+	db.Printf(kaifajihua_query, format, header, true)
 }

@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	KfjhHeader = "交易码,交易名称,交易组,交易组名,一级菜单,二级菜单,近一年交易量,类型,部门,中心,联系人,方案,需求状态,开发状态,计划版本,开发负责人,开发组长,前端开发,后端开发,流程开发,集成测试开始,集成测试结束,验收测试开始,验收测试结束"
+	KfjhHeader = "交易码,交易名称,类型,部门,中心,联系人,方案,需求状态,开发状态,计划版本,开发负责人,开发组长,前端开发,后端开发,流程开发,集成测试开始,集成测试结束,验收测试开始,验收测试结束"
 	KfjhQuery  = `
-select a.jym,a.jymc,a.jyz,a.jyzm,a.yjcd,a.ejcd,a.bs,a.lx,a.ywbm,a.zx,a.lxr,a.fa,
+select a.jym,a.jymc,a.lx,a.ywbm,a.zx,a.lxr,a.fa,
 b.xqzt,b.kfzt,b.jhbb,b.kjfzr,b.kfzz,b.qdkf,b.hdkf,b.lckf,b.jcks,b.jcjs,b.ysks,b.ysjs
 from xmjh a
 left join kfjh b on a.jym=b.jym
@@ -23,19 +23,16 @@ order by b.jhbb,a.jym
 )
 
 var KfjhWidth = map[string]float64{
-	"A,C":       6.83,
-	"B":         42,
-	"D":         21,
-	"E,S,T":     15,
-	"F":         31,
-	"G,I,J,P,R": 14,
-	"H,K":       9,
-	"L:O,Q":     11,
-	"U:X":       16,
+	"A":       6.83,
+	"B":       42,
+	"N,O":     15,
+	"D,E,K,M": 14,
+	"C,F":     9,
+	"G:J,L":   11,
+	"P:S":     16,
 }
 var KfjhStyle = map[string]string{
-	"A:F,H:X": "Normal-NoWrap",
-	"G":       "Number",
+	"A:S": "Normal-NoWrap",
 }
 
 func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
@@ -51,7 +48,7 @@ func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
 	sheet.SetColStyle(map[string]string{
 		"A:G": "Normal-NoWrap",
 	})
-	query := "select * from xjdz order by jym,yjym"
+	query := "select * from xjdz order by tcrq,jym,yjym"
 	rows, err := db.Query(query)
 	if err != nil {
 		return
@@ -79,8 +76,8 @@ func export_kfjh(db *sqlite.DB, book *excel.Writer) (err error) {
 func export_xmjh(db *sqlite.DB, book *excel.Writer) (err error) {
 	header := "交易码,交易名称,交易组,交易组名,一级菜单,二级菜单,近一年交易量,类型,部门,中心,联系人,方案,计划需求完成时间,当前进度,备注,新交易"
 	querys := map[string]string{
-		"计划表": "select * from xmjh where sfwc is null or not sfwc like '5%' order by jym",
-		"完成表": "select * from xmjh where sfwc like '5%' order by jym",
+		//"计划表": "select * from xmjh where sfwc is null or not sfwc like '5%' order by jym",
+		//"完成表": "select * from xmjh where sfwc like '5%' order by jym",
 		"全量表": "select * from xmjh order by jym",
 	}
 	for name, query := range querys {

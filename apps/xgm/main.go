@@ -8,7 +8,7 @@ import (
 	"peach/utils"
 )
 
-//go:embed xmjh.sql
+//go:embed query/db.sql
 var create_sql string
 
 func CreateDatabse(db *sqlite.DB) {
@@ -74,6 +74,7 @@ func main() {
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
+
 	/*
 		fmt.Println(s)
 		table := &excelize.Table{}
