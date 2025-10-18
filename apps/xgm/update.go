@@ -14,11 +14,11 @@ func Update_ytc(db *sqlite.DB) {
 	if count > 0 {
 		utils.Printf("以下交易已有新旧交易对照表，共有%,d条记录。\n", count)
 		db.Println(`select a.jym,a.jymc,a.sfwc,b.jym,b.jymc,b.tcrq from xmjh a join xjdz b on a.jym=b.yjym
-			where b.tcrq<date('now') and a.sfwc not like '5%' `)
+			where b.tcrq<date('now') and a.sfwc not like '5%' and b.tcrq<>''`)
 		sql := `update xmjh
                 set sfwc='5-已投产'
                 from xjdz
-                where sfwc<>'5-已投产' and xmjh.jym=xjdz.yjym and tcrq<date('now')`
+                where sfwc<>'5-已投产' and xmjh.jym=xjdz.yjym and tcrq<date('now') and tcrq<>'' `
 		fmt.Print("请确认是否修改？Y or N:")
 		var s string
 		if n, err := fmt.Scan(&s); err == nil && n > 0 && strings.ToUpper(s) == "Y" {
