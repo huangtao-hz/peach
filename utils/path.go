@@ -3,11 +3,14 @@ package utils
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
 
 	"strings"
+
+	"github.com/BurntSushi/toml"
 )
 
 var (
@@ -55,6 +58,12 @@ func Expand(p string) (path string) {
 		path = fmt.Sprintf("/%s", path)
 	}
 	return
+}
+
+// File 定义文件
+type File interface {
+	FileInfo() fs.FileInfo
+	Open() (io.ReadCloser, error)
 }
 
 // Path 目录
@@ -179,7 +188,7 @@ func (p *Path) WithExt(ext string) *Path {
 	return NewPath(dir).Join(name + ext)
 }
 
-// 初始化日志文件
+// InitLog 初始化日志文件
 // 放在 $HOME/.logs/date 目录下，并且用命令作为文件名
 func InitLog() {
 	_, name := NewPath(os.Args[0]).Split() // 获取命令行
@@ -196,7 +205,7 @@ func InitLog() {
 	//log.SetFlags(log.Ldate | log.Ltime)
 }
 
-// 检查扩展名是否在指定的名称内
+// HasExt 检查扩展名是否在指定的名称内
 func (p *Path) HasExt(exts ...string) bool {
 	for _, ext := range exts {
 		if strings.HasSuffix(p.path, ext) {
@@ -204,4 +213,29 @@ func (p *Path) HasExt(exts ...string) bool {
 		}
 	}
 	return false
+}
+
+// GetConfigFile 获取配置文件
+func GetConfigFile(prog string) (path *Path) {
+	dir := Home.Join(".config")
+	if !dir.Exists() {
+		dir.Ensure()
+	}
+	if prog == "" {
+		prog = NewPath(os.Args[0]).Base()
+	}
+	return dir.Join(prog).WithExt(".toml")
+}
+
+// GetConfig 获取指定程序的配置
+func GetConfig(prog string, v any) (err error) {
+	var data []byte
+	path := GetConfigFile(prog)
+	if path.Exists() {
+		_, err = toml.DecodeFile(path.String(), v)
+	}
+	if data, err = toml.Marshal(v); err == nil {
+		err = os.WriteFile(path.String(), data, os.ModePerm)
+	}
+	return
 }

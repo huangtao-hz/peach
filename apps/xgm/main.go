@@ -21,7 +21,7 @@ func CreateDatabse(db *sqlite.DB) {
 // main 主程序入口
 func main() {
 	defer utils.Recover()
-	db, err := sqlite.Open("xgm2025-03")
+	db, err := sqlite.Open(config.Database)
 	utils.CheckFatal(err)
 	defer db.Close()
 	init_db := flag.Bool("init", false, "初始化数据库")

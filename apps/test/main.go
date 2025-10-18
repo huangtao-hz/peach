@@ -6,8 +6,6 @@ import (
 	"peach/excel"
 	"peach/utils"
 	"time"
-
-	"github.com/huangtao-hz/excelize"
 )
 
 func proc(file archive.File) {
@@ -56,18 +54,16 @@ func archivetest() {
 	}
 }
 
+type Config struct {
+	Name  string `toml:"name"`
+	Home  string `toml:"home"`
+	Hello string `toml:"hello"`
+}
+
 func main() {
 	defer utils.Recover()
 	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
-	book := excel.NewWriter()
-	sheet := book.GetSheet(0)
-	sheet.AddHeader("A", 1, "姓名,年龄,学校")
-	sheet.AddRow("A", 2, "张三", 18, "黔江司机称")
-	sheet.AddRow("A", 3, "王五", 20, "河南附中")
-	book.AddTable("Sheet1", &excelize.Table{
-		Range:     "A1:C3",
-		StyleName: "TableStyleMedium6",
-	})
-
-	book.SaveAs("~/abc.xlsx")
+	d := &Config{"list", "~/Documents", "nihao"}
+	utils.GetConfig("", d)
+	utils.PrintStruct(d)
 }

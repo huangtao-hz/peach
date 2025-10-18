@@ -64,7 +64,7 @@ func LoadKfjh(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver st
 
 // Update 更新计划表
 func Update(db *sqlite.DB) (err error) {
-	path := utils.NewPath("~/Downloads").Find("*新柜面存量交易迁移*.xlsx")
+	path := utils.NewPath(config.Home).Find("*新柜面存量交易迁移*.xlsx")
 	if path == nil {
 		return fmt.Errorf("未找到文件：新柜面存量交易迁移*.xlsx")
 	}
@@ -110,7 +110,7 @@ func LoadXmjh2(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver s
 
 // Load 导入数据文件
 func Load(db *sqlite.DB) (err error) {
-	path := utils.NewPath("~/Downloads").Find("*新柜面存量交易迁移*.xlsx")
+	path := utils.NewPath(config.Home).Find("*新柜面存量交易迁移*.xlsx")
 	if path == nil {
 		return fmt.Errorf("未找到文件：新柜面存量交易迁移*.xlsx")
 	}
@@ -141,7 +141,7 @@ func conv_gzb(src []string) (dest []string, err error) {
 
 // LoadWtgzb 导入问题跟踪表数据
 func LoadWtgzb(db *sqlite.DB) {
-	path := utils.NewPath("~/Downloads").Find("*数智综合运营系统问题跟踪表*.xlsx")
+	path := utils.NewPath(config.Home).Find("*数智综合运营系统问题跟踪表*.xlsx")
 	if path != nil {
 		fmt.Println("处理文件：", path.Name())
 	}
@@ -165,7 +165,7 @@ func load_wtgzb(db *sqlite.DB, book *excel.ExcelBook, fileinfo fs.FileInfo) {
 // Restore 从备份文件中恢复数据
 func Restore(db *sqlite.DB) {
 	defer utils.TimeIt(time.Now())
-	path := utils.NewPath("~/Downloads").Find("新柜面简报*.tgz")
+	path := utils.NewPath(config.Home).Find("新柜面简报*.tgz")
 	if path != nil {
 		fmt.Println("处理文件：", path.Name())
 	}

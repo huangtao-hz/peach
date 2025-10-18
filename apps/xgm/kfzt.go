@@ -38,7 +38,7 @@ func conv_kfazt(src []string) (dest []string, err error) {
 
 // update_kfzt 更新开发状态
 func update_kfzt(db *sqlite.DB) (err error) {
-	path := utils.NewPath("~/Downloads").Find("*开发计划*.xlsx")
+	path := utils.NewPath(config.Home).Find("*开发计划*.xlsx")
 	if path == nil {
 		return fmt.Errorf("未找到 开发计划 文件")
 	}
