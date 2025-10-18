@@ -10,7 +10,6 @@ import (
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
-	"slices"
 	"strings"
 	"time"
 )
@@ -86,15 +85,7 @@ func Update(db *sqlite.DB) (err error) {
 // LoadXmjh2 项目计划
 func LoadXmjh2(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver string) {
 	fmt.Println("导入项目计划表")
-	names := make([]string, 0)
-	Sheets := []string{"完成表", "计划表", "全量表"}
-	for _, name := range book.GetSheetList() {
-		if slices.Contains(Sheets, name) {
-			names = append(names, name)
-		}
-	}
-	fmt.Println("导入表格：", names)
-	if r, err := book.NewReader(names, "A:Q", 1, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2)); err == nil {
+	if r, err := book.NewReader("全量表", "A:Q", 1, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2)); err == nil {
 		loader := db.NewLoader(fileinfo, "xmjh", r)
 		loader.Ver = ver
 		loader.Method = "insert or replace"
@@ -102,7 +93,6 @@ func LoadXmjh2(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver s
 		//loader.Check = false
 		//loader.Test(db)
 		loader.Load()
-
 	} else {
 		fmt.Println(err)
 	}
