@@ -56,11 +56,6 @@ func update_kfzt(db *sqlite.DB) (err error) {
 	query := "update kfjh set kfzt=?,kjfzr=?,kfzz=?,qdkf=?,hdkf=?,lckf=?,jcks=?,jcjs=?,ysks=?,ysjs=? where jym=?"
 	d := data.NewData()
 	go r.Read(d)
-	if result, err := db.ExecMany(query, d); err == nil {
-		rows, _ := result.RowsAffected()
-		utils.Printf("Success,  %,d rows affected.\n", rows)
-	} else {
-		fmt.Println(err)
-	}
+	err = db.ExecMany(query, d)
 	return
 }

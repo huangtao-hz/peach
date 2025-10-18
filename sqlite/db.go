@@ -145,12 +145,17 @@ func (db *DB) NewFileLoader(path string, tablename string, reader data.DataReade
 	}
 }
 
-// ExecMany 执行多行数据
-func (db *DB) ExecMany(query string, data *data.Data) (r sql.Result, err error) {
-	var callback = func(r_ sql.Result, err_ error) error {
-		r, err = r_, err_
-		return err_
+// PrintRows 打印执行多条语句的结果
+func PrintRows(r sql.Result, err error) error {
+	if err == nil {
+		if rows, err := r.RowsAffected(); err == nil {
+			utils.Printf("Success,  %,d rows affected.\n", rows)
+		}
 	}
-	err = db.ExecTx(ExecMany(query, callback, data))
-	return
+	return err
+}
+
+// ExecMany 执行多行数据
+func (db *DB) ExecMany(query string, data *data.Data) error {
+	return db.ExecTx(ExecMany(query, PrintRows, data))
 }
