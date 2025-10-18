@@ -20,7 +20,7 @@ func CreateDatabse(db *sqlite.DB) {
 
 // main 主程序入口
 func main() {
-	//defer utils.Recover()
+	defer utils.Recover()
 	db, err := sqlite.Open("xgm2025-03")
 	utils.CheckFatal(err)
 	defer db.Close()

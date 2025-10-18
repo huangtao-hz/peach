@@ -144,3 +144,13 @@ func (db *DB) NewFileLoader(path string, tablename string, reader data.DataReade
 		Method:    "insert",
 	}
 }
+
+// ExecMany 执行多行数据
+func (db *DB) ExecMany(query string, data *data.Data) (r sql.Result, err error) {
+	var callback = func(r_ sql.Result, err_ error) error {
+		r, err = r_, err_
+		return err_
+	}
+	err = db.ExecTx(ExecMany(query, callback, data))
+	return
+}

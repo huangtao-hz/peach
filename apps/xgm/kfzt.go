@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"peach/data"
 	"peach/excel"
@@ -10,6 +9,7 @@ import (
 	"strings"
 )
 
+// convdate 转换日期
 func convdate(d *string) {
 	if strings.Contains(*d, "/") {
 		*d = strings.ReplaceAll(*d, "/", "-")
@@ -45,27 +45,22 @@ func update_kfzt(db *sqlite.DB) (err error) {
 	fmt.Println("处理文件：", path.Base())
 	f, err := excel.Open(path)
 	if err != nil {
-		return
+		return err
 	}
 	defer f.Close()
 	r, err := f.NewReader("柜面核心类交易开发计划", "U,AE,AF,AP,AW,BD,AG,AH,BM,BS,B", 1, conv_kfazt)
 	if err != nil {
-		return
-	}
-	d := data.NewData()
-
-	query := "update kfjh set kfzt=?,kjfzr=?,kfzz=?,qdkf=?,hdkf=?,lckf=?,jcks=?,jcjs=?,ysks=?,ysjs=? where jym=?"
-	var callback = func(r sql.Result, err error) error {
-		if err == nil {
-			rows, _ := r.RowsAffected()
-			utils.Printf("Total: %,d rows affected.\n", rows)
-		} else {
-			fmt.Println(err)
-		}
 		return err
 	}
 
+	query := "update kfjh set kfzt=?,kjfzr=?,kfzz=?,qdkf=?,hdkf=?,lckf=?,jcks=?,jcjs=?,ysks=?,ysjs=? where jym=?"
+	d := data.NewData()
 	go r.Read(d)
-	err = db.ExecTx(sqlite.ExecMany(query, callback, d))
+	if result, err := db.ExecMany(query, d); err == nil {
+		rows, _ := result.RowsAffected()
+		utils.Printf("Success,  %,d rows affected.\n", rows)
+	} else {
+		fmt.Println(err)
+	}
 	return
 }

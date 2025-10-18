@@ -125,48 +125,14 @@ func export_xmjh(db *sqlite.DB, book *excel.Writer) (err error) {
 	return
 }
 
-const (
-	tongji_sql = `
-select lxr,zx,
-sum(iif((sfwc is null or sfwc ='0-尚未开始' or sfwc='' ),1,0)),       -- 未开始
-sum(iif(sfwc in('1-已编写初稿','2-已提交需求/确认需规'),1,0)),       -- 已完成需求
-sum(iif(sfwc in('3-已完成开发','4-已完成验收测试'),1,0)),       -- 开发中
-sum(iif(sfwc = '5-已投产' ,1,0)) ,       -- 已投产
-count(jym) as zs         -- 总数
-from xmjh
-where ywbm='运营管理部' and fa not in('1-下架交易','5-移出柜面系统')
-group by zx,lxr
-order by zs desc
-`
-
-	tongji_gzx_sql = `
-select zx,
-sum(iif((sfwc is null or sfwc ='0-尚未开始' or sfwc='' ),1,0)),       -- 未开始
-sum(iif(sfwc in('1-已编写初稿','2-已提交需求/确认需规'),1,0)),       -- 已完成需求
-sum(iif(sfwc in('3-已完成开发','4-已完成验收测试'),1,0)),       -- 开发中
-sum(iif(sfwc = '5-已投产' ,1,0)) ,       -- 已完成需求
-count(jym) as zs        -- 总数
-from xmjh
-where ywbm='运营管理部' and fa not in('1-下架交易','5-移出柜面系统')
-group by zx
-order by zs desc
-`
-
-	tongji_gbm_sql = `
-select lx,
-sum(iif(fa <> '1-下架交易' and(sfwc is null or sfwc ='0-尚未开始' or sfwc=''),1,0)),       -- 未开始
-sum(iif(fa <> '1-下架交易' and sfwc in('1-已编写初稿','2-已提交需求/确认需规'),1,0)),       -- 已完成需求
-sum(iif(fa <> '1-下架交易' and sfwc in('3-已完成开发','4-已完成验收测试'),1,0)),       -- 开发中
-sum(iif(fa <> '1-下架交易' and sfwc = '5-已投产',1,0)),       -- 已完成需求
-count(jym) as zs         -- 总数
-from xmjh
-where fa not in('1-下架交易','5-移出柜面系统')
-group by lx
-order by zs desc
-`
-)
-
 var (
+	//go:embed query/tongji.sql
+	tongji_sql string
+	//go:embed query/tongji_gzx.sql
+	tongji_gzx_sql string
+	//go:embed query/tongji_gbm.sql
+	tongji_gbm_sql string
+
 	//go:embed tables/tjbtable.toml
 	table_tjb string
 	//go:embed tables/gbmtable.toml
