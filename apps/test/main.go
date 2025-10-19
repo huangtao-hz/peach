@@ -63,7 +63,6 @@ type Config struct {
 func main() {
 	defer utils.Recover()
 	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
-	d := &Config{"list", "~/Documents", "nihao"}
-	utils.GetConfig("", d)
-	utils.PrintStruct(d)
+	path := utils.NewPath("~/Downloads").Find("新柜面简报20251019.zip")
+	archive.ExtractZip(path.String())
 }
