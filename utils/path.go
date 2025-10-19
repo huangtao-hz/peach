@@ -218,13 +218,13 @@ func InitLog() {
 }
 
 // HasExt 检查扩展名是否在指定的名称内
-func (p *Path) HasExt(exts ...string) bool {
+func (p *Path) HasExt(exts ...string) (exists bool) {
 	for _, ext := range exts {
 		if strings.HasSuffix(p.path, ext) {
 			return true
 		}
 	}
-	return false
+	return
 }
 
 // GetConfigFile 获取配置文件
