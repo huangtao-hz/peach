@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
+	"iter"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -167,6 +168,17 @@ func (p *Path) Find(pattern string) (path *Path) {
 		path = NewPath(matches[len(matches)-1])
 	}
 	return
+}
+
+// IterGlob 在目录遍历指定模版的文件
+func (p *Path) IterGlob(pattern string) iter.Seq2[string, *Path] {
+	return func(yield func(name string, path *Path) bool) {
+		for _, name := range p.Glob(pattern) {
+			if !yield(name, NewPath(name)) {
+				break
+			}
+		}
+	}
 }
 
 // FileInfo 获取文件信息

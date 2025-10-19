@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"peach/archive"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
@@ -21,7 +20,7 @@ func conv_gzb(src []string) (dest []string, err error) {
 }
 
 // LoadWtgzb 导入问题跟踪表数据
-func LoadWtgzb(db *sqlite.DB, file archive.File) (err error) {
+func LoadWtgzb(db *sqlite.DB, file utils.File) (err error) {
 	var (
 		f    io.ReadCloser
 		book *excel.ExcelBook
@@ -47,5 +46,4 @@ func load_wtgzb(db *sqlite.DB, book *excel.ExcelBook, fileinfo fs.FileInfo) (err
 	} else {
 		return err
 	}
-
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"iter"
-	"peach/archive"
 	"peach/data"
 	"peach/utils"
 	"slices"
@@ -108,7 +107,7 @@ func NewExcelFile(path string) (f *ExcelFile, err error) {
 }
 
 // Open 打开 Excel 文件
-func Open(path archive.File) (f *ExcelFile, err error) {
+func Open(path utils.File) (f *ExcelFile, err error) {
 	var (
 		fp   io.ReadCloser
 		book book

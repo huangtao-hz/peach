@@ -71,7 +71,7 @@ order by a.jym`
 //go:embed query/touchan.sql
 var touchan_query string
 
-func show_tongji(db *sqlite.DB) {
+func show_touchan(db *sqlite.DB) {
 	header := "投产日期   交易数量 迁移交易数量 新交易数量    占比（%）"
 	format := "%10s  %8,d  %8,d  %8,d        %5.2f %%\n"
 	db.Printf(touchan_query, format, header, true)
@@ -83,6 +83,6 @@ var kaifajihua_query string
 // kaifajihua 打印计划版本的统计信息
 func kaifajihua(db *sqlite.DB) {
 	header := "计划版本 交易数量        占比"
-	format := "%10s  %5,d      %5.2f%\n"
+	format := "%-10s  %5,d      %5.2f%\n"
 	db.Printf(kaifajihua_query, format, header, true)
 }

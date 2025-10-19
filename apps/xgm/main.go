@@ -29,7 +29,7 @@ func main() {
 	query_sql := flag.String("query", "", "执行查询")
 	jhbb := flag.String("jhbb", "", "查询计划版本")
 	restore := flag.Bool("restore", false, "导入数据")
-	tongji := flag.Bool("tongji", false, "导入数据")
+	touchan := flag.Bool("touchan", false, "导入数据")
 	update := flag.Bool("update", false, "更新计划表")
 	jihua := flag.Bool("jihua", false, "投产交易清单Ï")
 
@@ -51,8 +51,8 @@ func main() {
 	if *restore {
 		Restore(db)
 	}
-	if *tongji {
-		show_tongji(db)
+	if *touchan {
+		show_touchan(db)
 	}
 	if *update {
 		err = Update(db)

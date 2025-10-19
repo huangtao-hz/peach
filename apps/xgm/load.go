@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/fs"
-	"peach/archive"
 	"peach/data"
 	"peach/excel"
 	"peach/sqlite"
@@ -61,10 +60,14 @@ func LoadXmjh2(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver s
 func Load(db *sqlite.DB) (err error) {
 	Home := utils.NewPath(config.Home)
 	if path := Home.Find("*新柜面存量交易迁移*.xlsx"); path != nil {
-		err = Load_xmjh(db, path)
+		if err = Load_xmjh(db, path); err != nil {
+			fmt.Println(err)
+		}
 	}
 	if path := Home.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
-		err = LoadWtgzb(db, path)
+		if err := LoadWtgzb(db, path); err != nil {
+			fmt.Println(err)
+		}
 	}
 	return
 }
@@ -77,14 +80,15 @@ func Restore(db *sqlite.DB) (err error) {
 		return fmt.Errorf("未找到 新柜面简报*.zip 文件")
 	}
 	fmt.Println("处理文件：", path.Name())
-	var proc = func(file archive.File) {
-		fileinfo := file.FileInfo()
-		name := fileinfo.Name()
+	for name, file := range path.IterZip() {
 		if strings.Contains(name, "新柜面存量交易迁移计划") {
 			err = Load_xmjh(db, file)
 		} else if strings.Contains(name, "数智综合运营系统问题跟踪表") {
 			err = LoadWtgzb(db, file)
 		}
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
-	return archive.ExtractZip(path.String(), proc)
+	return
 }

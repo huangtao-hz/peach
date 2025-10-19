@@ -2,22 +2,12 @@ package main
 
 import (
 	"fmt"
-	"peach/archive"
+
 	"peach/excel"
 	"peach/utils"
 	"time"
 )
 
-func proc(file archive.File) {
-	if !file.FileInfo().IsDir() {
-		fmt.Println("File:", file.FileInfo().Name())
-		if book, err := excel.Open(file); err == nil {
-			fmt.Println(book.GetSheetList())
-		} else {
-			fmt.Println("Error:", err)
-		}
-	}
-}
 func writeexcel() {
 	book := excel.NewWriter()
 	sheet := book.GetSheet(0)
@@ -45,14 +35,6 @@ func writeexcel() {
 	book.SaveAs("~/abcd.xlsx")
 	fmt.Println("Sucess")
 }
-func archivetest() {
-	file := utils.NewPath("~/Downloads").Find("20250905.tgz")
-	if file != nil {
-		fmt.Println(file.String())
-		//fmt.Println(file.FileInfo().Name())
-		archive.ExtractTar(file.String(), proc)
-	}
-}
 
 type Config struct {
 	Name  string `toml:"name"`
@@ -63,6 +45,8 @@ type Config struct {
 func main() {
 	defer utils.Recover()
 	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
-	path := utils.NewPath("~/Downloads").Find("新柜面简报20251019.zip")
-	archive.ExtractZip(path.String())
+	path := utils.NewPath("~/Downloads")
+	for _, file := range path.IterGlob("*.tgz") {
+		fmt.Println(file.Name())
+	}
 }

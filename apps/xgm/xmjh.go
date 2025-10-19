@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"peach/archive"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
 )
 
 // LoadWtgzb 导入问题跟踪表数据
-func Load_xmjh(db *sqlite.DB, file archive.File) (err error) {
+func Load_xmjh(db *sqlite.DB, file utils.File) (err error) {
 	var (
 		f    io.ReadCloser
 		book *excel.ExcelBook
