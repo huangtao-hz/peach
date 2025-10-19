@@ -29,6 +29,15 @@ func Recover() {
 	}
 }
 
+// Strings 将 []T 转换为 []string
+func Strings[T any](s []T) (d []string) {
+	d = make([]string, len(s))
+	for i, v := range s {
+		d[i] = fmt.Sprint(v)
+	}
+	return
+}
+
 // Slice 将任意类型转换为 []any
 func Slice[T any](s []T) (d []any) {
 	var ok bool

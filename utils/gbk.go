@@ -61,7 +61,7 @@ func IsGBK(bytes []byte) bool {
 	return true
 }
 
-// isUTF8 判断是否为 UTF8 编码
+// IsUTF8 判断是否为 UTF8 编码
 func IsUTF8(bytes []byte) bool {
 	for i := 0; i < len(bytes); {
 		if bytes[i]&0x80 == 0x00 {
