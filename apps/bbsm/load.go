@@ -118,9 +118,7 @@ func load_bbsm(db *sqlite.DB, name string, file utils.File) (err error) {
 func load_all(db *sqlite.DB) {
 	if path := utils.NewPath("~/Downloads").Find("投产版本说明*.zip"); path != nil {
 		for name, file := range path.IterZip() {
-			if err := load_bbsm(db, name, file); err != nil {
-				fmt.Println(err)
-			}
+			utils.PrintErr(load_bbsm(db, name, file))
 		}
 	}
 }

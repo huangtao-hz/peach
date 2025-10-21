@@ -167,3 +167,10 @@ var Sep = regexp.MustCompile(`[|,\t]| +`)
 func Split(s string) []string {
 	return Sep.Split(s, -1)
 }
+
+// PrintErr 输出错误信息
+func PrintErr(err error) {
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+}
