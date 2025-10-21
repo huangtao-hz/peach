@@ -18,10 +18,11 @@ import (
 )
 
 const loadFileSQL = `create table if not exists loadfile(
-name	text 	primary key,  -- 类型
+name	text,  -- 类型
 path	text,	              -- 文件名
 mtime	text,                 -- 文件修改时间
-ver		text		          -- 文件版本
+ver		text,		          -- 文件版本
+primary key(name,path)
 )`
 
 // InitLoadFile 创建重复导入检查的数据库表
