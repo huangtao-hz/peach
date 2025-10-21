@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"peach/excel"
+	"peach/sqlite"
 	"peach/utils"
 	"time"
 )
@@ -45,8 +46,6 @@ type Config struct {
 func main() {
 	defer utils.Recover()
 	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
-	path := utils.NewPath("~/Downloads")
-	for _, file := range path.IterGlob("*.tgz") {
-		fmt.Println(file.Name())
-	}
+	db, _ := sqlite.Open(":memory:")
+	db.Println("select $0,?,$0 ", "hello", "world")
 }
