@@ -51,6 +51,7 @@ func (b *xlsBook) IterRows(sheetIdx int, skipRows int) iter.Seq[[]string] {
 	}
 }
 
+// ReadSheet 读取 sheet 数据
 func (b *xlsBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...data.ConvertFunc) {
 	defer close(ch)
 	sheet := b.GetSheet(num)
@@ -68,6 +69,7 @@ func (b *xlsBook) ReadSheet(num int, skipRows int, ch chan<- []any, cvfns ...dat
 	}
 }
 
+// GetValues 获取数据
 func (b *xlsBook) GetValues(num int) (data [][]string, err error) {
 	var rowcount int
 	if num < 0 && num >= b.NumSheets() {

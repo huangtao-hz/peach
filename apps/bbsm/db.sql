@@ -13,3 +13,6 @@
 );
 CREATE INDEX if not exists bbsm_jym on bbsm(jym);
 CREATE INDEX if not exists bbsm_rq on bbsm(rq);
+
+create view if not exists bbsm_view as
+select rq,xm,count(distinct nr)as sl from bbsm group by rq,xm;
