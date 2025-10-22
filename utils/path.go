@@ -18,9 +18,9 @@ var (
 	// HomeDir 用户家目录
 	HomeDir string
 	// TempDir 临时目录
-	TempDir string
+	TempDir = os.TempDir()
 	// Home 家目录
-	Home *Path
+	Home = NewPath("~")
 )
 
 // 初始化函数，初始化 HomdDir, TempDir , Home 等变量的初始值
@@ -28,8 +28,6 @@ func init() {
 	var err error
 	HomeDir, err = os.UserHomeDir()
 	CheckFatal(err)
-	TempDir = os.TempDir()
-	Home = NewPath("~")
 }
 
 // Expand 扩展路径
