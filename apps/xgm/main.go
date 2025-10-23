@@ -39,6 +39,7 @@ func main() {
 	if *init_db {
 		CreateDatabse(db)
 	}
+	CreateDatabse(db)
 	if *version {
 		fmt.Println("版本：", Version)
 	}
@@ -60,8 +61,10 @@ func main() {
 		show_touchan(db)
 	}
 	if *update {
-		err = Update(db)
+
+		//err = Update(db)
 		//err = Export(db, nil)
+		update_bbmx(db)
 	}
 	if *jihua {
 		kaifajihua(db)

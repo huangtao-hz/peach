@@ -127,4 +127,39 @@ CREATE TABLE if not exists xjdz(
     zs             text,       -- 状态
     bz             text       -- 备注
 );
-CREATE TABLE if not exists loadfile(name	text,path	text,mtime	text,ver	text,primary key(name,path));
+CREATE TABLE if not exists loadfile(
+    name	text,
+    path	text,
+    mtime	text,
+    ver	text,primary key(name,path)
+);
+
+-- 分工明细表
+create table if not exists fgmxb(
+    bh  text   primary key,--验收条目编号
+    ywxz    text,-- 业务小组
+    jsxz    text -- 技术小组
+);
+
+-- 交易对照表
+create table if not exists jydzb(
+    bh  text,--验收条目编号
+    jym  text,   -- 新交易码
+    yjym text   -- 交易码
+);
+
+-- 验收条目表
+create table if not exists ystmb(
+    tcrq    text,   -- 投产日期
+    bh      text primary key, -- 验收条目编号
+    mc      text,   -- 功能名称
+    gs      text,   -- 功能概述
+    glxt    text,   --关联系统
+    jsfzr  text,   -- 技术负责人
+    zt      text,   -- 状态
+    wbce    text,   -- 外包测试
+    hxzc    text,   -- 核心支持人员
+    cszt    text,   -- 测试状态：0-冒烟不通过（代码未同步、漏资源、无交易码、开发中、主流程不通）；1-冒烟测试中；2-集成测试中；3-待验收；4-验收完成
+    bz      text,   -- 备注
+    ywry    text   -- 业务人员
+);

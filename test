@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-go run peach/apps/test
+go run peach/apps/xgm -update
