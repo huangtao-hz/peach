@@ -30,10 +30,7 @@ func init() {
 	CheckFatal(err)
 	Home = NewPath("~")
 	TempDir = os.TempDir()
-<<<<<<< HEAD
 
-=======
->>>>>>> 377af4f (upgrade)
 }
 
 // Expand 扩展路径
