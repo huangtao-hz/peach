@@ -16,6 +16,12 @@ func conv_jym(jym *string) {
 	}
 }
 
+// get_tcrq 获取最近的投产日期
+func get_tcrq(db *sqlite.DB) (tcrq string, err error) {
+	err = db.QueryRow("select max(tcrq)from ystmb").Scan(&tcrq)
+	return
+}
+
 // load_bbsm 导入版本明细数据
 func load_bbmx(db *sqlite.DB, path *utils.Path) {
 	if f, err := excel.NewExcelFile(path.String()); err == nil {
@@ -78,6 +84,7 @@ func export_bbmx(db *sqlite.DB, path *utils.Path) {
 
 // export_ystm 导出需求条目表
 func export_ystm(db *sqlite.DB, w *excel.Writer) {
+	var err error
 	fmt.Println("导出需求条目明细表")
 	sheet := w.GetSheet("需求条目列表")
 
@@ -92,8 +99,9 @@ func export_ystm(db *sqlite.DB, w *excel.Writer) {
 	sheet.SetColStyle(map[string]string{
 		"A:K": "Normal",
 	})
-	var tcrq string
-	if err := db.QueryRow("select max(tcrq)from ystmb").Scan(&tcrq); err != nil {
+
+	tcrq, err := get_tcrq(db)
+	if err != nil {
 		return
 	}
 	query := `select bh,mc,gs,glxt,jsfzr,zt,wbce,hxzc,cszt,bz,ywry from ystmb where tcrq=? order by bh`
@@ -144,8 +152,9 @@ func export_fgb(db *sqlite.DB, w *excel.Writer) {
 	sheet.SetColStyle(map[string]string{
 		"A:E": "Normal",
 	})
-	var tcrq string
-	if err := db.QueryRow("select max(tcrq)from ystmb").Scan(&tcrq); err != nil {
+
+	tcrq, err := get_tcrq(db)
+	if err != nil {
 		return
 	}
 	query := `select b.bh,b.mc,a.ywxz,a.jsxz,b.cszt
@@ -182,8 +191,8 @@ where tcrq=?
 group by b.jsxz
 order by sl desc
 `
-	var tcrq string
-	if err := db.QueryRow("select max(tcrq)from ystmb").Scan(&tcrq); err != nil {
+	tcrq, err := get_tcrq(db)
+	if err != nil {
 		return
 	}
 	sheet.SetWidth(map[string]float64{
