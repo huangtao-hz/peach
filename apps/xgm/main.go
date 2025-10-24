@@ -10,18 +10,17 @@ import (
 
 //go:embed query/db.sql
 var create_sql string
-var Version = "1.0.1"
+var Version = "1.0.2"
 
 func CreateDatabse(db *sqlite.DB) {
-	fmt.Println("初始化数据库表")
 	db.ExecScript(create_sql)
 	sqlite.InitLoadFile(db)
-	fmt.Println("初始化数据库成功！")
+
 }
 
 // main 主程序入口
 func main() {
-	//defer utils.Recover()
+	defer utils.Recover()
 	db, err := sqlite.Open(config.Database)
 	utils.CheckFatal(err)
 	defer db.Close()
@@ -37,7 +36,9 @@ func main() {
 
 	flag.Parse()
 	if *init_db {
+		fmt.Println("初始化数据库表")
 		CreateDatabse(db)
+		fmt.Println("初始化数据库成功！")
 	}
 	CreateDatabse(db)
 	if *version {
@@ -46,7 +47,6 @@ func main() {
 	if *load {
 		//err = load_jyjh(db)
 		err = Load(db)
-		//LoadWtgzb(db)
 	}
 	if *query_sql != "" {
 		db.Println(*query_sql)
@@ -82,12 +82,4 @@ func main() {
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
-
-	/*
-		fmt.Println(s)
-		table := &excelize.Table{}
-		err = toml.Unmarshal([]byte(s), table)
-		fmt.Println(err)
-		utils.PrintStruct(table)
-	*/
 }

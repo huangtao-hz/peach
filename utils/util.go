@@ -21,6 +21,13 @@ func CheckFatal(err error) {
 	}
 }
 
+// CheckErr 检查错误，并进行提示
+func CheckErr(err error) {
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 // Recover 捕获错误并提示，避免程序崩溃
 // 在主程序开始时使用 defer 调用
 func Recover() {
@@ -169,8 +176,4 @@ func Split(s string) []string {
 }
 
 // PrintErr 输出错误信息
-func PrintErr(err error) {
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-}
+var PrintErr = CheckErr

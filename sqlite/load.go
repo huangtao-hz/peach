@@ -145,3 +145,8 @@ func (l *Loader) Load() (err error) {
 	}
 	return
 }
+
+// CreateLoadFile 创建 loadfile 数据库文件
+func (db *DB) CreateLoadFile() {
+	db.ExecScript(loadFileSQL)
+}
