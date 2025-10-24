@@ -1,0 +1,47 @@
+name = "业务小组统计"
+
+[[column]]
+name = "业务小组"
+total_string = "合计"
+
+[[column]]
+name = "冒烟不通过"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "冒烟测试"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "集成测试"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "待验收"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "完成验收"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "总数"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "开发完成率"
+format = "Percent"
+formula = "([待验收]+[完成验收]+[集成测试])/[总数]"
+total_function = "(业务小组统计[[#Totals],[集成测试]]+业务小组统计[[#Totals],[待验收]]+业务小组统计[[#Totals],[完成验收]])/业务小组统计[[#Totals],[总数]]"
+
+[[column]]
+name = "测试完成率"
+format = "Percent"
+formula = "([待验收]+[完成验收])/[总数]"
+total_function = "(业务小组统计[[#Totals],[待验收]]+业务小组统计[[#Totals],[完成验收]])/业务小组统计[[#Totals],[总数]]"

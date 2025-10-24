@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"peach/excel"
 	"peach/sqlite"
@@ -59,7 +60,7 @@ func update_bbmx(db *sqlite.DB) {
 	if path := utils.NewPath(config.Home).Find("柜面版本明细*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Name())
 		load_bbmx(db, path)
-		export_bbmx(db, utils.NewPath("~/Downloads/test.xlsx"))
+		export_bbmx(db, path)
 	} else {
 		fmt.Println("未发现文件：柜面版本明细*.xlsx")
 	}
@@ -69,6 +70,7 @@ func update_bbmx(db *sqlite.DB) {
 func export_bbmx(db *sqlite.DB, path *utils.Path) {
 	file := excel.NewWriter()
 	defer file.SaveAs(path.String())
+	export_tongji(db, file)
 	export_ystm(db, file)
 	export_jydzb(db, file)
 	export_fgb(db, file)
@@ -77,8 +79,7 @@ func export_bbmx(db *sqlite.DB, path *utils.Path) {
 // export_ystm 导出需求条目表
 func export_ystm(db *sqlite.DB, w *excel.Writer) {
 	fmt.Println("导出需求条目明细表")
-	sheet := w.GetSheet(0)
-	sheet.Rename("需求条目列表")
+	sheet := w.GetSheet("需求条目列表")
 
 	sheet.SetWidth(map[string]float64{
 		"A":   20,
@@ -143,14 +144,80 @@ func export_fgb(db *sqlite.DB, w *excel.Writer) {
 	sheet.SetColStyle(map[string]string{
 		"A:E": "Normal",
 	})
-	query := `select a.bh,b.mc,a.ywxz,a.jsxz,b.cszt from fgmxb a left join ystmb b on a.bh=b.bh order by a.bh`
+	var tcrq string
+	if err := db.QueryRow("select max(tcrq)from ystmb").Scan(&tcrq); err != nil {
+		return
+	}
+	query := `select b.bh,b.mc,a.ywxz,a.jsxz,b.cszt
+	from ystmb b left join fgmxb a  on a.bh=b.bh
+	where b.tcrq=?
+	order by b.bh`
 	header := "条目编号,功能名称,业务小组,技术小组,进度"
-	rows, err := db.Query(query)
+	rows, err := db.Query(query, tcrq)
 	if err != nil {
 		return
 	}
 	ch := make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
 	sheet.AddTable("A1", header, ch)
+}
 
+//go:embed tables/kaifatongji.toml
+var kaifatongji string
+
+//go:embed tables/ywxztj.toml
+var ywxztj string
+
+func export_tongji(db *sqlite.DB, w *excel.Writer) {
+	sheet := w.GetSheet(0)
+	sheet.Rename("统计表")
+	query := `select b.jsxz,sum(iif(a.cszt like '0%',1,0)),
+sum(iif(a.cszt like '1%',1,0)),
+sum(iif(a.cszt like '2%',1,0)),
+sum(iif(a.cszt like '3%',1,0)),
+sum(iif(a.cszt like '4%',1,0)),
+count(a.bh) as sl
+from ystmb a left join fgmxb b on a.bh=b.bh
+where tcrq=?
+group by b.jsxz
+order by sl desc
+`
+	var tcrq string
+	if err := db.QueryRow("select max(tcrq)from ystmb").Scan(&tcrq); err != nil {
+		return
+	}
+	sheet.SetWidth(map[string]float64{
+		"A":   20,
+		"B:I": 10,
+	})
+	rows, err := db.Query(query, tcrq)
+	if err != nil {
+		return
+	}
+	ch := make(chan []any, BufferSize)
+	go rows.FetchAll(ch)
+	utils.PrintErr(sheet.AddTableToml("A1", kaifatongji, ch))
+
+	query = `select b.ywxz,sum(iif(a.cszt like '0%',1,0)),
+sum(iif(a.cszt like '1%',1,0)),
+sum(iif(a.cszt like '2%',1,0)),
+sum(iif(a.cszt like '3%',1,0)),
+sum(iif(a.cszt like '4%',1,0)),
+count(a.bh) as sl
+from ystmb a left join fgmxb b on a.bh=b.bh
+where tcrq=?
+group by b.ywxz
+order by sl desc
+`
+	var count int
+	db.QueryRow("select count(distinct b.jsxz)from ystmb a left join fgmxb b on a.bh=b.bh where tcrq=?", tcrq).Scan(&count)
+	rows, err = db.Query(query, tcrq)
+	if err != nil {
+		return
+	}
+	ch = make(chan []any, BufferSize)
+	go rows.FetchAll(ch)
+	cell, _ := excel.Cell("A", count+5)
+	fmt.Println(cell)
+	utils.PrintErr(sheet.AddTableToml(cell, ywxztj, ch))
 }
