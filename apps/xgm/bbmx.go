@@ -218,6 +218,5 @@ order by sl desc
 	ch = make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
 	cell, _ := excel.Cell("A", count+5)
-	fmt.Println(cell)
 	utils.PrintErr(sheet.AddTableToml(cell, ywxztj, ch))
 }
