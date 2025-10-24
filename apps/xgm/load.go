@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"io/fs"
 	"peach/data"
@@ -36,8 +37,22 @@ func Update(db *sqlite.DB) (err error) {
 		LoadXmjh2(db, fileinfo, &book, ver)
 	}
 	Update_ytc(db)
+	update_kfjh(db)
 	err = update_kfzt(db)
 	return Export(db, path)
+}
+
+//go:embed query/update_kfjihua.sql
+var update_kfjh2 string
+
+func update_kfjh(db *sqlite.DB) {
+	fmt.Println("根据验收明细表更新开发状态")
+	if r, err := db.Exec(update_kfjh2); err == nil {
+		rows, _ := r.RowsAffected()
+		utils.Printf("Affected rows: %,d\n", rows)
+	} else {
+		fmt.Println(err)
+	}
 }
 
 // LoadXmjh2 项目计划
