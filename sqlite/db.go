@@ -13,10 +13,7 @@ import (
 	"peach/utils"
 	"strings"
 
-	//_ "modernc.org/sqlite"
 	_ "github.com/mattn/go-sqlite3"
-	//"github.com/ncruces/go-sqlite3/driver"
-	//"github.com/ncruces/go-sqlite3/embed"
 )
 
 // 数据库连接
