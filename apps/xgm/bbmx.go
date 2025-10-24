@@ -171,26 +171,21 @@ func export_fgb(db *sqlite.DB, w *excel.Writer) {
 	sheet.AddTable("A1", header, ch)
 }
 
-//go:embed tables/kaifatongji.toml
-var kaifatongji string
-
-//go:embed tables/ywxztj.toml
-var ywxztj string
+var (
+	//go:embed tables/kaifatongji.toml
+	kaifatongji string
+	//go:embed tables/ywxztj.toml
+	ywxztj string
+	//go:embed query/kaifatongji.sql
+	kaifa_query string
+	//go:embed query/ywtongji.sql
+	yw_query string
+)
 
 func export_tongji(db *sqlite.DB, w *excel.Writer) {
 	sheet := w.GetSheet(0)
 	sheet.Rename("统计表")
-	query := `select b.jsxz,sum(iif(a.cszt like '0%',1,0)),
-sum(iif(a.cszt like '1%',1,0)),
-sum(iif(a.cszt like '2%',1,0)),
-sum(iif(a.cszt like '3%',1,0)),
-sum(iif(a.cszt like '4%',1,0)),
-count(a.bh) as sl
-from ystmb a left join fgmxb b on a.bh=b.bh
-where tcrq=?
-group by b.jsxz
-order by sl desc
-`
+
 	tcrq, err := get_tcrq(db)
 	if err != nil {
 		return
@@ -199,7 +194,7 @@ order by sl desc
 		"A":   20,
 		"B:I": 10,
 	})
-	rows, err := db.Query(query, tcrq)
+	rows, err := db.Query(kaifa_query, tcrq)
 	if err != nil {
 		return
 	}
@@ -207,20 +202,9 @@ order by sl desc
 	go rows.FetchAll(ch)
 	utils.PrintErr(sheet.AddTableToml("A1", kaifatongji, ch))
 
-	query = `select b.ywxz,sum(iif(a.cszt like '0%',1,0)),
-sum(iif(a.cszt like '1%',1,0)),
-sum(iif(a.cszt like '2%',1,0)),
-sum(iif(a.cszt like '3%',1,0)),
-sum(iif(a.cszt like '4%',1,0)),
-count(a.bh) as sl
-from ystmb a left join fgmxb b on a.bh=b.bh
-where tcrq=?
-group by b.ywxz
-order by sl desc
-`
 	var count int
 	db.QueryRow("select count(distinct b.jsxz)from ystmb a left join fgmxb b on a.bh=b.bh where tcrq=?", tcrq).Scan(&count)
-	rows, err = db.Query(query, tcrq)
+	rows, err = db.Query(yw_query, tcrq)
 	if err != nil {
 		return
 	}
