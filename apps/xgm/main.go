@@ -79,6 +79,7 @@ func main() {
 			show_old_jy(db, jym)
 		}
 	}
+	utils.PrintErr(test_export(db))
 	if err != nil {
 		fmt.Println("Error:", err)
 	}

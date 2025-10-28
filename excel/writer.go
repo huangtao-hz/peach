@@ -57,12 +57,17 @@ func (w *Writer) GetSheet(index any) *WorkSheet {
 		name = w.GetSheetName(idx)
 	case string:
 		name = idx
-		i, _ := w.GetSheetIndex(name)
-		if i == -1 {
-			w.NewSheet(name)
+		if w.SheetCount == 1 && w.GetSheetName(0) == "Sheet1" {
+			w.SetSheetName("Sheet1", name)
+		} else {
+			i, _ := w.GetSheetIndex(name)
+			if i == -1 {
+				w.NewSheet(name)
+			}
 		}
+
 	}
-	return &WorkSheet{w, name}
+	return &WorkSheet{writer: w, name: name, Row: 1}
 }
 
 // SaveAs 保存文件
@@ -74,6 +79,7 @@ func (w *Writer) SaveAs(path string) {
 type WorkSheet struct {
 	writer *Writer
 	name   string
+	Row    int
 }
 
 // SetWidth 设置表格的宽度
@@ -128,8 +134,9 @@ func (s *WorkSheet) AddTableToml(cell string, table string, ch <-chan []any) (er
 // AddTable 写入表格
 func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ...*excelize.Table) (err error) {
 	var (
-		row, col int
-		table    *excelize.Table
+		row, col  int
+		table     *excelize.Table
+		total_row bool
 	)
 	if opt == nil {
 		table = &excelize.Table{}
@@ -142,18 +149,25 @@ func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ..
 	}
 	col, row, err = excelize.CellNameToCoordinates(axis) // 读取初始
 	if err != nil {
-		return
+		if col, err = excelize.ColumnNameToNumber(axis); err == nil {
+			row = s.Row
+			axis, _ = excelize.JoinCellName(axis, row)
+		} else {
+			return
+		}
+
+	} else {
+		s.Row = row
 	}
 	colname, _ := excelize.ColumnNumberToName(col)
 	if *table.ShowHeaderRow {
-		row++
+		s.Row++
 	}
 	for rowdata := range ch {
-		s.AddRow(colname, row, rowdata...)
-		row++
+		s.AddRow(colname, rowdata...)
 	}
-	count := slices.Max([]int{len(strings.Split(header, ",")), len(table.Columns)})
-	end, _ := excelize.CoordinatesToCellName(col+count-1, row-1)
+	count := slices.Max([]int{len(utils.Split(header)), len(table.Columns)})
+	end, _ := excelize.CoordinatesToCellName(col+count-1, s.Row-1)
 
 	table.Range = fmt.Sprintf("%s:%s", axis, end)
 	if table.StyleName == "" {
@@ -180,15 +194,21 @@ func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ..
 			if column.TotalsRowCellStyle == "" && column.DataCellStyle != "" {
 				column.TotalsRowCellStyle = column.DataCellStyle
 			}
+			if column.TotalsRowFunction != "" || column.TotalsRowLabel != "" {
+				total_row = true
+			}
 		}
 	} else if header != "" {
 		columns := make([]excelize.TableColumn, 0)
-		for h := range strings.SplitSeq(header, ",") {
+		for _, h := range utils.Split(header) {
 			columns = append(columns, excelize.TableColumn{Name: h})
 		}
 		table.Columns = columns
 	}
 	s.writer.AddTable(s.name, table)
+	if total_row {
+		s.Row++
+	}
 	return
 }
 
@@ -300,21 +320,43 @@ func (s *WorkSheet) SetBorder(rng string) (err error) {
 	return
 }
 
+// SkipRows 跳过空行
+func (s *WorkSheet) SkipRows(rows int) (row int) {
+	s.Row += rows
+	return s.Row
+}
+
+// get_cell 获取当前坐标
+func (s *WorkSheet) get_cell(col string) (cellname string, err error) {
+	return excelize.JoinCellName(col, s.Row)
+}
+
 // AddTitle 添加标题
 func (s *WorkSheet) AddTitle(rng string, title string) (err error) {
-	var cell1 string
-	if cell1, _, err = Range2Cells(rng); err != nil {
-		return
+	cells := strings.Split(rng, ":")
+	if len(cells) == 0 {
+		return fmt.Errorf("%s is not a valid range format", rng)
+	} else if len(cells) == 1 {
+		cells = append(cells, cells[0])
 	}
-	if err = s.SetCellValue(cell1, title); err != nil {
-		return
+	var cell1, cell2 string
+	if cell1, err = s.get_cell(cells[0]); err == nil {
+		if err = s.SetCellValue(cell1, title); err == nil {
+			if cell2, err = s.get_cell(cells[1]); err == nil {
+				if err = s.SetCellStyle(strings.Join([]string{cell1, cell2}, ":"), "Title"); err == nil {
+					s.SetRowHeight(s.Row, 30)
+					s.Row++
+				}
+			}
+		}
 	}
-	return s.SetCellStyle(rng, "Title")
+	return
 }
 
 // AddHeader 添加标题,header 是用 “,” 分隔的字符串
-func (s *WorkSheet) AddHeader(col string, row int, header string) (err error) {
-	var col_ int
+func (s *WorkSheet) AddHeader(col string, header string) (err error) {
+	var col_, row int
+	row = s.Row
 	if col_, err = excelize.ColumnNameToNumber(col); err == nil {
 		for i, h := range strings.Split(header, ",") {
 			if err = s.SetCell(col_+i, row, h, "Header"); err != nil {
@@ -322,12 +364,14 @@ func (s *WorkSheet) AddHeader(col string, row int, header string) (err error) {
 			}
 		}
 	}
+	s.Row++
 	return
 }
 
 // AddHeader 添加一行数据
-func (s *WorkSheet) AddRow(col string, row int, values ...any) (err error) {
-	var col_ int
+func (s *WorkSheet) AddRow(col string, values ...any) (err error) {
+	var col_, row int
+	row = s.Row
 	if col_, err = excelize.ColumnNameToNumber(col); err == nil {
 		for i, value := range values {
 			if err = s.SetCell(col_+i, row, value, ""); err != nil {
@@ -335,5 +379,6 @@ func (s *WorkSheet) AddRow(col string, row int, values ...any) (err error) {
 			}
 		}
 	}
+	s.Row++
 	return
 }

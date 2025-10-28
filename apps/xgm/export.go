@@ -145,18 +145,11 @@ var (
 
 // export_tjb 导出统计表
 func export_tjb(db *sqlite.DB, book *excel.Writer) (err error) {
-	sheet := book.GetSheet(0)
-	sheet.Rename("统计表")
-	//header := "类型,未提交需求,已完成需求,开发中,已投产,总数,投产完成率"
+	sheet := book.GetSheet("统计表")
 	sheet.SetWidth(map[string]float64{
 		"A":   12,
 		"B":   20,
 		"C:H": 10,
-	})
-	sheet.SetColStyle(map[string]string{
-		"A:B": "Normal-NoWrap",
-		"C:G": "Number",
-		"H":   "Percent",
 	})
 
 	rows, err := db.Query(tongji_gbm_sql)

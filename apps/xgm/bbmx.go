@@ -223,9 +223,7 @@ var (
 )
 
 func export_tongji(db *sqlite.DB, w *excel.Writer) {
-	sheet := w.GetSheet(0)
-	sheet.Rename("统计表")
-
+	sheet := w.GetSheet("统计表")
 	tcrq, err := get_tcrq(db)
 	if err != nil {
 		return
@@ -250,6 +248,6 @@ func export_tongji(db *sqlite.DB, w *excel.Writer) {
 	}
 	ch = make(chan []any, BufferSize)
 	go rows.FetchAll(ch)
-	cell, _ := excel.Cell("A", count+5)
-	utils.PrintErr(sheet.AddTableToml(cell, ywxztj, ch))
+	sheet.SkipRows(2)
+	utils.PrintErr(sheet.AddTableToml("A", ywxztj, ch))
 }
