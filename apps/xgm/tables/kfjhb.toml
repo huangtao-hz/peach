@@ -1,0 +1,11 @@
+header = "交易码,交易名称,类型,部门,中心,联系人,方案,需求状态,开发状态,计划版本,开发负责人,开发组长,前端开发,后端开发,流程开发,集成测试开始,集成测试结束,验收测试开始,验收测试结束"
+query = """\
+select a.jym,a.jymc,a.lx,a.ywbm,a.zx,a.lxr,a.fa,
+b.xqzt,b.kfzt,b.jhbb,b.kjfzr,b.kfzz,b.qdkf,b.hdkf,b.lckf,b.jcks,b.jcjs,b.ysks,b.ysjs
+from xmjh a
+left join kfjh b on a.jym=b.jym
+where b.jym is not null
+order by b.jhbb,a.jym\
+"""
+start_col = "A"
+
