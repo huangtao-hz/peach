@@ -10,7 +10,7 @@ import (
 
 //go:embed query/db.sql
 var create_sql string
-var Version = "1.0.2"
+var Version = "1.0.3"
 
 func CreateDatabse(db *sqlite.DB) {
 	db.ExecScript(create_sql)
