@@ -100,6 +100,8 @@ func Restore(db *sqlite.DB) (err error) {
 			err = Load_xmjh(db, file)
 		} else if strings.Contains(name, "数智综合运营系统问题跟踪表") {
 			err = LoadWtgzb(db, file)
+		} else if strings.Contains(name, "版本条目明细") {
+			load_bbmx(db, file)
 		}
 		if err != nil {
 			fmt.Println(err)

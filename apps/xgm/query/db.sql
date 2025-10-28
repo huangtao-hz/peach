@@ -163,3 +163,13 @@ create table if not exists ystmb(
     bz      text,   -- 备注
     ywry    text   -- 业务人员
 );
+
+-- 人员清单
+create table if not exists xmryb(
+    xz  text,-- 小组
+    lb text,    -- 类别：0-总行科技，1-通用外包，2-赞同公司，3-分行业务
+    xm text     -- 姓名
+);
+create index if not exists xmryb_xz on xmryb(xz);
+create index if not exists xmryb_lb on xmryb(lb);
+create index if not exists xmryb_xm on xmryb(xm);

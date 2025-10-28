@@ -9,7 +9,7 @@ import (
 	"peach/utils"
 )
 
-// LoadWtgzb 导入问题跟踪表数据
+// Load_xmjh 导入项目计划
 func Load_xmjh(db *sqlite.DB, file utils.File) (err error) {
 	var (
 		f    io.ReadCloser

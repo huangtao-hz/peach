@@ -42,6 +42,12 @@ type Config struct {
 	Hello string `toml:"hello"`
 }
 
+var s = `
+[[sheet]]
+A_D_E = 15.2
+
+`
+
 func main() {
 	defer utils.Recover()
 	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
