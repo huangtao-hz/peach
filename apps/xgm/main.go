@@ -79,7 +79,5 @@ func main() {
 			show_old_jy(db, jym)
 		}
 	}
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
+	utils.CheckErr(err)
 }

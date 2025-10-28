@@ -20,6 +20,7 @@ var tablesFS embed.FS
 
 // Reporter 报表类型
 type Reporter struct {
+	Sheet       string             `toml:"sheet"`
 	Title       string             `toml:"title"`
 	Header      string             `toml:"header"`
 	Widths      map[string]float64 `toml:"widths"`
@@ -42,7 +43,8 @@ func NewReporter(path string) *Reporter {
 }
 
 // Export 导出报表
-func (r *Reporter) Export(db *sqlite.DB, sheet *excel.WorkSheet, args ...any) error {
+func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) error {
+	sheet := book.GetSheet(r.Sheet)
 	if r.Widths != nil {
 		sheet.SetWidth(r.Widths)
 	}
@@ -62,6 +64,6 @@ func (r *Reporter) Export(db *sqlite.DB, sheet *excel.WorkSheet, args ...any) er
 }
 
 // EpxortReport 导出报表
-func ExportReport(db *sqlite.DB, sheet *excel.WorkSheet, path string, args ...any) error {
-	return NewReporter(path).Export(db, sheet)
+func ExportReport(db *sqlite.DB, book *excel.Writer, path string, args ...any) error {
+	return NewReporter(path).Export(db, book)
 }

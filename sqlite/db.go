@@ -13,12 +13,22 @@ import (
 	"peach/utils"
 	"strings"
 
-	_ "github.com/mattn/go-sqlite3"
+	sqlite3 "github.com/mattn/go-sqlite3"
 )
 
 // 数据库连接
 type DB struct {
 	*sql.DB
+}
+
+// init 注册自定义函数
+func init() {
+	sql.Register("sqlite3_custom",
+		&sqlite3.SQLiteDriver{
+			ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+				return conn.RegisterFunc("get_md5", utils.GetMd5, true)
+			},
+		})
 }
 
 // 打开数据库连接
@@ -28,7 +38,7 @@ func Open(database string) (db *DB, err error) {
 		dataHome.Ensure() // 目录不存在则自动创建
 		database = (dataHome.Join(database).WithExt(".db")).String()
 	}
-	if _db, err := sql.Open("sqlite3", database); err == nil {
+	if _db, err := sql.Open("sqlite3_custom", database); err == nil {
 		db = &DB{_db}
 	}
 	return

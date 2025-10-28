@@ -1,3 +1,4 @@
+sheet = "投产交易一览表"
 header = "交易码,交易码称,原交易码,原交易码称,投产日期,状态,备注"
 query = "select * from xjdz order by tcrq,jym,yjym"
 start_col = "A"

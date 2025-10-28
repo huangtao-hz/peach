@@ -3,7 +3,6 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"peach/data"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
@@ -12,8 +11,7 @@ import (
 // export_xjdzb 导出投产交易一览表
 func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
 	fmt.Print("导出投产交易一览表，")
-	sheet := book.GetSheet("投产交易一览表")
-	if err := ExportReport(db, sheet, "tcjyb.toml"); err == nil {
+	if err := ExportReport(db, book, "tcjyb.toml"); err == nil {
 		fmt.Println("完成！")
 	}
 	return
@@ -21,8 +19,7 @@ func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
 
 // export_kfjh 导出开发计划表
 func export_kfjh(db *sqlite.DB, book *excel.Writer) (err error) {
-	sheet := book.GetSheet("开发计划")
-	ExportReport(db, sheet, "kfjhb.toml")
+	ExportReport(db, book, "kfjhb.toml")
 	return
 }
 
@@ -32,7 +29,7 @@ func export_xmjh(db *sqlite.DB, book *excel.Writer) (err error) {
 	querys := map[string]string{
 		//"计划表": "select * from xmjh where sfwc is null or not sfwc like '5%' order by jym",
 		//"完成表": "select * from xmjh where sfwc like '5%' order by jym",
-		"全量表": "select * from xmjh order by jym",
+		"全量表": "select *,get_md5(lx,ywbm,zx,lxr,fa,pc,sfwc,bz,xjym) from xmjh order by jym",
 	}
 	for name, query := range querys {
 		sheet := book.GetSheet(name)
@@ -55,21 +52,8 @@ func export_xmjh(db *sqlite.DB, book *excel.Writer) (err error) {
 		sheet.SetColVisible("Q", false)
 		if rows, err := db.Query(query); err == nil {
 			inch := make(chan []any, BufferSize)
-			outch := make(chan []any, BufferSize)
 			go rows.FetchAll(inch)
-			go func() {
-				defer close(outch)
-				var hasher = data.Hashier(-9, -8, -7, -6, -5, -4, -3, -2, -1)
-				for row := range inch {
-					dest := make([]string, len(row))
-					for i, k := range row {
-						dest[i] = fmt.Sprintf("%v", k)
-					}
-					dest, err = hasher(dest)
-					outch <- utils.Slice(dest)
-				}
-			}()
-			sheet.AddTable("A1", header, outch)
+			sheet.AddTable("A1", header, inch)
 		} else {
 			return err
 		}
