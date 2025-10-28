@@ -4,14 +4,20 @@ import (
 	"embed"
 	"peach/excel"
 	"peach/sqlite"
+	"peach/utils"
 	"strings"
 
 	"github.com/BurntSushi/toml"
 )
 
+const (
+	BufferSize = 1024
+)
+
 //go:embed tables
 var tablesFS embed.FS
 
+// Reporter 报表类型
 type Reporter struct {
 	Title       string `toml:"title"`
 	Header      string `toml:"header"`
@@ -19,15 +25,18 @@ type Reporter struct {
 	Query       string `toml:"query"`
 }
 
-func NewReporter(path string) (*Reporter, error) {
+// NewReporter 构造函数
+func NewReporter(path string) *Reporter {
 	rep := Reporter{}
 	if !strings.HasPrefix(path, "tables/") {
 		path = strings.Join([]string{"tables", path}, "/")
 	}
 	_, err := toml.DecodeFS(tablesFS, path, &rep)
-	return &rep, err
+	utils.CheckFatal(err)
+	return &rep
 }
 
+// Export 导出报表
 func (r *Reporter) Export(db *sqlite.DB, sheet *excel.WorkSheet, args ...any) error {
 	if rows, err := db.Query(r.Query, args...); err == nil {
 		ch := make(chan []any, BufferSize)
@@ -41,14 +50,7 @@ func (r *Reporter) Export(db *sqlite.DB, sheet *excel.WorkSheet, args ...any) er
 	return nil
 }
 
-func test_export(db *sqlite.DB) error {
-	file := excel.NewWriter()
-	defer file.SaveAs("~/Documents/abc.xlsx")
-	sheet := file.GetSheet("test")
-	if r, err := NewReporter("tcjyb.toml"); err == nil {
-		r.Export(db, sheet)
-	} else {
-		return err
-	}
-	return nil
+// EpxortReport 导出报表
+func ExportReport(db *sqlite.DB, sheet *excel.WorkSheet, path string, args ...any) error {
+	return NewReporter(path).Export(db, sheet)
 }

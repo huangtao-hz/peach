@@ -9,36 +9,10 @@ import (
 	"peach/utils"
 )
 
-const (
-	KfjhHeader = "交易码,交易名称,类型,部门,中心,联系人,方案,需求状态,开发状态,计划版本,开发负责人,开发组长,前端开发,后端开发,流程开发,集成测试开始,集成测试结束,验收测试开始,验收测试结束"
-	KfjhQuery  = `
-select a.jym,a.jymc,a.lx,a.ywbm,a.zx,a.lxr,a.fa,
-b.xqzt,b.kfzt,b.jhbb,b.kjfzr,b.kfzz,b.qdkf,b.hdkf,b.lckf,b.jcks,b.jcjs,b.ysks,b.ysjs
-from xmjh a
-left join kfjh b on a.jym=b.jym
-where b.jym is not null
-order by b.jhbb,a.jym
-`
-	BufferSize = 1024
-)
-
-var KfjhWidth = map[string]float64{
-	"A":       6.83,
-	"B":       42,
-	"N,O":     15,
-	"D,E,K,M": 14,
-	"C,F":     9,
-	"G:J,L":   11,
-	"P:S":     16,
-}
-var KfjhStyle = map[string]string{
-	"A:S": "Normal-NoWrap",
-}
-
 // export_xjdzb 导出投产交易一览表
 func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
+	fmt.Print("导出投产交易一览表，")
 	sheet := book.GetSheet("投产交易一览表")
-	header := "交易码,交易码称,原交易码,原交易码称,投产日期,状态,备注"
 	sheet.SetWidth(map[string]float64{
 		"A,C": 9,
 		"B,D": 42,
@@ -49,28 +23,28 @@ func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
 	sheet.SetColStyle(map[string]string{
 		"A:G": "Normal-NoWrap",
 	})
-	query := "select * from xjdz order by tcrq,jym,yjym"
-	rows, err := db.Query(query)
-	if err != nil {
-		return
+	if err := ExportReport(db, sheet, "tcjyb.toml"); err == nil {
+		fmt.Println("完成！")
 	}
-	ch := make(chan []any, BufferSize)
-	go rows.FetchAll(ch)
-	sheet.AddTable("A1", header, ch)
 	return
 }
 
+// export_kfjh 导出开发计划表
 func export_kfjh(db *sqlite.DB, book *excel.Writer) (err error) {
 	sheet := book.GetSheet("开发计划")
-	sheet.SetWidth(KfjhWidth)
-	sheet.SetColStyle(KfjhStyle)
-	rows, err := db.Query(KfjhQuery)
-	if err != nil {
-		return
-	}
-	ch := make(chan []any, BufferSize)
-	go rows.FetchAll(ch)
-	sheet.AddTable("A1", KfjhHeader, ch)
+	sheet.SetWidth(map[string]float64{
+		"A":       6.83,
+		"B":       42,
+		"N,O":     15,
+		"D,E,K,M": 14,
+		"C,F":     9,
+		"G:J,L":   11,
+		"P:S":     16,
+	})
+	sheet.SetColStyle(map[string]string{
+		"A:S": "Normal-NoWrap",
+	})
+	ExportReport(db, sheet, "kfjhb.toml")
 	return
 }
 
