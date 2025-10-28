@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/huangtao-hz/excelize"
 )
 
 const (
@@ -23,6 +24,7 @@ type Reporter struct {
 	Header      string `toml:"header"`
 	StartColumn string `toml:"start_col"`
 	Query       string `toml:"query"`
+	*excelize.Table
 }
 
 // NewReporter 构造函数
