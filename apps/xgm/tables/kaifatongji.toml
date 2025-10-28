@@ -2,8 +2,13 @@ name = "开发情况统计表"
 range = "A1"
 
 [[column]]
-name = "技术负责人"
+name = "技术小组"
 total_string = "合计"
+
+[[column]]
+name = "人员数量"
+format = "Number"
+total_function = "sum"
 
 [[column]]
 name = "冒烟不通过"
@@ -32,6 +37,16 @@ total_function = "sum"
 
 [[column]]
 name = "总数"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "新交易数"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "迁移老交易数"
 format = "Number"
 total_function = "sum"
 

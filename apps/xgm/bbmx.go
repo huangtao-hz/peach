@@ -78,7 +78,7 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 
 // update_bbmx 更新版本明细
 func update_bbmx(db *sqlite.DB) {
-	if path := utils.NewPath(config.Home).Find("柜面版本明细*.xlsx"); path != nil {
+	if path := utils.NewPath(config.Home).Find("*版本条目明细*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Name())
 		load_bbmx(db, path)
 		export_bbmx(db, path)
@@ -232,7 +232,7 @@ func export_tongji(db *sqlite.DB, w *excel.Writer) {
 	}
 	sheet.SetWidth(map[string]float64{
 		"A":   20,
-		"B:I": 10,
+		"B:Z": 10,
 	})
 	rows, err := db.Query(kaifa_query, tcrq)
 	if err != nil {
@@ -243,7 +243,7 @@ func export_tongji(db *sqlite.DB, w *excel.Writer) {
 	utils.PrintErr(sheet.AddTableToml("A1", kaifatongji, ch))
 
 	var count int
-	db.QueryRow("select count(distinct b.jsxz)from ystmb a left join fgmxb b on a.bh=b.bh where tcrq=?", tcrq).Scan(&count)
+	db.QueryRow(fmt.Sprintf("select count(*)from (%s)", kaifa_query), tcrq).Scan(&count)
 	rows, err = db.Query(yw_query, tcrq)
 	if err != nil {
 		return
