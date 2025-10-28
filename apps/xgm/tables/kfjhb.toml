@@ -9,3 +9,14 @@ order by b.jhbb,a.jym\
 """
 start_col = "A"
 
+[widths]
+"A" = 6.83
+"B" = 42
+"N,O" = 15
+"D,E,K,M" = 14
+"C,F" = 9
+"G:J,L" = 11
+"P:S" = 16
+
+[formats]
+"A:S" = "Normal-NoWrap"

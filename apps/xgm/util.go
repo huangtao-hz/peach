@@ -20,10 +20,13 @@ var tablesFS embed.FS
 
 // Reporter 报表类型
 type Reporter struct {
-	Title       string `toml:"title"`
-	Header      string `toml:"header"`
-	StartColumn string `toml:"start_col"`
-	Query       string `toml:"query"`
+	Title       string             `toml:"title"`
+	Header      string             `toml:"header"`
+	Widths      map[string]float64 `toml:"widths"`
+	Formats     map[string]string  `toml:"formats"`
+	StartColumn string             `toml:"start_col"`
+	Query       string             `toml:"query"`
+
 	*excelize.Table
 }
 
@@ -40,6 +43,12 @@ func NewReporter(path string) *Reporter {
 
 // Export 导出报表
 func (r *Reporter) Export(db *sqlite.DB, sheet *excel.WorkSheet, args ...any) error {
+	if r.Widths != nil {
+		sheet.SetWidth(r.Widths)
+	}
+	if r.Formats != nil {
+		sheet.SetColStyle(r.Formats)
+	}
 	if rows, err := db.Query(r.Query, args...); err == nil {
 		ch := make(chan []any, BufferSize)
 		go rows.FetchAll(ch)

@@ -13,16 +13,6 @@ import (
 func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
 	fmt.Print("导出投产交易一览表，")
 	sheet := book.GetSheet("投产交易一览表")
-	sheet.SetWidth(map[string]float64{
-		"A,C": 9,
-		"B,D": 42,
-		"E":   11,
-		"F":   12,
-		"G":   17,
-	})
-	sheet.SetColStyle(map[string]string{
-		"A:G": "Normal-NoWrap",
-	})
 	if err := ExportReport(db, sheet, "tcjyb.toml"); err == nil {
 		fmt.Println("完成！")
 	}
@@ -32,18 +22,6 @@ func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
 // export_kfjh 导出开发计划表
 func export_kfjh(db *sqlite.DB, book *excel.Writer) (err error) {
 	sheet := book.GetSheet("开发计划")
-	sheet.SetWidth(map[string]float64{
-		"A":       6.83,
-		"B":       42,
-		"N,O":     15,
-		"D,E,K,M": 14,
-		"C,F":     9,
-		"G:J,L":   11,
-		"P:S":     16,
-	})
-	sheet.SetColStyle(map[string]string{
-		"A:S": "Normal-NoWrap",
-	})
 	ExportReport(db, sheet, "kfjhb.toml")
 	return
 }

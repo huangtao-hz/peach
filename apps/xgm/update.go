@@ -9,7 +9,7 @@ import (
 
 func Update_ytc(db *sqlite.DB) {
 	var count int
-	err := db.QueryRow(`select count(a.jym) from xmjh a join xjdz b on a.jym=b.yjym and b.tcrq<date('now') and a.sfwc not like '5%' `).Scan(&count)
+	err := db.QueryRow(`select count(a.jym) from xmjh a join xjdz b on a.jym=b.yjym and b.tcrq<date('now') and b.tcrq<>"" and a.sfwc not like '5%' `).Scan(&count)
 	utils.CheckFatal(err)
 	if count > 0 {
 		utils.Printf("以下交易已有新旧交易对照表，共有%,d条记录。\n", count)

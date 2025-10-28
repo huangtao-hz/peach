@@ -5,36 +5,9 @@ import (
 
 	"peach/excel"
 	"peach/utils"
-	"time"
+
+	"github.com/BurntSushi/toml"
 )
-
-func writeexcel() {
-	book := excel.NewWriter()
-	sheet := book.GetSheet(0)
-	sheet.Rename("Hello")
-
-	//styles :=
-	sheet.SetColStyle(map[string]string{
-		"A":   "Short",
-		"B:C": "Number",
-		"D":   "Date",
-	})
-	sheet.SetWidth(map[string]float64{"A": 15,
-		"B": 12,
-		"C": 10,
-		"D": 15,
-	})
-
-	sheet.AddTitle("A1:E1", "我的标题")
-	sheet.AddHeader("A", "姓名,年龄,成绩,日期")
-	sheet.AddRow("A", "张三", 12, 95, time.Now())
-	sheet.AddRow("A", "王五", 12, 100, time.Now())
-	sheet.SetBorder("A2:D4")
-	sheet.SetColVisible("D", false)
-
-	book.SaveAs("~/abcd.xlsx")
-	fmt.Println("Sucess")
-}
 
 type Config struct {
 	Name  string `toml:"name"`
@@ -43,15 +16,17 @@ type Config struct {
 }
 
 var s = `
-[[sheet]]
-A_D_E = 15.2
 
+[widths]
+"D,E" = 15.2
+"A:B" = 13.2
 `
 
-func main() {
-	defer utils.Recover()
-	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
-	//path := utils.NewPath("~/abc")
+type Abc struct {
+	Widths map[string]float64 `toml:"widths"`
+}
+
+func test_xls() {
 	file := excel.NewWriter()
 	defer file.SaveAs("~/Documents/abc.xlsx")
 	sheet := file.GetSheet("test")
@@ -61,5 +36,15 @@ func main() {
 	sheet.AddRow("A", "b", 24, 32, 23, 146)
 	sheet.SetBorder(fmt.Sprintf("A2:F%d", sheet.Row-1))
 	fmt.Println("生成文件成功！")
+}
 
+func main() {
+	defer utils.Recover()
+	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
+	//path := utils.NewPath("~/abc")
+	a := &Abc{}
+	toml.Decode(s, a)
+	for k, v := range a.Widths {
+		fmt.Println(k, v)
+	}
 }

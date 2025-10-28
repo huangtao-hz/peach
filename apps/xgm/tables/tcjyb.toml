@@ -2,3 +2,12 @@ header = "交易码,交易码称,原交易码,原交易码称,投产日期,状�
 query = "select * from xjdz order by tcrq,jym,yjym"
 start_col = "A"
 
+[widths]
+"A,C" = 9
+"B,D" = 42
+"E" = 11
+"F" = 12
+"G" = 17
+
+[formats]
+"A:G" = "Normal-NoWrap"

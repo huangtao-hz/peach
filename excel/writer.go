@@ -19,14 +19,15 @@ const (
 // Writer Excel 文件
 type Writer struct {
 	*excelize.File
-	Styles map[string]int
+	styles map[string]int
+	sheets map[string]*WorkSheet
 }
 
 // NewFile 新建 Excel 文件
 func NewWriter() (file *Writer) {
 	f := excelize.NewFile()
 	styles := make(map[string]int)
-	file = &Writer{File: f, Styles: styles}
+	file = &Writer{File: f, styles: styles}
 	for name, style := range predifinedStyles {
 		if err := file.AddStyle(name, style); err != nil {
 			fmt.Println(err)
@@ -43,31 +44,25 @@ func (w *Writer) AddStyle(name string, style Style) (err error) {
 	)
 	if s, err = style.AsStyle(); err == nil {
 		if id, err = w.NewStyle(s); err == nil {
-			w.Styles[name] = id
+			w.styles[name] = id
 		}
 	}
 	return
 }
 
 // GetSheet 获取工作表
-func (w *Writer) GetSheet(index any) *WorkSheet {
-	var name string
-	switch idx := index.(type) {
-	case int:
-		name = w.GetSheetName(idx)
-	case string:
-		name = idx
-		if w.SheetCount == 1 && w.GetSheetName(0) == "Sheet1" {
-			w.SetSheetName("Sheet1", name)
-		} else {
-			i, _ := w.GetSheetIndex(name)
-			if i == -1 {
-				w.NewSheet(name)
-			}
-		}
-
+func (w *Writer) GetSheet(name string) *WorkSheet {
+	if w.sheets == nil {
+		w.SetSheetName("Sheet1", name)
+		w.sheets = make(map[string]*WorkSheet)
+	} else if st, ok := w.sheets[name]; ok {
+		return st
+	} else {
+		w.NewSheet(name)
 	}
-	return &WorkSheet{writer: w, name: name, Row: 1}
+	st := &WorkSheet{writer: w, name: name, Row: 1}
+	w.sheets[name] = st
+	return st
 }
 
 // SaveAs 保存文件
@@ -102,7 +97,7 @@ func (s *WorkSheet) SetWidth(widthes map[string]float64) (err error) {
 func (s *WorkSheet) SetColStyle(styles map[string]string) error {
 	for columns, styleName := range styles {
 		for column := range strings.SplitSeq(columns, ",") {
-			if styleID, ok := s.writer.Styles[styleName]; !ok {
+			if styleID, ok := s.writer.styles[styleName]; !ok {
 				return fmt.Errorf("样式 %s 不存在", styleName)
 			} else {
 				s.writer.SetColStyle(s.name, column, styleID)
@@ -175,7 +170,7 @@ func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ..
 	}
 	var proc_style = func(style *string) {
 		if *style != "" {
-			if styleId, ok := s.writer.Styles[*style]; ok {
+			if styleId, ok := s.writer.styles[*style]; ok {
 				*style = fmt.Sprint(styleId)
 			} else {
 				*style = ""
@@ -201,7 +196,9 @@ func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ..
 	} else if header != "" {
 		columns := make([]excelize.TableColumn, 0)
 		for _, h := range utils.Split(header) {
-			columns = append(columns, excelize.TableColumn{Name: h})
+			column := excelize.TableColumn{Name: h, HeaderRowCellStyle: "Header"}
+			proc_style(&column.HeaderRowCellStyle)
+			columns = append(columns, column)
 		}
 		table.Columns = columns
 	}
@@ -254,7 +251,7 @@ func (s *WorkSheet) SetMergeCell(rng string, value any, styleName string) error 
 func (s *WorkSheet) SetCellStyle(rng string, styleName string) (err error) {
 	var cell1, cell2 string
 	if cell1, cell2, err = Range2Cells(rng); err == nil {
-		if styleID, ok := s.writer.Styles[styleName]; ok {
+		if styleID, ok := s.writer.styles[styleName]; ok {
 			s.writer.SetCellStyle(s.name, cell1, cell2, styleID)
 		} else {
 			err = fmt.Errorf("样式 %s 不存在", styleName)
