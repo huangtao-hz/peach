@@ -106,6 +106,7 @@ CREATE TABLE if not exists kfjh(
     xqzt           text,       -- 需求状态
     kfzt           text,       -- 开发状态
     jhbb           text,       -- 计划版本
+    jsxz           text,       -- 开发组
     kjfzr          text,       -- 行方负责人
     kfzz           text,       -- 技术组长
     qdkf           text,       -- 前端开发

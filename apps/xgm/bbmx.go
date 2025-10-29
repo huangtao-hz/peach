@@ -65,6 +65,8 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 	fmt.Println("导入分工明细表")
 	jyfg_reader, _ := f.NewReader("分工表", "A,C,D", 1)
 	jyfg_loader := db.NewLoader(path.FileInfo(), "fgmxb", jyfg_reader)
+	jyfg_loader.Method = "insert or replace"
+	jyfg_loader.Clear = false
 	jyfg_loader.Load()
 
 	fmt.Println("导入项目人员表")
