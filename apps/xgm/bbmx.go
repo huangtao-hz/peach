@@ -16,12 +16,6 @@ func conv_jym(jym *string) {
 	}
 }
 
-// get_tcrq 获取最近的投产日期
-func get_tcrq(db *sqlite.DB) (tcrq string, err error) {
-	err = db.QueryRow("select max(tcrq)from ystmb").Scan(&tcrq)
-	return
-}
-
 // load_bbmx 导入版本明细数据
 func load_bbmx(db *sqlite.DB, path utils.File) {
 	name := path.FileInfo().Name()
