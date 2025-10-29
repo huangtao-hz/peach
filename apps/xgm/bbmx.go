@@ -92,7 +92,6 @@ func update_bbmx(db *sqlite.DB) {
 // export_bbmx 导出版本明细表
 func export_bbmx(db *sqlite.DB, path *utils.Path) {
 	file := excel.NewWriter()
-	//export_tongji(db, file)
 	utils.CheckFatal(ExportAll(db, file, "bb_kjtj,bb_ywtj,bb_ystm,bb_xjdzb,bb_fgb,bb_xmryb"))
 	file.SaveAs(path.String())
 }
