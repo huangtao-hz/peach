@@ -92,51 +92,7 @@ func update_bbmx(db *sqlite.DB) {
 // export_bbmx 导出版本明细表
 func export_bbmx(db *sqlite.DB, path *utils.Path) {
 	file := excel.NewWriter()
-	export_tongji(db, file)
-	for path := range strings.SplitSeq("bb_ystm,bb_xjdzb,bb_fgb,bb_xmryb", ",") {
-		path = fmt.Sprintf("%s.toml", path)
-		utils.CheckFatal(ExportReport(db, file, path))
-	}
+	//export_tongji(db, file)
+	utils.CheckFatal(ExportAll(db, file, "bb_kjtj,bb_ywtj,bb_ystm,bb_xjdzb,bb_fgb,bb_xmryb"))
 	file.SaveAs(path.String())
-}
-
-var (
-	//go:embed tables/kaifatongji.toml
-	kaifatongji string
-	//go:embed tables/ywxztj.toml
-	ywxztj string
-	//go:embed query/kaifatongji.sql
-	kaifa_query string
-	//go:embed query/ywtongji.sql
-	yw_query string
-)
-
-func export_tongji(db *sqlite.DB, w *excel.Writer) {
-	sheet := w.GetSheet("统计表")
-	tcrq, err := get_tcrq(db)
-	if err != nil {
-		return
-	}
-	sheet.SetWidth(map[string]float64{
-		"A":   20,
-		"B:Z": 10,
-	})
-	rows, err := db.Query(kaifa_query, tcrq)
-	if err != nil {
-		return
-	}
-	ch := make(chan []any, BufferSize)
-	go rows.FetchAll(ch)
-	utils.PrintErr(sheet.AddTableToml("A1", kaifatongji, ch))
-
-	var count int
-	db.QueryRow(fmt.Sprintf("select count(*)from (%s)", kaifa_query), tcrq).Scan(&count)
-	rows, err = db.Query(yw_query, tcrq)
-	if err != nil {
-		return
-	}
-	ch = make(chan []any, BufferSize)
-	go rows.FetchAll(ch)
-	sheet.SkipRows(2)
-	utils.PrintErr(sheet.AddTableToml("A", ywxztj, ch))
 }

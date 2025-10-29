@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
@@ -68,4 +69,15 @@ func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) (err e
 // EpxortReport 导出报表
 func ExportReport(db *sqlite.DB, book *excel.Writer, path string, args ...any) error {
 	return NewReporter(path).Export(db, book, args...)
+}
+
+// ExportAll 导出多张报表
+func ExportAll(db *sqlite.DB, book *excel.Writer, paths string) (err error) {
+	for path := range strings.SplitSeq(paths, ",") {
+		path = fmt.Sprintf("%s.toml", path)
+		if err = (ExportReport(db, book, path)); err != nil {
+			return
+		}
+	}
+	return
 }
