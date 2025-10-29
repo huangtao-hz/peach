@@ -1,0 +1,55 @@
+sheet = "统计表"
+name = "各部门统计表"
+start_col = "B"
+query = """\
+select lx,
+sum(iif(fa <> '1-下架交易' and(sfwc is null or sfwc ='0-尚未开始' or sfwc=''),1,0)),       -- 未开始
+sum(iif(fa <> '1-下架交易' and sfwc in('1-已编写初稿','2-已提交需求/确认需规'),1,0)),       -- 已完成需求
+sum(iif(fa <> '1-下架交易' and sfwc in('3-已完成开发','4-已完成验收测试'),1,0)),       -- 开发中
+sum(iif(fa <> '1-下架交易' and sfwc = '5-已投产',1,0)),       -- 已完成需求
+count(jym) as zs         -- 总数
+from xmjh
+where fa not in('1-下架交易','5-移出柜面系统')
+group by lx
+order by zs desc\
+"""
+
+[widths]
+"A" = 12
+"B" = 20
+"C:H" = 10
+
+[[column]]
+name = "类型"
+total_string = "合计"
+
+[[column]]
+name = "未提交需求"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "已完成需求"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "开发中"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "已投产"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "总数"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "投产完成率"
+format = "Percent"
+formula = "[已投产]/[总数]"
+total_function = "各部门统计表[[#Totals],[已投产]]/各部门统计表[[#Totals],[总数]]"

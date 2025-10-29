@@ -39,7 +39,8 @@ func Update(db *sqlite.DB) (err error) {
 	Update_ytc(db)
 	update_kfjh(db)
 	err = update_kfzt(db)
-	return Export(db, path)
+	Export(db, path)
+	return
 }
 
 //go:embed query/update_kfjihua.sql
@@ -108,4 +109,14 @@ func Restore(db *sqlite.DB) (err error) {
 		}
 	}
 	return
+}
+
+// Export 更新项目计划表-导出文件
+func Export(db *sqlite.DB, path *utils.Path) {
+	fmt.Println("更新文件：", path)
+	book := excel.NewWriter()
+	utils.CheckFatal(ExportAll(db, book, "jh_gbmtj,jh_gzxtj,jh_ywtj,jh_kfjhtj,jh_kfjhb,jh_xmjhb,jh_tcjyb"))
+	book.SetColVisible("全量表", "Q", false)
+	book.SaveAs(path.String())
+	fmt.Println("更新文件完成！")
 }
