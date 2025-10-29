@@ -1,0 +1,13 @@
+sheet = "新旧交易对照表"
+query = "select a.bh,b.mc,a.jym,a.yjym,b.cszt from jydzb a left join ystmb b on a.bh=b.bh order by a.bh,a.yjym"
+header = "条目编号,功能名称,新交易,老交易,进度"
+start_col = "A"
+
+[widths]
+"A" = 20
+"B" = 110
+"C:D" = 12
+"E" = 15
+
+[formats]
+"A:E" = "Normal"

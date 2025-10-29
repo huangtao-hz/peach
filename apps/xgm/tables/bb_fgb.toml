@@ -1,0 +1,18 @@
+sheet = "分工表"
+query = """\
+select b.bh,b.mc,a.ywxz,a.jsxz,b.cszt
+from ystmb b left join fgmxb a  on a.bh=b.bh
+where b.tcrq=(select max(tcrq)from ystmb)
+order by b.bh\
+"""
+header = "条目编号,功能名称,业务小组,技术小组,进度"
+start_col = "A"
+
+[widths]
+"A" = 20
+"B" = 110
+"C:D" = 30
+"E" = 15
+
+[formats]
+"A:E" = "Normal"

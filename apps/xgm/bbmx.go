@@ -102,115 +102,22 @@ func export_bbmx(db *sqlite.DB, path *utils.Path) {
 
 // export_ystm 导出需求条目表
 func export_ystm(db *sqlite.DB, w *excel.Writer) {
-	var err error
-	fmt.Println("导出需求条目明细表")
-	sheet := w.GetSheet("需求条目列表")
-
-	sheet.SetWidth(map[string]float64{
-		"A":   20,
-		"B:C": 50,
-		"D":   20,
-		"E":   8,
-		"F":   10,
-		"G:K": 18,
-	})
-	sheet.SetColStyle(map[string]string{
-		"A:K": "Normal",
-	})
-
-	tcrq, err := get_tcrq(db)
-	if err != nil {
-		return
-	}
-	query := `select bh,mc,gs,glxt,jsfzr,zt,wbce,hxzc,cszt,bz,ywry from ystmb where tcrq=? order by bh`
-	header := "条目编号,功能名称,功能概述,关联系统,负责人,状态,测试人员,核心支持人员,测试状态,情况备注,业务人员"
-	rows, err := db.Query(query, tcrq)
-	if err != nil {
-		return
-	}
-	ch := make(chan []any, BufferSize)
-	go rows.FetchAll(ch)
-	sheet.AddTable("A1", header, ch)
+	utils.CheckErr(ExportReport(db, w, "bb_ystm.toml"))
 }
 
 // export_jydzb 导出新旧交易对照表
 func export_jydzb(db *sqlite.DB, w *excel.Writer) {
-	fmt.Println("导出新旧交易对照表")
-	sheet := w.GetSheet("新旧交易对照表")
-	sheet.SetWidth(map[string]float64{
-		"A":   20,
-		"B":   110,
-		"C:D": 12,
-		"E":   15,
-	})
-	sheet.SetColStyle(map[string]string{
-		"A:E": "Normal",
-	})
-	query := `select a.bh,b.mc,a.jym,a.yjym,b.cszt from jydzb a left join ystmb b on a.bh=b.bh order by a.bh,a.yjym`
-	header := "条目编号,功能名称,新交易,老交易,进度"
-	rows, err := db.Query(query)
-	if err != nil {
-		return
-	}
-	ch := make(chan []any, BufferSize)
-	go rows.FetchAll(ch)
-	sheet.AddTable("A1", header, ch)
+	utils.CheckErr(ExportReport(db, w, "bb_xjdzb.toml"))
 }
 
 // export_xmryb 导出项目人员表
 func export_xmryb(db *sqlite.DB, w *excel.Writer) {
-	fmt.Println("导出项目人员表")
-	sheet := w.GetSheet("项目人员表")
-	sheet.SetWidth(map[string]float64{
-		"A": 20,
-		"B": 30,
-		"C": 30,
-	})
-	sheet.SetColStyle(map[string]string{
-		"A:C": "Normal",
-	})
-
-	query := `select * from xmryb order by lb,xz`
-	header := "小组,类别,姓名"
-	rows, err := db.Query(query)
-	if err != nil {
-		return
-	}
-	ch := make(chan []any, BufferSize)
-	go rows.FetchAll(ch)
-	sheet.AddTable("A1", header, ch)
+	utils.CheckErr(ExportReport(db, w, "bb_xmryb.toml"))
 }
 
 // export_fgb 导出分工表
 func export_fgb(db *sqlite.DB, w *excel.Writer) {
-	fmt.Println("导出分工表")
-	sheet := w.GetSheet("分工表")
-	sheet.SetWidth(map[string]float64{
-		"A":   20,
-		"B":   110,
-		"C:D": 30,
-		"E":   15,
-	})
-	sheet.SetColStyle(map[string]string{
-		"A:E": "Normal",
-	})
-
-	tcrq, err := get_tcrq(db)
-	if err != nil {
-		return
-	}
-	query := `select b.bh,b.mc,a.ywxz,a.jsxz,b.cszt
-	from ystmb b left join fgmxb a  on a.bh=b.bh
-	where b.tcrq=?
-	order by b.bh`
-	header := "条目编号,功能名称,业务小组,技术小组,进度"
-	rows, err := db.Query(query, tcrq)
-	if err != nil {
-		return
-	}
-	ch := make(chan []any, BufferSize)
-	go rows.FetchAll(ch)
-	sheet.AddTable("A1", header, ch)
+	utils.CheckErr(ExportReport(db, w, "bb_fgb.toml"))
 }
 
 var (

@@ -1,0 +1,15 @@
+sheet = "需求条目列表"
+query = "select bh,mc,gs,glxt,jsfzr,zt,wbce,hxzc,cszt,bz,ywry from ystmb where tcrq=(select max(tcrq)from ystmb) order by bh"
+header = "条目编号,功能名称,功能概述,关联系统,负责人,状态,测试人员,核心支持人员,测试状态,情况备注,业务人员"
+start_col = "A"
+
+[widths]
+"A" = 20
+"B:C" = 50
+"D" = 20
+"E" = 8
+"F" = 10
+"G:K" = 18
+
+[formats]
+"A:K" = "Normal"

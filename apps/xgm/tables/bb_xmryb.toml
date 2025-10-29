@@ -1,0 +1,12 @@
+sheet = "项目人员表"
+query = "select * from xmryb order by lb,xz"
+header = "小组,类别,姓名"
+start_col = "A"
+
+[widths]
+"A" = 20
+"B" = 30
+"C" = 30
+
+[formats]
+"A:C" = "Normal"

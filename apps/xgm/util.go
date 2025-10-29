@@ -51,6 +51,9 @@ func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) (err e
 	if r.Formats != nil {
 		sheet.SetColStyle(r.Formats)
 	}
+	if r.StartColumn == "" {
+		r.StartColumn = "A"
+	}
 	var rows *sqlite.Rows
 	if rows, err = db.Query(r.Query, args...); err == nil {
 		ch := make(chan []any, BufferSize)
@@ -64,5 +67,5 @@ func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) (err e
 
 // EpxortReport 导出报表
 func ExportReport(db *sqlite.DB, book *excel.Writer, path string, args ...any) error {
-	return NewReporter(path).Export(db, book)
+	return NewReporter(path).Export(db, book, args...)
 }
