@@ -92,32 +92,12 @@ func update_bbmx(db *sqlite.DB) {
 // export_bbmx 导出版本明细表
 func export_bbmx(db *sqlite.DB, path *utils.Path) {
 	file := excel.NewWriter()
-	defer file.SaveAs(path.String())
 	export_tongji(db, file)
-	export_ystm(db, file)
-	export_jydzb(db, file)
-	export_fgb(db, file)
-	export_xmryb(db, file)
-}
-
-// export_ystm 导出需求条目表
-func export_ystm(db *sqlite.DB, w *excel.Writer) {
-	utils.CheckErr(ExportReport(db, w, "bb_ystm.toml"))
-}
-
-// export_jydzb 导出新旧交易对照表
-func export_jydzb(db *sqlite.DB, w *excel.Writer) {
-	utils.CheckErr(ExportReport(db, w, "bb_xjdzb.toml"))
-}
-
-// export_xmryb 导出项目人员表
-func export_xmryb(db *sqlite.DB, w *excel.Writer) {
-	utils.CheckErr(ExportReport(db, w, "bb_xmryb.toml"))
-}
-
-// export_fgb 导出分工表
-func export_fgb(db *sqlite.DB, w *excel.Writer) {
-	utils.CheckErr(ExportReport(db, w, "bb_fgb.toml"))
+	for path := range strings.SplitSeq("bb_ystm,bb_xjdzb,bb_fgb,bb_xmryb", ",") {
+		path = fmt.Sprintf("%s.toml", path)
+		utils.CheckFatal(ExportReport(db, file, path))
+	}
+	file.SaveAs(path.String())
 }
 
 var (
