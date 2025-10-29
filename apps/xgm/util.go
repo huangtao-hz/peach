@@ -43,7 +43,7 @@ func NewReporter(path string) *Reporter {
 }
 
 // Export 导出报表
-func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) error {
+func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) (err error) {
 	sheet := book.GetSheet(r.Sheet)
 	if r.Widths != nil {
 		sheet.SetWidth(r.Widths)
@@ -51,16 +51,15 @@ func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) error 
 	if r.Formats != nil {
 		sheet.SetColStyle(r.Formats)
 	}
-	if rows, err := db.Query(r.Query, args...); err == nil {
+	var rows *sqlite.Rows
+	if rows, err = db.Query(r.Query, args...); err == nil {
 		ch := make(chan []any, BufferSize)
 		go rows.FetchAll(ch)
-		if r.Header != "" {
-			return sheet.AddTable(r.StartColumn, r.Header, ch)
+		if err = sheet.AddTable(r.StartColumn, r.Header, ch, r.Table); err == nil {
+			sheet.SkipRows(2)
 		}
-	} else {
-		return err
 	}
-	return nil
+	return
 }
 
 // EpxortReport 导出报表

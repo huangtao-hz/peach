@@ -133,11 +133,12 @@ func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ..
 		table     *excelize.Table
 		total_row bool
 	)
-	if opt == nil {
+	if opt == nil || opt[0] == nil {
 		table = &excelize.Table{}
 	} else {
 		table = opt[0]
 	}
+
 	if table.ShowHeaderRow == nil {
 		showHeaderRow := true
 		table.ShowHeaderRow = &showHeaderRow
@@ -150,10 +151,10 @@ func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ..
 		} else {
 			return
 		}
-
 	} else {
 		s.Row = row
 	}
+
 	colname, _ := excelize.ColumnNumberToName(col)
 	if *table.ShowHeaderRow {
 		s.Row++
@@ -177,6 +178,7 @@ func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ..
 			}
 		}
 	}
+
 	if table.Columns != nil {
 		for i := range len(table.Columns) {
 			column := &table.Columns[i]
@@ -202,6 +204,7 @@ func (s *WorkSheet) AddTable(axis string, header string, ch <-chan []any, opt ..
 		}
 		table.Columns = columns
 	}
+
 	s.writer.AddTable(s.name, table)
 	if total_row {
 		s.Row++

@@ -15,7 +15,6 @@ var Version = "1.0.3"
 func CreateDatabse(db *sqlite.DB) {
 	db.ExecScript(create_sql)
 	sqlite.InitLoadFile(db)
-
 }
 
 // main 主程序入口
@@ -80,4 +79,5 @@ func main() {
 		}
 	}
 	utils.CheckErr(err)
+
 }
