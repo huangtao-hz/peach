@@ -79,5 +79,5 @@ func main() {
 		}
 	}
 	utils.CheckErr(err)
-
+	load_kfjh(db)
 }

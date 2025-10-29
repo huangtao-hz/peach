@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"peach/data"
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
@@ -20,24 +19,23 @@ func convdate(d *string) {
 }
 
 // conv_kfzt 开发状态转换
-func conv_kfazt(src []string) (dest []string, err error) {
-	if src[10] == "" {
+func conv_kfjh(src []string) (dest []string, err error) {
+	if src[0] == "" {
 		return
-	} else if len(src[10]) < 4 {
-		src[10] = fmt.Sprintf("%04s", src[10])
+	} else if len(src[0]) < 4 {
+		src[0] = fmt.Sprintf("%04s", src[0])
 	}
-	for i := 1; i < 6; i++ {
+	for i := 1; i < 10; i++ {
 		src[i] = strings.TrimSpace(src[i])
 	}
-	for i := 6; i < 10; i++ {
+	for i := 10; i < 14; i++ {
 		convdate(&src[i])
 	}
 	dest = src
 	return
 }
 
-// update_kfzt 更新开发状态
-func update_kfzt(db *sqlite.DB) (err error) {
+func load_kfjh(db *sqlite.DB) (err error) {
 	path := utils.NewPath(config.Home).Find("*开发计划*.xlsx")
 	if path == nil {
 		return fmt.Errorf("未找到 开发计划 文件")
@@ -48,14 +46,13 @@ func update_kfzt(db *sqlite.DB) (err error) {
 		return err
 	}
 	defer f.Close()
-	r, err := f.NewReader("柜面核心类交易开发计划", "U,AE,AF,AP,AW,BD,AG,AH,BM,BS,B", 1, conv_kfazt)
+	r, err := f.NewReader("柜面核心类交易开发计划", "B,R,U,K,H,AE,AF,AP,AW,BD,AG,AH,BM,BS", 1, conv_kfjh)
 	if err != nil {
 		return err
 	}
-
-	query := "update kfjh set kfzt=?,kjfzr=?,kfzz=?,qdkf=?,hdkf=?,lckf=?,jcks=?,jcjs=?,ysks=?,ysjs=? where jym=?"
-	d := data.NewData()
-	go r.Read(d)
-	err = db.ExecMany(query, d)
+	loader := db.NewLoader(path.FileInfo(), "kfjh", r)
+	loader.Method = "insert or replace"
+	loader.Clear = false
+	loader.Load()
 	return
 }

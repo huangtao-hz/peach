@@ -54,6 +54,8 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 	}
 	jydz_reader, _ := f.NewReader("新旧交易对照表", "A,C,D", 1, conv_jydz)
 	jydz_loader := db.NewLoader(path.FileInfo(), "jydzb", jydz_reader)
+	jydz_loader.Method = "insert or replace"
+	jydz_loader.Clear = false
 	jydz_loader.Load()
 
 	fmt.Println("导入分工明细表")

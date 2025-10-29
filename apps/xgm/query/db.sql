@@ -112,10 +112,10 @@ CREATE TABLE if not exists kfjh(
     qdkf           text,       -- 前端开发
     hdkf           text,       -- 后端开发
     lckf           text,       -- 流程开发
-    jcks           text,       -- 集成测试开始时间
-    jcjs           text,       -- 集成测试结束时间
-    ysks           text,       -- 验收测试开始时间
-    ysjs           text,       -- 验收测试结束时间
+    kskf           text,       -- 开始开发
+    wckf           text,       -- 完成开发
+    wccs           text,       -- 完成集成测试
+    wcys           text,       -- 完成验收
     primary key(jym)
 );
 -- 新旧对照表

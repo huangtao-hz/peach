@@ -1,10 +1,18 @@
 sheet = "开发计划统计"
 query = """\
-select a.jhbb,count(a.jym),count(a.jym)*1.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
+select iif(a.jhbb="","未制定计划",a.jhbb)as jhbb,
+sum(iif(jsxz="存款组",1,0)),
+sum(iif(jsxz="贷款组",1,0)),
+sum(iif(jsxz="支付结算组",1,0)),
+sum(iif(jsxz="综合组",1,0)),
+sum(iif(jsxz="外围组",1,0)),
+sum(iif(jsxz="",1,0)),
+count(a.jym),
+count(a.jym)*1.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
 from kfjh a
 left join xmjh b
 on a.jym=b.jym
-where b.sfwc not like "5%"
+where b.sfwc not like "5%" and b.fa not in("1-下架交易","5-移出柜面系统")
 group by jhbb
 order by jhbb\
 """
@@ -17,6 +25,36 @@ start_col = "A"
 [[column]]
 name = "计划版本"
 total_string = "合计"
+
+[[column]]
+name = "存款组"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "贷款组"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "支付结算组"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "综合组"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "外围组"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "其他"
+format = "Number"
+total_function = "sum"
 
 [[column]]
 name = "交易数量"

@@ -32,13 +32,13 @@ func Update(db *sqlite.DB) (err error) {
 		defer f.Close()
 		book := f.ExcelBook
 		fileinfo := path.FileInfo()
-		LoadKfjh(db, fileinfo, &book, ver)
+		//LoadKfjh(db, fileinfo, &book, ver)
 		LoadXjdzb(db, fileinfo, &book, ver)
 		LoadXmjh2(db, fileinfo, &book, ver)
 	}
+	load_kfjh(db)
 	Update_ytc(db)
 	update_kfjh(db)
-	err = update_kfzt(db)
 	Export(db, path)
 	return
 }

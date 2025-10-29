@@ -22,7 +22,7 @@ func Load_xmjh(db *sqlite.DB, file utils.File) (err error) {
 		ver := utils.Extract(`\d{8}`, name)
 		fmt.Println("处理文件：", name, "Version:", ver)
 		if book, err = excel.NewExcelBook(f, name); err == nil {
-			LoadKfjh(db, fileinfo, book, ver)
+			//LoadKfjh(db, fileinfo, book, ver)
 			LoadXjdzb(db, fileinfo, book, ver)
 			LoadXmjh(db, fileinfo, book, ver)
 		}
