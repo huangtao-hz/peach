@@ -6,29 +6,8 @@ import (
 	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
+	"strings"
 )
-
-// export_xjdzb 导出投产交易一览表
-func export_xjdzb(db *sqlite.DB, book *excel.Writer) (err error) {
-	fmt.Print("导出投产交易一览表，")
-	if err := ExportReport(db, book, "tcjyb.toml"); err == nil {
-		fmt.Println("完成！")
-	}
-	return
-}
-
-// export_kfjh 导出开发计划表
-func export_kfjh(db *sqlite.DB, book *excel.Writer) (err error) {
-	ExportReport(db, book, "kfjhb.toml")
-	return
-}
-
-// export_xmjh 导出项目计划表
-func export_xmjh(db *sqlite.DB, book *excel.Writer) (err error) {
-	ExportReport(db, book, "xmjhb.toml")
-	book.SetColVisible("全量表", "Q", false)
-	return
-}
 
 var (
 	//go:embed query/tongji.sql
@@ -103,10 +82,11 @@ func Export(db *sqlite.DB, path *utils.Path) (err error) {
 	fmt.Println("更新文件：", path)
 	book := excel.NewWriter()
 	export_tjb(db, book)
-	export_kfjhtj(db, book)
-	export_kfjh(db, book)
-	export_xmjh(db, book)
-	export_xjdzb(db, book)
+	for file := range strings.SplitSeq("kfjhtj,kfjhb,xmjhb,tcjyb", ",") {
+		file = fmt.Sprintf("%s.toml", file)
+		utils.CheckErr(ExportReport(db, book, file))
+	}
+	book.SetColVisible("全量表", "Q", false)
 	book.SaveAs(path.String())
 	fmt.Println("更新文件完成！")
 	return
