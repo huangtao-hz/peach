@@ -32,17 +32,18 @@ func InitLoadFile(db *DB) {
 
 // Loader 数据装入类
 type Loader struct {
-	tablename, LoadSQL string          // 表名，导入的SQL语句
-	fileinfo           os.FileInfo     // 文件信息
-	Ver                string          // 导入数据版本
-	reader             data.DataReader // 数据读取程序
-	Check              bool            // 是否需要检查文件重复导入
-	Clear              bool            // 是否清理数据库，默认为是
-	ClearSQL           string          // 自定义清理语句
-	Fields             string          // 插入字段清单，用半角逗号分隔
-	FieldCount         int             // 字段总数，如有 Fields，优先使用 Fields
-	Method             string          // 导入方法，默认为 insert，可以为：replace
-	db                 *DB
+	Tablename  string          `toml:"tablename"`
+	LoadSQL    string          `toml:"load_sql"` // 表名，导入的SQL语句
+	fileinfo   os.FileInfo     // 文件信息
+	Ver        string          `toml:"ver"` // 导入数据版本
+	reader     data.DataReader // 数据读取程序
+	Check      bool            `toml:"check"`       // 是否需要检查文件重复导入
+	Clear      bool            `toml:"clear"`       // 是否清理数据库，默认为是
+	ClearSQL   string          `toml:"clear_sql"`   // 自定义清理语句
+	Fields     string          `toml:"fields"`      // 插入字段清单，用半角逗号分隔
+	FieldCount int             `toml:"field_count"` // 字段总数，如有 Fields，优先使用 Fields
+	Method     string          `toml:"method"`      // 导入方法，默认为 insert，可以为：replace
+	db         *DB
 }
 
 // GetLoadSQL 生成导入的 sql 语句
@@ -60,11 +61,11 @@ func (l *Loader) GetLoadSQL(tx *Tx) string {
 		count = len(fields)
 	} else if count == 0 {
 		// 从数据库中获取字段数
-		count, _ = tx.GetColumnCount(l.tablename)
+		count, _ = tx.GetColumnCount(l.Tablename)
 	}
 	builder.WriteString(l.Method)
 	builder.WriteString(" into ")
-	builder.WriteString(l.tablename)
+	builder.WriteString(l.Tablename)
 	if fields != nil {
 		builder.WriteString(fmt.Sprintf("(%s)", strings.Join(fields, ",")))
 	}
@@ -84,14 +85,14 @@ func (l *Loader) DoCheck(tx *Tx) (err error) {
 			checkSQL = "select count(name) from loadfile where name=? and path=? and mtime>=datetime(?)"
 			doneSQL  = "insert or replace into loadfile values(?,?,datetime(?),?)"
 		)
-		err = tx.QueryRow(checkSQL, l.tablename, filename, mtime).Scan(&count)
+		err = tx.QueryRow(checkSQL, l.Tablename, filename, mtime).Scan(&count)
 		if err != nil {
 			return
 		}
 		if count > 0 {
 			return fmt.Errorf("文件 %s 已导入", filename)
 		}
-		_, err = tx.Exec(doneSQL, l.tablename, filename, mtime, l.Ver)
+		_, err = tx.Exec(doneSQL, l.Tablename, filename, mtime, l.Ver)
 	}
 	return
 }
@@ -113,7 +114,7 @@ func (l *Loader) Test() {
 func (l *Loader) DoClear(tx *Tx) (err error) {
 	if l.Clear && strings.Contains(l.Method, "insert") {
 		if l.ClearSQL == "" {
-			l.ClearSQL = fmt.Sprintf("delete from %s", l.tablename)
+			l.ClearSQL = fmt.Sprintf("delete from %s", l.Tablename)
 		}
 		_, err = tx.Exec(l.ClearSQL)
 	}

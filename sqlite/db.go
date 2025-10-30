@@ -128,7 +128,7 @@ func (db *DB) PrintRow(query string, header string, args ...any) (err error) {
 // NewLoader 新建导入模块
 func (db *DB) NewLoader(fileinfo os.FileInfo, tablename string, reader data.DataReader) *Loader {
 	return &Loader{
-		tablename: tablename,
+		Tablename: tablename,
 		fileinfo:  fileinfo,
 		reader:    reader,
 		Clear:     true,
@@ -143,7 +143,7 @@ func (db *DB) NewFileLoader(path string, tablename string, reader data.DataReade
 	fileinfo := utils.NewPath(path).FileInfo()
 	return &Loader{
 		db:        db,
-		tablename: tablename,
+		Tablename: tablename,
 		fileinfo:  fileinfo,
 		reader:    reader,
 		Clear:     true,
