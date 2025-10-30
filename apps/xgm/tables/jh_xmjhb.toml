@@ -2,6 +2,7 @@ sheet = "全量表"
 header = "交易码,交易名称,交易组,交易组名,一级菜单,二级菜单,近一年交易量,类型,部门,中心,联系人,方案,计划需求完成时间,当前进度,备注,新交易"
 query = "select *,get_md5(lx,ywbm,zx,lxr,fa,pc,sfwc,bz,xjym) from xmjh order by jym"
 start_col = "A"
+hidden = "Q"
 
 [widths]
 "A,C" = 6.83

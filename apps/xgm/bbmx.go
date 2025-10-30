@@ -79,15 +79,8 @@ func update_bbmx(db *sqlite.DB) {
 	if path := utils.NewPath(config.Home).Find("*版本条目明细*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Name())
 		load_bbmx(db, path)
-		export_bbmx(db, path)
+		utils.CheckFatal(ExportXlsx(db, path.String(), "bb_kjtj,bb_ywtj,bb_ystm,bb_xjdzb,bb_fgb,bb_xmryb"))
 	} else {
 		fmt.Println("未发现文件：柜面版本明细*.xlsx")
 	}
-}
-
-// export_bbmx 导出版本明细表
-func export_bbmx(db *sqlite.DB, path *utils.Path) {
-	file := excel.NewWriter()
-	utils.CheckFatal(ExportAll(db, file, "bb_kjtj,bb_ywtj,bb_ystm,bb_xjdzb,bb_fgb,bb_xmryb"))
-	file.SaveAs(path.String())
 }

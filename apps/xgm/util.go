@@ -28,6 +28,7 @@ type Reporter struct {
 	Formats     map[string]string  `toml:"formats"`
 	StartColumn string             `toml:"start_col"`
 	Query       string             `toml:"query"`
+	Hidden      string             `toml:"hidden"`
 
 	*excelize.Table
 }
@@ -55,6 +56,11 @@ func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) (err e
 	if r.StartColumn == "" {
 		r.StartColumn = "A"
 	}
+	if r.Hidden != "" {
+		for col := range strings.SplitSeq(r.Hidden, ",") {
+			sheet.SetColVisible(col, false)
+		}
+	}
 	var rows *sqlite.Rows
 	if rows, err = db.Query(r.Query, args...); err == nil {
 		ch := make(chan []any, BufferSize)
@@ -78,6 +84,15 @@ func ExportAll(db *sqlite.DB, book *excel.Writer, paths string) (err error) {
 		if err = (ExportReport(db, book, path)); err != nil {
 			return
 		}
+	}
+	return
+}
+
+// ExportXlsx 导出数据到 excel 文件中
+func ExportXlsx(db *sqlite.DB, path string, files string) (err error) {
+	w := excel.NewWriter()
+	if err = ExportAll(db, w, files); err == nil {
+		err = w.SaveAs(path)
 	}
 	return
 }

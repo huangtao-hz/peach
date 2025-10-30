@@ -66,8 +66,8 @@ func (w *Writer) GetSheet(name string) *WorkSheet {
 }
 
 // SaveAs 保存文件
-func (w *Writer) SaveAs(path string) {
-	w.File.SaveAs(utils.Expand(path))
+func (w *Writer) SaveAs(path string) error {
+	return w.File.SaveAs(utils.Expand(path))
 }
 
 // WorkSheet 工作表
