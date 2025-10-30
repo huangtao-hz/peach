@@ -23,7 +23,6 @@ func main() {
 	db, err := sqlite.Open(config.Database)
 	utils.CheckFatal(err)
 	defer db.Close()
-	init_db := flag.Bool("init", false, "初始化数据库")
 	load := flag.Bool("load", false, "导入数据")
 	query_sql := flag.String("query", "", "执行查询")
 	jhbb := flag.String("jhbb", "", "查询计划版本")
@@ -34,11 +33,6 @@ func main() {
 	version := flag.Bool("version", false, "查阅程序版本")
 
 	flag.Parse()
-	if *init_db {
-		fmt.Println("初始化数据库表")
-		CreateDatabse(db)
-		fmt.Println("初始化数据库成功！")
-	}
 	CreateDatabse(db)
 	if *version {
 		fmt.Println("版本：", Version)
@@ -79,5 +73,4 @@ func main() {
 		}
 	}
 	utils.CheckErr(err)
-
 }
