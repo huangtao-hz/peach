@@ -46,6 +46,9 @@ func NewReporter(path string) *Reporter {
 
 // Export 导出报表
 func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) (err error) {
+	if r.Sheet == "" {
+		r.Sheet = "Sheet1"
+	}
 	sheet := book.GetSheet(r.Sheet)
 	if r.Widths != nil {
 		sheet.SetWidth(r.Widths)

@@ -47,4 +47,5 @@ func main() {
 	for k, v := range a.Widths {
 		fmt.Println(k, v)
 	}
+
 }
