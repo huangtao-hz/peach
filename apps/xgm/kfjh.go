@@ -18,7 +18,7 @@ func convdate(d *string) {
 	}
 }
 
-// conv_kfzt 开发状态转换
+// conv_kfjh 转换开发计划
 func conv_kfjh(src []string) (dest []string, err error) {
 	if src[0] == "" {
 		return
