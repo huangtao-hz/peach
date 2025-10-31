@@ -23,6 +23,9 @@ func (db *DB) NewExcelLoader(fsys fs.FS, path string, book *excel.ExcelBook, fil
 	if _, err = toml.DecodeFS(fsys, path, loader); err != nil {
 		return
 	}
+	if loader.Method == "" {
+		loader.Method = "insert"
+	}
 	loader.reader, err = book.NewReader(loader.Sheets, loader.UseCols, loader.SkipRows, cvfns...)
 	return
 }
