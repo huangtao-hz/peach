@@ -3,7 +3,6 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"io/fs"
 	"peach/data"
 	"peach/excel"
 	"peach/sqlite"
@@ -27,14 +26,13 @@ func Update(db *sqlite.DB) (err error) {
 		return fmt.Errorf("未找到文件：新柜面存量交易迁移*.xlsx")
 	}
 	fmt.Println("处理文件：", path.Name())
-	ver := utils.Extract(`\d{8}`, path.String())
 	if f, err := excel.Open(path); err == nil {
 		defer f.Close()
-		book := f.ExcelBook
 		fileinfo := path.FileInfo()
-		//LoadKfjh(db, fileinfo, &book, ver)
-		LoadXjdzb(db, fileinfo, &book, ver)
-		LoadXmjh2(db, fileinfo, &book, ver)
+		fmt.Println("导入新旧交易对照表")
+		utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_xjdzb.toml", &f.ExcelBook, fileinfo))
+		fmt.Println("导入项目计划表")
+		utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_xmjh2.toml", &f.ExcelBook, fileinfo, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2)))
 	}
 	load_kfjh(db)
 	Update_ytc(db)
@@ -51,22 +49,6 @@ func update_kfjh(db *sqlite.DB) {
 	if r, err := db.Exec(update_kfjh2); err == nil {
 		rows, _ := r.RowsAffected()
 		utils.Printf("Affected rows: %,d\n", rows)
-	} else {
-		fmt.Println(err)
-	}
-}
-
-// LoadXmjh2 项目计划
-func LoadXmjh2(db *sqlite.DB, fileinfo fs.FileInfo, book *excel.ExcelBook, ver string) {
-	fmt.Println("导入项目计划表")
-	if r, err := book.NewReader("全量表", "A:Q", 1, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2)); err == nil {
-		loader := db.NewLoader(fileinfo, "xmjh", r)
-		loader.Ver = ver
-		loader.Method = "insert or replace"
-		loader.Clear = false
-		//loader.Check = false
-		//loader.Test(db)
-		loader.Load()
 	} else {
 		fmt.Println(err)
 	}

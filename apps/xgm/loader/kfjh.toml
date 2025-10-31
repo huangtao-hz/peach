@@ -4,5 +4,3 @@ skip_rows = 1
 method = "insert or replace"
 tablename = "kfjh"
 clear = false
-check = true
-

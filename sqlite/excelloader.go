@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"errors"
 	"io/fs"
 	"peach/data"
 	"peach/excel"
@@ -19,12 +20,13 @@ type ExcelLoader struct {
 
 // NewExcelLoader 构造函数
 func (db *DB) NewExcelLoader(fsys fs.FS, path string, book *excel.ExcelBook, fileinfo fs.FileInfo, cvfns ...data.ConvertFunc) (loader *ExcelLoader, err error) {
-	loader = &ExcelLoader{Loader: Loader{db: db, fileinfo: fileinfo}}
+	loader = &ExcelLoader{Loader: Loader{db: db, Method: "insert", fileinfo: fileinfo, Clear: true, Check: true}}
 	if _, err = toml.DecodeFS(fsys, path, loader); err != nil {
 		return
 	}
-	if loader.Method == "" {
-		loader.Method = "insert"
+	if loader.Tablename == "" {
+		err = errors.New("tablename can't be empty.")
+		return
 	}
 	loader.reader, err = book.NewReader(loader.Sheets, loader.UseCols, loader.SkipRows, cvfns...)
 	return
