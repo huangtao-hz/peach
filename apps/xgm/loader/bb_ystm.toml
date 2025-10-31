@@ -1,0 +1,7 @@
+sheets = "需求条目列表"
+use_cols = "A:K"
+skip_rows = 1
+tablename = "ystmb"
+method = "insert"
+check = true
+clear = true

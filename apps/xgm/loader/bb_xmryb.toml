@@ -1,0 +1,7 @@
+sheets = "项目人员表"
+use_cols = "A:C"
+skip_rows = 1
+tablename = "xmryb"
+method = "insert"
+check = true
+clear = true

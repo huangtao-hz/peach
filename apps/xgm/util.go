@@ -19,6 +19,9 @@ const (
 //go:embed tables
 var tablesFS embed.FS
 
+//go:embed loader
+var loaderFS embed.FS
+
 // Reporter 报表类型
 type Reporter struct {
 	Sheet       string             `toml:"sheet"`

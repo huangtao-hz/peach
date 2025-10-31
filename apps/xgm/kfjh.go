@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
 	"strings"
@@ -35,24 +34,11 @@ func conv_kfjh(src []string) (dest []string, err error) {
 	return
 }
 
+// load_kfjh 导入开发计划表
 func load_kfjh(db *sqlite.DB) (err error) {
-	path := utils.NewPath(config.Home).Find("*开发计划*.xlsx")
-	if path == nil {
-		return fmt.Errorf("未找到 开发计划 文件")
+	if path := utils.NewPath(config.Home).Find("*开发计划*.xlsx"); path != nil {
+		fmt.Println("处理文件：", path.Base())
+		return db.LoadExcelFile(loaderFS, "loader/kfjh.toml", path, conv_kfjh)
 	}
-	fmt.Println("处理文件：", path.Base())
-	f, err := excel.Open(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	r, err := f.NewReader("柜面核心类交易开发计划", "B,R,U,K,H,AE,AF,AP,AW,BD,AG,AH,BM,BS", 1, conv_kfjh)
-	if err != nil {
-		return err
-	}
-	loader := db.NewLoader(path.FileInfo(), "kfjh", r)
-	loader.Method = "insert or replace"
-	loader.Clear = false
-	loader.Load()
-	return
+	return fmt.Errorf("未找到 开发计划 文件")
 }

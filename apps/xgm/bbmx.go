@@ -19,19 +19,15 @@ func conv_jym(jym *string) {
 // load_bbmx 导入版本明细数据
 func load_bbmx(db *sqlite.DB, path utils.File) {
 	name := path.FileInfo().Name()
-	r, err := path.Open()
+	f, err := excel.Open(path)
 	if err != nil {
 		return
 	}
-	defer r.Close()
-	f, err := excel.NewExcelBook(r, name)
-	if err != nil {
-		return
-	}
+	defer f.Close()
 	fmt.Println("导入需求条目表")
 	date := utils.Extract(`\d{8}`, name)
 	date = strings.Join([]string{date[:4], date[4:6], date[6:]}, "-")
-	var conv = func(src []string) (dest []string, err error) {
+	var conv_ystm = func(src []string) (dest []string, err error) {
 		if src[0] == "" {
 			return
 		}
@@ -39,9 +35,7 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 		dest = append(dest, src...)
 		return
 	}
-	ystm_reader, _ := f.NewReader("需求条目列表", "A:K", 1, conv)
-	loader := db.NewLoader(path.FileInfo(), "ystmb", ystm_reader)
-	loader.Load()
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_ystm.toml", &f.ExcelBook, path.FileInfo(), conv_ystm))
 
 	fmt.Println("导入新旧对照表")
 	var conv_jydz = func(src []string) (dest []string, err error) {
@@ -52,26 +46,12 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 		dest = src
 		return
 	}
-	jydz_reader, _ := f.NewReader("新旧交易对照表", "A,C,D", 1, conv_jydz)
-	jydz_loader := db.NewLoader(path.FileInfo(), "jydzb", jydz_reader)
-	jydz_loader.Method = "insert or replace"
-	jydz_loader.Clear = false
-	jydz_loader.Load()
-
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo(), conv_jydz))
 	fmt.Println("导入分工明细表")
-	jyfg_reader, _ := f.NewReader("分工表", "A,C,D", 1)
-	jyfg_loader := db.NewLoader(path.FileInfo(), "fgmxb", jyfg_reader)
-	jyfg_loader.Method = "insert or replace"
-	jyfg_loader.Clear = false
-	jyfg_loader.Load()
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo()))
 
 	fmt.Println("导入项目人员表")
-	xmry_reader, err := f.NewReader("项目人员表", "A:C", 1)
-	if err != nil {
-		return
-	}
-	xmry_loader := db.NewLoader(path.FileInfo(), "xmryb", xmry_reader)
-	xmry_loader.Load()
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_xmryb.toml", &f.ExcelBook, path.FileInfo()))
 }
 
 // update_bbmx 更新版本明细

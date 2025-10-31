@@ -1,0 +1,8 @@
+sheets = "柜面核心类交易开发计划"
+use_cols = "B,R,U,K,H,AE,AF,AP,AW,BD,AG,AH,BM,BS"
+skip_rows = 1
+method = "insert or replace"
+tablename = "kfjh"
+clear = false
+check = true
+

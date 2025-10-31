@@ -1,0 +1,7 @@
+sheets = "分工表"
+use_cols = "A,C,D"
+skip_rows = 1
+tablename = "fgmxb"
+method = "insert or replace"
+check = true
+clear = false

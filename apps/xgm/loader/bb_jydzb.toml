@@ -1,0 +1,7 @@
+sheets = "新旧交易对照表"
+use_cols = "A,C,D"
+skip_rows = 1
+tablename = "jydzb"
+method = "insert or replace"
+check = true
+clear = false
