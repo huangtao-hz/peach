@@ -27,7 +27,7 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 	fmt.Println("导入需求条目表")
 	date := utils.Extract(`\d{8}`, name)
 	date = strings.Join([]string{date[:4], date[4:6], date[6:]}, "-")
-	var conv_ystm = func(src []string) (dest []string, err error) {
+	conv_ystm := func(src []string) (dest []string, err error) {
 		if src[0] == "" {
 			return
 		}
@@ -38,7 +38,7 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_ystm.toml", &f.ExcelBook, path.FileInfo(), conv_ystm))
 
 	fmt.Println("导入新旧对照表")
-	var conv_jydz = func(src []string) (dest []string, err error) {
+	conv_jydz := func(src []string) (dest []string, err error) {
 		if src[0] == "" {
 			return
 		}
@@ -49,7 +49,6 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo(), conv_jydz))
 	fmt.Println("导入分工明细表")
 	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo()))
-
 	fmt.Println("导入项目人员表")
 	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_xmryb.toml", &f.ExcelBook, path.FileInfo()))
 }
