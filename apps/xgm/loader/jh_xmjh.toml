@@ -1,0 +1,7 @@
+sheets = "全量表"
+use_cols = "A:P"
+skip_rows = 1
+tablename = "xmjh"
+method = "insert"
+check = true
+clear = true

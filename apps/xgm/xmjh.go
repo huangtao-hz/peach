@@ -23,8 +23,9 @@ func Load_xmjh(db *sqlite.DB, file utils.File) (err error) {
 		fmt.Println("处理文件：", name, "Version:", ver)
 		if book, err = excel.NewExcelBook(f, name); err == nil {
 			//LoadKfjh(db, fileinfo, book, ver)
+			utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_xmjh.toml", book, fileinfo))
 			LoadXjdzb(db, fileinfo, book, ver)
-			LoadXmjh(db, fileinfo, book, ver)
+			//LoadXmjh(db, fileinfo, book, ver)
 		}
 		Update_ytc(db)
 	}
