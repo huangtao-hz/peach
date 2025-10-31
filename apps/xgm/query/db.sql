@@ -144,9 +144,10 @@ create table if not exists fgmxb(
 
 -- 交易对照表
 create table if not exists jydzb(
-    bh  text primary key,--验收条目编号
+    bh  text,--验收条目编号
     jym  text,   -- 新交易码
-    yjym text   -- 交易码
+    yjym text,   -- 交易码
+    primary key(bh,yjym)
 );
 
 -- 验收条目表
