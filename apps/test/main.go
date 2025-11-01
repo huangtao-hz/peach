@@ -5,8 +5,6 @@ import (
 
 	"peach/excel"
 	"peach/utils"
-
-	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
@@ -42,10 +40,6 @@ func main() {
 	defer utils.Recover()
 	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
 	//path := utils.NewPath("~/abc")
-	a := &Abc{}
-	toml.Decode(s, a)
-	for k, v := range a.Widths {
-		fmt.Println(k, v)
-	}
+	fmt.Printf("%s\n", utils.Today().Format("%Y%M%D"))
 
 }

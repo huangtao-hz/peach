@@ -1,0 +1,4 @@
+sheets = "开发计划"
+use_cols = "A,H:S"
+skip_rows = 1
+tablename = "kfjh"
