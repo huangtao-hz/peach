@@ -20,7 +20,8 @@ name = "开发计划统计"
 start_col = "A"
 
 [widths]
-"A:C" = 12
+"A" = 12
+"B:L" = 15
 
 [[column]]
 name = "计划版本"

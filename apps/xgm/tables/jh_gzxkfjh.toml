@@ -1,0 +1,82 @@
+sheet = "开发计划统计"
+query = """\
+select iif(a.jhbb="","未制定计划",a.jhbb)as jhbb,
+sum(iif(b.lx="本部门" and b.zx="支付结算中心",1,0)),
+sum(iif(b.lx="本部门" and b.zx="营业管理中心",1,0)),
+sum(iif(b.lx="本部门" and b.zx="结算服务中心",1,0)),
+sum(iif(b.lx="本部门" and b.zx not in("支付结算中心","营业管理中心","结算服务中心"),1,0)),
+sum(iif(b.lx="其他部门" and b.ywbm="国际业务部",1,0)),
+sum(iif(b.lx="其他部门" and b.ywbm="零售金融部",1,0)),
+sum(iif(b.lx="其他部门" and b.ywbm="票据业务部",1,0)),
+sum(iif(b.lx="其他部门" and b.ywbm not in("国际业务部","零售金融部","票据业务部"),1,0)),
+sum(iif(b.lx="分行需求",1,0)),
+count(a.jym),
+count(a.jym)*1.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
+from kfjh a
+left join xmjh b
+on a.jym=b.jym
+where b.sfwc not like "5%" and b.fa not in("1-下架交易","5-移出柜面系统")
+group by jhbb
+order by jhbb\
+"""
+name = "各中心开发计划"
+start_col = "A"
+
+[[column]]
+name = "计划版本"
+total_string = "合计"
+
+[[column]]
+name = "营业管理中心"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "支付结算中心"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "结算服务中心"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "运管部其他中心"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "国际业务部"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "零售金融部"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "票据业务部"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "其他总行部门"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "分行需求"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "交易数量"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "占比"
+format = "Percent"
+total_function = "sum"
