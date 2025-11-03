@@ -27,12 +27,12 @@ name = "计划版本"
 total_string = "合计"
 
 [[column]]
-name = "营业管理中心"
+name = "支付结算中心"
 format = "Number"
 total_function = "sum"
 
 [[column]]
-name = "支付结算中心"
+name = "营业管理中心"
 format = "Number"
 total_function = "sum"
 
