@@ -45,7 +45,7 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 		dest = src
 		return
 	}
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo(), conv_jydz))
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_jydzb.toml", &f.ExcelBook, path.FileInfo(), conv_jydz))
 	fmt.Println("导入分工明细表")
 	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo()))
 	fmt.Println("导入项目人员表")
