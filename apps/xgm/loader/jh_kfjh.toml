@@ -1,4 +1,4 @@
 sheets = "开发计划"
-use_cols = "A,H:S"
+use_cols = "A,H:T"
 skip_rows = 1
 tablename = "kfjh"

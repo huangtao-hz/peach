@@ -13,6 +13,7 @@ func Load_xmjh(db *sqlite.DB, file utils.File) (err error) {
 	if f, err = excel.Open(file); err == nil {
 		utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_xmjh.toml", &f.ExcelBook, fileinfo))
 		utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_xjdzb.toml", &f.ExcelBook, fileinfo))
+		utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_kfjh.toml", &f.ExcelBook, fileinfo))
 		//utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_kfjh.toml", &f.ExcelBook, fileinfo))
 	}
 	return
