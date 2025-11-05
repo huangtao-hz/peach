@@ -37,7 +37,7 @@ func Update(db *sqlite.DB) (err error) {
 	} else {
 		path = utils.NewPath(config.Home).Join(fmt.Sprintf("附件1：新柜面存量交易迁移计划%s.xlsx", utils.Today().Format("%Y%M%D")))
 	}
-	load_kfjh(db) // 导入科技管理部编制的开发计划表
+	//load_kfjh(db) // 导入科技管理部编制的开发计划表
 	Update_ytc(db)
 	update_kfjh(db)
 	Export(db, path)
