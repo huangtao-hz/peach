@@ -12,6 +12,9 @@ import (
 var create_sql string
 var Version = "1.0.4"
 
+//go:embed query/update_ysrq.sql
+var update_ysrq string
+
 func CreateDatabse(db *sqlite.DB) {
 	db.ExecScript(create_sql)
 	sqlite.InitLoadFile(db)

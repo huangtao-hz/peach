@@ -1,0 +1,7 @@
+sheet = "版本安排"
+header = "计划版本,投产日期,完成验收"
+query = "select * from bbap order by jhbb"
+start_col = "A"
+
+[widths]
+"A,C" = 15

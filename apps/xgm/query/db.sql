@@ -175,3 +175,9 @@ create table if not exists xmryb(
 create index if not exists xmryb_xz on xmryb(xz);
 create index if not exists xmryb_lb on xmryb(lb);
 create index if not exists xmryb_xm on xmryb(xm);
+
+create table if not exists bbap(
+    jhbb    text,
+    tcrq    text,
+    wcys    text
+);

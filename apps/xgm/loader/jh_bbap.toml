@@ -1,0 +1,4 @@
+sheets = "版本安排"
+use_cols = "A:C"
+skip_rows = 1
+tablename = "bbap"

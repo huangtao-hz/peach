@@ -19,6 +19,25 @@ func PrintVersion(db *sqlite.DB) {
 	}
 }
 
+// update_kfjhsj 更新开发计划时间
+func update_kfjhsj(db *sqlite.DB) {
+	fmt.Print("更新开发计划时间：")
+	r, err := db.Exec(`update kfjh
+set kskf=date(kskf,printf("%d days",julianday(bbap.wcys)-julianday(kfjh.wcys))),
+wckf=date(wckf,printf("%d days",julianday(bbap.wcys)-julianday(kfjh.wcys))),
+wccs=date(wccs,printf("%d days",julianday(bbap.wcys)-julianday(kfjh.wcys))),
+wcys=bbap.wcys
+from bbap
+where kfjh.jhbb=bbap.jhbb
+`)
+	if err == nil {
+		count, _ := r.RowsAffected()
+		fmt.Println(count, "行数据被更新")
+	} else {
+		fmt.Println(err)
+	}
+}
+
 // Update 更新计划表
 func Update(db *sqlite.DB) (err error) {
 	path := utils.NewPath(config.Home).Find("*新柜面存量交易迁移*.xlsx")
@@ -33,13 +52,21 @@ func Update(db *sqlite.DB) (err error) {
 			utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_kfjh.toml", &f.ExcelBook, fileinfo))
 			fmt.Println("导入项目计划表")
 			utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_xmjh2.toml", &f.ExcelBook, fileinfo, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2)))
+			fmt.Println("导入版本安排")
+			utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_bbap.toml", &f.ExcelBook, fileinfo))
 		}
 	} else {
 		path = utils.NewPath(config.Home).Join(fmt.Sprintf("附件1：新柜面存量交易迁移计划%s.xlsx", utils.Today().Format("%Y%M%D")))
 	}
 	//load_kfjh(db) // 导入科技管理部编制的开发计划表
+	fmt.Print("更新验收完成时间:")
+	r, _ := db.Exec(`update bbap set wcys=date(tcrq,"weekday 5","-7 days") where wcys=""`)
+	if count, err := r.RowsAffected(); err == nil {
+		fmt.Println(count, "条数据被更新")
+	}
 	Update_ytc(db)
 	update_kfjh(db)
+	//update_kfjhsj(db)
 	Export(db, path)
 	return
 }
@@ -47,7 +74,7 @@ func Update(db *sqlite.DB) (err error) {
 // Export 更新项目计划表-导出文件
 func Export(db *sqlite.DB, path *utils.Path) {
 	fmt.Println("更新文件：", path)
-	utils.CheckFatal(ExportXlsx(db, path.String(), "jh_gbmtj,jh_gzxtj,jh_ywtj,jh_kfjhtj,jh_gzxkfjh,jh_kfjhb,jh_xmjhb,jh_tcjyb"))
+	utils.CheckFatal(ExportXlsx(db, path.String(), "jh_gbmtj,jh_gzxtj,jh_ywtj,jh_kfjhtj,jh_gzxkfjh,jh_kfjhb,jh_xmjhb,jh_tcjyb,jh_bbap"))
 	fmt.Println("更新文件完成！")
 }
 
