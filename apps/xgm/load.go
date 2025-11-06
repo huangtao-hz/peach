@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"peach/data"
-	"peach/excel"
 	"peach/sqlite"
 	"peach/utils"
 	"strings"
@@ -22,19 +20,7 @@ func PrintVersion(db *sqlite.DB) {
 func Update(db *sqlite.DB) (err error) {
 	path := utils.NewPath(config.Home).Find("*新柜面存量交易迁移*.xlsx")
 	if path != nil {
-		fmt.Println("处理文件：", path.Name())
-		if f, err := excel.Open(path); err == nil {
-			defer f.Close()
-			fileinfo := path.FileInfo()
-			fmt.Println("导入新旧交易对照表")
-			db.LoadExcel(loaderFS, "loader/jh_xjdzb.toml", &f.ExcelBook, fileinfo)
-			fmt.Println("导入开发计划表")
-			db.LoadExcel(loaderFS, "loader/jh_kfjh.toml", &f.ExcelBook, fileinfo)
-			fmt.Println("导入项目计划表")
-			db.LoadExcel(loaderFS, "loader/jh_xmjh2.toml", &f.ExcelBook, fileinfo, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2))
-			fmt.Println("导入版本安排")
-			db.LoadExcel(loaderFS, "loader/jh_bbap.toml", &f.ExcelBook, fileinfo)
-		}
+		load_xmjh(db, path)
 	} else {
 		path = utils.NewPath(config.Home).Join(fmt.Sprintf("附件1：新柜面存量交易迁移计划%s.xlsx", utils.Today().Format("%Y%M%D")))
 	}
@@ -56,13 +42,6 @@ func Update(db *sqlite.DB) (err error) {
 	return
 }
 
-// Export 更新项目计划表-导出文件
-func Export(db *sqlite.DB, path *utils.Path) {
-	fmt.Println("更新文件：", path)
-	utils.CheckFatal(ExportXlsx(db, path.String(), "jh_gbmtj,jh_gzxtj,jh_ywtj,jh_kfjhtj,jh_gzxkfjh,jh_kfjhb,jh_xmjhb,jh_tcjyb,jh_bbap"))
-	fmt.Println("更新文件完成！")
-}
-
 func update_kfjh(db *sqlite.DB) {
 	fmt.Print("根据验收明细表更新开发状态:")
 	db.ExecuteFs(queryFS, "query/update_kfjihua.sql")
@@ -72,7 +51,7 @@ func update_kfjh(db *sqlite.DB) {
 func Load(db *sqlite.DB) (err error) {
 	Home := utils.NewPath(config.Home)
 	if path := Home.Find("*新柜面存量交易迁移*.xlsx"); path != nil {
-		if err = Load_xmjh(db, path); err != nil {
+		if err = load_xmjh(db, path); err != nil {
 			fmt.Println(err)
 		}
 	}
@@ -94,7 +73,7 @@ func Restore(db *sqlite.DB) (err error) {
 	fmt.Println("处理文件：", path.Name())
 	for name, file := range path.IterZip() {
 		if strings.Contains(name, "新柜面存量交易迁移计划") {
-			err = Load_xmjh(db, file)
+			err = load_xmjh(db, file)
 		} else if strings.Contains(name, "数智综合运营系统问题跟踪表") {
 			err = LoadWtgzb(db, file)
 		} else if strings.Contains(name, "版本条目明细") {
