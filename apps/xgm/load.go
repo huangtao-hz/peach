@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "embed"
 	"fmt"
 	"peach/data"
 	"peach/excel"
@@ -54,6 +53,10 @@ func Update(db *sqlite.DB) (err error) {
 	Update_ytc(db)
 	update_kfjh(db)
 	update_kfjhsj(db)
+	fmt.Print("根据验收条目更新完成状态：")
+	db.ExecuteFs(queryFS, "query/update_xmjh.sql")
+	fmt.Print("根据新旧交易对照表更新对应新交易：")
+	db.ExecuteFs(queryFS, "query/update_xmjh_xjy.sql")
 	Export(db, path)
 	return
 }
