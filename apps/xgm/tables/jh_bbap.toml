@@ -4,4 +4,4 @@ query = "select * from bbap order by jhbb"
 start_col = "A"
 
 [widths]
-"A,C" = 15
+"A:C" = 15
