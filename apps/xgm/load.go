@@ -18,12 +18,6 @@ func PrintVersion(db *sqlite.DB) {
 	}
 }
 
-// update_kfjhsj 更新开发计划时间
-func update_kfjhsj(db *sqlite.DB) {
-	fmt.Print("根据计划版本更新开发计划时间：")
-	db.ExecuteFs(queryFS, "query/update_kfjhsj.sql")
-}
-
 // Update 更新计划表
 func Update(db *sqlite.DB) (err error) {
 	path := utils.NewPath(config.Home).Find("*新柜面存量交易迁移*.xlsx")
@@ -52,7 +46,8 @@ func Update(db *sqlite.DB) (err error) {
 	}
 	Update_ytc(db)
 	update_kfjh(db)
-	update_kfjhsj(db)
+	fmt.Print("根据计划版本更新开发计划时间：")
+	db.ExecuteFs(queryFS, "query/update_kfjhsj.sql")
 	fmt.Print("根据验收条目更新完成状态：")
 	db.ExecuteFs(queryFS, "query/update_xmjh.sql")
 	fmt.Print("根据新旧交易对照表更新对应新交易：")
