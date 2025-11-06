@@ -20,7 +20,7 @@ const (
 func show_new_jy(db *sqlite.DB, jym string) {
 	db.PrintRow("select jym,jymc,min(tcrq),zs,bz from xjdz where jym=? group by jym", xjyHeader, jym)
 	fmt.Println("                      --  对应老交易清单  --")
-	db.Printf(XjyQuery, "%4s  %-30s %-12s  %-12s  %12s    %10s\n\n", XyjOldHeader, true, jym)
+	db.Printf(XjyQuery, "%4s  %-30s %-12s  %-12s  %12s    %10s\n", XyjOldHeader, true, jym)
 }
 
 func show_old_jy(db *sqlite.DB, jym string) {
