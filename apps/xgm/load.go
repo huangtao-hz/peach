@@ -27,13 +27,13 @@ func Update(db *sqlite.DB) (err error) {
 			defer f.Close()
 			fileinfo := path.FileInfo()
 			fmt.Println("导入新旧交易对照表")
-			utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_xjdzb.toml", &f.ExcelBook, fileinfo))
+			db.LoadExcel(loaderFS, "loader/jh_xjdzb.toml", &f.ExcelBook, fileinfo)
 			fmt.Println("导入开发计划表")
-			utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_kfjh.toml", &f.ExcelBook, fileinfo))
+			db.LoadExcel(loaderFS, "loader/jh_kfjh.toml", &f.ExcelBook, fileinfo)
 			fmt.Println("导入项目计划表")
-			utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_xmjh2.toml", &f.ExcelBook, fileinfo, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2)))
+			db.LoadExcel(loaderFS, "loader/jh_xmjh2.toml", &f.ExcelBook, fileinfo, data.HashFilter(-1, -10, -9, -8, -7, -6, -5, -4, -3, -2))
 			fmt.Println("导入版本安排")
-			utils.CheckErr(db.LoadExcel(loaderFS, "loader/jh_bbap.toml", &f.ExcelBook, fileinfo))
+			db.LoadExcel(loaderFS, "loader/jh_bbap.toml", &f.ExcelBook, fileinfo)
 		}
 	} else {
 		path = utils.NewPath(config.Home).Join(fmt.Sprintf("附件1：新柜面存量交易迁移计划%s.xlsx", utils.Today().Format("%Y%M%D")))
