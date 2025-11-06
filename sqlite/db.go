@@ -7,6 +7,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"embed"
 	"fmt"
 	"os"
 	"peach/data"
@@ -165,4 +166,23 @@ func PrintRows(r sql.Result, err error) error {
 // ExecMany 执行多行数据
 func (db *DB) ExecMany(query string, data *data.Data) error {
 	return db.ExecTx(ExecMany(query, PrintRows, data))
+}
+
+// ExecFs 执行嵌入文件的语句
+func (db *DB) ExecFs(fsys embed.FS, file string, args ...any) (result sql.Result, err error) {
+	query, err := fsys.ReadFile(file)
+	if err != nil {
+		return
+	}
+	return db.Exec(string(query), args...)
+}
+
+// ExecuteFs 执行语句，并打印影响行数
+func (db *DB) ExecuteFs(fsys embed.FS, file string, args ...any) {
+	if result, err := db.ExecFs(fsys, file, args...); err == nil {
+		rows, _ := result.RowsAffected()
+		utils.Printf("%,d 行数据被更新\n", rows)
+	} else {
+		fmt.Printf("Error:%s", err)
+	}
 }

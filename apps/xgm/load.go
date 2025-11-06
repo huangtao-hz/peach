@@ -21,21 +21,8 @@ func PrintVersion(db *sqlite.DB) {
 
 // update_kfjhsj 更新开发计划时间
 func update_kfjhsj(db *sqlite.DB) {
-	fmt.Print("更新开发计划时间：")
-	r, err := db.Exec(`update kfjh
-set kskf=date(kskf,printf("%d days",julianday(bbap.wcys)-julianday(kfjh.wcys))),
-wckf=date(wckf,printf("%d days",julianday(bbap.wcys)-julianday(kfjh.wcys))),
-wccs=date(wccs,printf("%d days",julianday(bbap.wcys)-julianday(kfjh.wcys))),
-wcys=bbap.wcys
-from bbap
-where kfjh.jhbb=bbap.jhbb
-`)
-	if err == nil {
-		count, _ := r.RowsAffected()
-		fmt.Println(count, "行数据被更新")
-	} else {
-		fmt.Println(err)
-	}
+	fmt.Print("根据计划版本更新开发计划时间：")
+	db.ExecuteFs(queryFS, "query/update_kfjhsj.sql")
 }
 
 // Update 更新计划表
@@ -66,7 +53,7 @@ func Update(db *sqlite.DB) (err error) {
 	}
 	Update_ytc(db)
 	update_kfjh(db)
-	//update_kfjhsj(db)
+	update_kfjhsj(db)
 	Export(db, path)
 	return
 }
@@ -78,17 +65,9 @@ func Export(db *sqlite.DB, path *utils.Path) {
 	fmt.Println("更新文件完成！")
 }
 
-//go:embed query/update_kfjihua.sql
-var update_kfjh2 string
-
 func update_kfjh(db *sqlite.DB) {
-	fmt.Println("根据验收明细表更新开发状态")
-	if r, err := db.Exec(update_kfjh2); err == nil {
-		rows, _ := r.RowsAffected()
-		utils.Printf("Affected rows: %,d\n", rows)
-	} else {
-		fmt.Println(err)
-	}
+	fmt.Print("根据验收明细表更新开发状态:")
+	db.ExecuteFs(queryFS, "query/update_kfjihua.sql")
 }
 
 // Load 导入数据文件

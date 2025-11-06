@@ -16,11 +16,14 @@ const (
 	BufferSize = 1024
 )
 
-//go:embed tables
-var tablesFS embed.FS
-
-//go:embed loader
-var loaderFS embed.FS
+var (
+	//go:embed tables
+	tablesFS embed.FS
+	//go:embed query
+	queryFS embed.FS
+	//go:embed loader
+	loaderFS embed.FS
+)
 
 // Reporter 报表类型
 type Reporter struct {

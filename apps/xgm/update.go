@@ -24,7 +24,7 @@ func Update_ytc(db *sqlite.DB) {
 		if n, err := fmt.Scan(&s); err == nil && n > 0 && strings.ToUpper(s) == "Y" {
 			if r, err := db.Exec(sql); err == nil {
 				if count, err := r.RowsAffected(); err == nil {
-					utils.Printf("%,d 条数据被修改。\n", count)
+					utils.Printf("%,d 条数据被修改 \n", count)
 				}
 			} else {
 				fmt.Println(err)
