@@ -23,6 +23,8 @@ var (
 	queryFS embed.FS
 	//go:embed loader
 	loaderFS embed.FS
+	//go:embed template
+	templateFS embed.FS
 )
 
 // Reporter 报表类型

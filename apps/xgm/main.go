@@ -34,6 +34,7 @@ func main() {
 	update := flag.Bool("update", false, "更新计划表")
 	jihua := flag.Bool("jihua", false, "投产交易清单")
 	version := flag.Bool("version", false, "查阅程序版本")
+	wenti := flag.String("wenti", "", "统计上报问题，取值：本月、上月、上周、本周")
 
 	flag.Parse()
 	CreateDatabse(db)
@@ -64,6 +65,9 @@ func main() {
 	}
 	if *jihua {
 		kaifajihua(db)
+	}
+	if *wenti != "" {
+		report_wenti(db, *wenti)
 	}
 	if len(flag.Args()) > 0 {
 		PrintVersion(db)
