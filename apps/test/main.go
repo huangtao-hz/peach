@@ -38,7 +38,5 @@ func test_xls() {
 
 func main() {
 	defer utils.Recover()
-	//utils.PrintStruct(utils.Split("a|b|b|c  d"))
-	//path := utils.NewPath("~/abc")
 
 }
