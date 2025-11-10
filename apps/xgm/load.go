@@ -51,16 +51,12 @@ func update_kfjh(db *sqlite.DB) {
 func Load(db *sqlite.DB) (err error) {
 	Home := utils.NewPath(config.Home)
 	if path := Home.Find("*新柜面存量交易迁移*.xlsx"); path != nil {
-		if err = load_xmjh(db, path); err != nil {
-			fmt.Println(err)
-		}
+		load_xmjh(db, path)
 	}
 	if path := Home.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
-		if err := LoadWtgzb(db, path); err != nil {
-			fmt.Println(err)
-		}
+		load_wtgzb(db, path)
 	}
-	return
+	return nil
 }
 
 // Restore 从备份文件中恢复数据
@@ -73,9 +69,9 @@ func Restore(db *sqlite.DB) (err error) {
 	fmt.Println("处理文件：", path.Name())
 	for name, file := range path.IterZip() {
 		if strings.Contains(name, "新柜面存量交易迁移计划") {
-			err = load_xmjh(db, file)
+			load_xmjh(db, file)
 		} else if strings.Contains(name, "数智综合运营系统问题跟踪表") {
-			err = LoadWtgzb(db, file)
+			load_wtgzb(db, file)
 		} else if strings.Contains(name, "版本条目明细") {
 			load_bbmx(db, file)
 		}

@@ -34,7 +34,7 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 		dest = append(dest, src...)
 		return
 	}
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_ystm.toml", &f.ExcelBook, path.FileInfo(), conv_ystm))
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_ystm.toml", &f.ExcelBook, path.FileInfo(), date, conv_ystm))
 
 	fmt.Println("导入新旧对照表")
 	conv_jydz := func(src []string) (dest []string, err error) {
@@ -45,11 +45,11 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 		dest = src
 		return
 	}
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_jydzb.toml", &f.ExcelBook, path.FileInfo(), conv_jydz))
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_jydzb.toml", &f.ExcelBook, path.FileInfo(), date, conv_jydz))
 	fmt.Println("导入分工明细表")
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo()))
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo(), date))
 	fmt.Println("导入项目人员表")
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_xmryb.toml", &f.ExcelBook, path.FileInfo()))
+	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_xmryb.toml", &f.ExcelBook, path.FileInfo(), date))
 }
 
 // update_bbmx 更新版本明细

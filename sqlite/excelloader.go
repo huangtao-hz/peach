@@ -19,8 +19,8 @@ type ExcelLoader struct {
 }
 
 // NewExcelLoader 构造函数
-func (db *DB) NewExcelLoader(fsys fs.FS, path string, book *excel.ExcelBook, fileinfo fs.FileInfo, cvfns ...data.ConvertFunc) (loader *ExcelLoader, err error) {
-	loader = &ExcelLoader{Loader: Loader{db: db, Method: "insert", fileinfo: fileinfo, Clear: true, Check: true}}
+func (db *DB) NewExcelLoader(fsys fs.FS, path string, book *excel.ExcelBook, fileinfo fs.FileInfo, ver string, cvfns ...data.ConvertFunc) (loader *ExcelLoader, err error) {
+	loader = &ExcelLoader{Loader: Loader{db: db, Method: "insert", fileinfo: fileinfo, Clear: true, Ver: ver, Check: true}}
 	if _, err = toml.DecodeFS(fsys, path, loader); err != nil {
 		return
 	}
@@ -33,19 +33,19 @@ func (db *DB) NewExcelLoader(fsys fs.FS, path string, book *excel.ExcelBook, fil
 }
 
 // LoadExcel 导入excel文件
-func (db *DB) LoadExcel(fsys fs.FS, path string, book *excel.ExcelBook, fileinfo fs.FileInfo, cvfns ...data.ConvertFunc) error {
-	if loader, err := db.NewExcelLoader(fsys, path, book, fileinfo, cvfns...); err == nil {
+func (db *DB) LoadExcel(fsys fs.FS, path string, book *excel.ExcelBook, fileinfo fs.FileInfo, ver string, cvfns ...data.ConvertFunc) error {
+	if loader, err := db.NewExcelLoader(fsys, path, book, fileinfo, ver, cvfns...); err == nil {
 		return loader.Load()
 	}
 	return nil
 }
 
 // LoadExcelFile  导入单个 Excel 文件
-func (db *DB) LoadExcelFile(fsys fs.FS, path string, file utils.File, cvfns ...data.ConvertFunc) error {
+func (db *DB) LoadExcelFile(fsys fs.FS, path string, file utils.File, ver string, cvfns ...data.ConvertFunc) error {
 	f, err := excel.Open(file)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	return db.LoadExcel(fsys, path, &f.ExcelBook, file.FileInfo(), cvfns...)
+	return db.LoadExcel(fsys, path, &f.ExcelBook, file.FileInfo(), ver, cvfns...)
 }

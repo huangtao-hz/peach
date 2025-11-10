@@ -38,7 +38,9 @@ func conv_kfjh(src []string) (dest []string, err error) {
 func load_kfjh(db *sqlite.DB) (err error) {
 	if path := utils.NewPath(config.Home).Find("*开发计划*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Base())
-		return db.LoadExcelFile(loaderFS, "loader/kfjh.toml", path, conv_kfjh)
+		date := utils.Extract(`\d{8}`, path.Base())
+		date = strings.Join([]string{date[:4], date[4:6], date[6:]}, "-")
+		return db.LoadExcelFile(loaderFS, "loader/kfjh.toml", path, date, conv_kfjh)
 	}
 	return fmt.Errorf("未找到 开发计划 文件")
 }

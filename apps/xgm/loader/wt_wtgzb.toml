@@ -1,0 +1,6 @@
+# 导入问题跟踪表
+sheets = "问题清单"
+use_cols = "A:M"
+skip_rows = 1
+tablename = "wtgzb"
+method = "insert"
