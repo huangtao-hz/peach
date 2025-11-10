@@ -1,8 +1,9 @@
 {{ .Baogaoqi }}，收集问题{{ .Dangqi.Zongshu }}个，其中：
 {{- $first := true }}
 {{- range $k,$v := .Dangqi.Yanzhongxing }}
-{{- if $first }}{{ $first = false }}{{ else }}，{{end}}
-{{- $k }}问题{{$v}} 个
+  {{- if $first }}
+    {{ $first = false }}{{ else }}，{{end}}
+  {{- $k }}问题{{$v}} 个
 {{- end -}}。
 上述问题的解决情况为：{{- $first = true }}{{- range $k,$v := .Dangqi.Zhuangtai }}{{- if $first }}{{ $first = false }}{{ else }}，{{end}}
 {{- $k }}问题{{ $v}} 个
