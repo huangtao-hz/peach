@@ -6,7 +6,7 @@ b.xqzt,b.kfzt,iif(b.jhbb="","未制定计划",b.jhbb)as jhbb,b.jsxz,b.kjfzr,b.kf
 from xmjh a
 left join kfjh b on a.jym=b.jym
 where b.jym is not null
-and a.sfwc<>"5-已投产" and a.fa not in("1-下架交易","5-移出柜面系统")
+and a.fa not in("1-下架交易","5-移出柜面系统")
 order by jhbb,a.jym\
 """
 start_col = "A"
