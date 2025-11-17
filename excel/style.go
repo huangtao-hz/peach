@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/BurntSushi/toml"
 	"github.com/huangtao-hz/excelize"
 )
 
@@ -17,15 +18,37 @@ var NumberFmtMap = map[string]int{
 
 // Style 自定义的样式
 type Style struct {
-	FontName  string  // 字体名称
-	FontSize  float64 // 字号
-	Bold      bool    // 加粗
-	Italic    bool    // 倾斜
-	Underline string  // 下划线，为：single,double
-	HAlign    string  // 水平对齐，为：left,center,right
-	VAlign    string  // 垂直对齐，为：top,center,bottom
-	WrapText  bool    // 字体换行
-	NumFmt    string  // 数字样式
+	FontName  string  `toml:"font_name"` // 字体名称
+	FontSize  float64 `toml:"font_size"` // 字号
+	Bold      bool    `toml:"bold"`      // 加粗
+	Italic    bool    `toml:"italic"`    // 倾斜
+	Underline string  `toml:"underline"` // 下划线，为：single,double
+	HAlign    string  `toml:"halign"`    // 水平对齐，为：left,center,right
+	VAlign    string  `toml:"valign"`    // 垂直对齐，为：top,center,bottom
+	WrapText  bool    `toml:"wrap_text"` // 字体换行
+	NumFmt    string  `toml:"num_fmt"`   // 数字样式
+}
+
+// NamedStyle  带名字的样式，用于从配置文件中获取样式
+type NamedStyle struct {
+	Name string `toml:"name"`
+	Style
+}
+
+// Styles 样式表
+type PreStyles struct {
+	Styles []NamedStyle `toml:"style"`
+}
+
+// AddPreStyles 增加预定义的样式，其中 sytles 应为 toml 格式
+func (w *Writer) AddPreStyles(styles string) (err error) {
+	pre_styles := &PreStyles{}
+	if _, err = toml.Decode(styles, pre_styles); err == nil {
+		for _, style := range pre_styles.Styles {
+			w.AddStyle(style.Name, style.Style)
+		}
+	}
+	return
 }
 
 // AsStyle 转换为 excelize 支持的样式
@@ -65,6 +88,7 @@ func (s *Style) AsStyle() (style *excelize.Style, err error) {
 	return
 }
 
+/*
 var predifinedStyles = map[string]Style{
 	"Title": Style{
 		FontName: "黑体",
@@ -111,3 +135,5 @@ var predifinedStyles = map[string]Style{
 		VAlign: "center",
 	},
 }
+
+*/

@@ -1,6 +1,7 @@
 package excel
 
 import (
+	_ "embed"
 	"fmt"
 	"peach/utils"
 	"slices"
@@ -23,16 +24,15 @@ type Writer struct {
 	sheets map[string]*WorkSheet
 }
 
+//go:embed styles.toml
+var prestyles string
+
 // NewFile 新建 Excel 文件
 func NewWriter() (file *Writer) {
 	f := excelize.NewFile()
 	styles := make(map[string]int)
 	file = &Writer{File: f, styles: styles}
-	for name, style := range predifinedStyles {
-		if err := file.AddStyle(name, style); err != nil {
-			fmt.Println(err)
-		}
-	}
+	utils.CheckErr(file.AddPreStyles(prestyles))
 	return
 }
 
