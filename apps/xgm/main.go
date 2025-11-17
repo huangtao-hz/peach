@@ -58,7 +58,6 @@ func main() {
 		show_touchan(db)
 	}
 	if *update {
-
 		err = Update(db)
 		//err = Export(db, nil)
 		update_bbmx(db)
