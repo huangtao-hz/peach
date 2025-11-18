@@ -60,6 +60,10 @@ func main() {
 	if *update {
 		update_bbmx(db)
 		err = Update(db)
+		Home := utils.NewPath(config.Home)
+		if path := Home.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
+			load_wtgzb(db, path)
+		}
 	}
 	if *jihua {
 		kaifajihua(db)
