@@ -17,7 +17,7 @@ func Update(db *sqlite.DB) (err error) {
 		path = utils.NewPath(config.Home).Join(fmt.Sprintf("附件1：新柜面存量交易迁移计划%s.xlsx", utils.Today().Format("%Y%M%D")))
 	}
 	//load_kfjh(db) // 导入科技管理部编制的开发计划表
-	fmt.Print("更新验收完成时间:")
+	fmt.Print("根据投产时间更新验收完成时间:")
 	r, _ := db.Exec(`update bbap set wcys=date(tcrq,"weekday 5","-7 days") where wcys=""`)
 	if count, err := r.RowsAffected(); err == nil {
 		fmt.Println(count, "条数据被更新")
