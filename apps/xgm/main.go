@@ -10,7 +10,7 @@ import (
 
 //go:embed query/db.sql
 var create_sql string
-var Version = "1.0.5"
+var Version = "1.0.6"
 
 //go:embed query/update_ysrq.sql
 var update_ysrq string

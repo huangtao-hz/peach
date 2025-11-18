@@ -57,7 +57,9 @@ func update_bbmx(db *sqlite.DB) {
 	if path := utils.NewPath(config.Home).Find("*版本条目明细*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Name())
 		load_bbmx(db, path)
+		fmt.Print("更新：", path.Base())
 		utils.CheckFatal(ExportXlsx(db, path.String(), "bb_kjtj,bb_ywrytj,bb_ywtj,bb_ystm,bb_xjdzb,bb_fgb,bb_xmryb"))
+		fmt.Println(" 完成！")
 	} else {
 		fmt.Println("未发现文件：柜面版本明细*.xlsx")
 	}
