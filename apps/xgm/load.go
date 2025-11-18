@@ -8,14 +8,6 @@ import (
 	"time"
 )
 
-// PrintVersion 打印当前数据版本
-func PrintVersion(db *sqlite.DB) {
-	var ver string
-	if err := db.QueryRow("select ver from loadfile where name='xmjh'").Scan(&ver); err == nil {
-		fmt.Println("当前数据版本：", ver)
-	}
-}
-
 // Update 更新计划表
 func Update(db *sqlite.DB) (err error) {
 	path := utils.NewPath(config.Home).Find("*新柜面存量交易迁移*.xlsx")
@@ -31,7 +23,8 @@ func Update(db *sqlite.DB) (err error) {
 		fmt.Println(count, "条数据被更新")
 	}
 	Update_ytc(db)
-	update_kfjh(db)
+	fmt.Print("根据验收明细表更新开发状态:")
+	db.ExecuteFs(queryFS, "query/update_kfjihua.sql")
 	fmt.Print("根据计划版本更新开发计划时间：")
 	db.ExecuteFs(queryFS, "query/update_kfjhsj.sql")
 	fmt.Print("根据验收条目更新完成状态：")
@@ -40,11 +33,6 @@ func Update(db *sqlite.DB) (err error) {
 	db.ExecuteFs(queryFS, "query/update_xmjh_xjy.sql")
 	Export(db, path)
 	return
-}
-
-func update_kfjh(db *sqlite.DB) {
-	fmt.Print("根据验收明细表更新开发状态:")
-	db.ExecuteFs(queryFS, "query/update_kfjihua.sql")
 }
 
 // Load 导入数据文件
