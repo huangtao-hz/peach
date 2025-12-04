@@ -1,6 +1,5 @@
 sheet = "计划执行情况"
-query = """\
-select jsxz,
+query = """select jsxz,
 sum(iif(b.sfwc="5-已投产",1,0))as ywc,
 sum(iif(b.sfwc<>"5-已投产",0,1)),
 count(a.jym)
@@ -15,8 +14,8 @@ start_col = "A"
 name = "计划执行表"
 
 [widths]
-"A" = 12
-"B:L" = 15
+"A" = 20
+"B:E" = 15
 
 [[column]]
 name = "技术小组"
