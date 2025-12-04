@@ -1,0 +1,44 @@
+sheet = "计划执行情况"
+query = """\
+select jsxz,
+sum(iif(b.sfwc="5-已投产",1,0))as ywc,
+sum(iif(b.sfwc<>"5-已投产",0,1)),
+count(a.jym)
+from kfjh a
+left join xmjh b
+on a.jym=b.jym
+where b.fa not in("1-下架交易","5-移出柜面系统")
+group by jsxz
+order by ywc desc\
+"""
+start_col = "A"
+name = "计划执行表"
+
+[widths]
+"A" = 12
+"B:L" = 15
+
+[[column]]
+name = "技术小组"
+total_string = "合计"
+
+[[column]]
+name = "已完成"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "未完成"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "交易数量"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "完成率"
+format = "Percent"
+formula = "[已完成]/[交易数量]"
+total_function = "计划执行表[[#Totals],[已完成]]/计划执行表[[#Totals],[交易数量]]"
