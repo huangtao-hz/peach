@@ -15,7 +15,7 @@ count(a.jym)*1.0/(select count(jym)from xmjh where fa not in ("1-下架交易","
 from kfjh a
 left join xmjh b
 on a.jym=b.jym
-where b.sfwc not like "5%" and b.fa not in("1-下架交易","5-移出柜面系统")
+where b.fa not in("1-下架交易","5-移出柜面系统")
 group by jhbb
 order by jhbb\
 """
