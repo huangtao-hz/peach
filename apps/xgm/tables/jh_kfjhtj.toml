@@ -6,7 +6,6 @@ sum(iif(jsxz="贷款组",1,0)),
 sum(iif(jsxz="支付结算组",1,0)),
 sum(iif(jsxz="综合组",1,0)),
 sum(iif(jsxz="外围组",1,0)),
-sum(iif(jsxz="",1,0)),
 count(a.jym),
 count(a.jym)*1.0/(select count(jym)from xmjh where fa not in ("1-下架交易","5-移出柜面系统"))
 from kfjh a
@@ -49,11 +48,6 @@ total_function = "sum"
 
 [[column]]
 name = "外围组"
-format = "Number"
-total_function = "sum"
-
-[[column]]
-name = "其他"
 format = "Number"
 total_function = "sum"
 
