@@ -1,7 +1,7 @@
 sheet = "计划执行情况"
 query = """select jsxz,
 sum(iif(b.sfwc="5-已投产",1,0))as ywc,
-sum(iif(b.sfwc<>"5-已投产",0,1)),
+sum(iif(b.sfwc<>"5-已投产",1,0)),
 count(a.jym)
 from kfjh a
 left join xmjh b
