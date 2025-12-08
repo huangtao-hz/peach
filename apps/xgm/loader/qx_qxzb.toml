@@ -1,0 +1,6 @@
+sheets = "缺陷指标详情"
+use_cols = "A:W"
+skip_rows = 1
+method = "insert or replace"
+tablename = "qxzb"
+clear = false

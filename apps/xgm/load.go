@@ -10,6 +10,7 @@ import (
 
 // Update 更新计划表
 func Update(db *sqlite.DB) (err error) {
+	load_qxzb(db)
 	path := utils.NewPath(config.Home).Find("*新柜面存量交易迁移*.xlsx")
 	if path != nil {
 		load_xmjh(db, path)

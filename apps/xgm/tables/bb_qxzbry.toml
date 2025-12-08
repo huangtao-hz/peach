@@ -1,0 +1,45 @@
+sheet = "缺陷指标表"
+query = """\
+-- 统计各小组的缺陷处理情况
+select jjr,ifnull(b.xz,"其他") as jsxz,
+count(qxbh) as sl,
+avg(xmjlczsc),avg(csjlczsc),avg(kfryczsc),avg(csryczsc)
+from qxzb a
+left join xmryb b on a.jjr=b.xm and lb<>"3-分行业务"
+where tcbb=(select max(tcbb)from qxzb) and jjr<>""
+group by jjr,jsxz
+order by sl desc\
+"""
+start_col = "A"
+
+[[column]]
+name = "开发人员"
+total_string = "合计"
+
+[[column]]
+name = "技术小组"
+
+[[column]]
+name = "缺陷数量"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "项目经理处理时长"
+format = "Currency"
+total_function = "SUMPRODUCT([缺陷数量],[项目经理处理时长])/SUM([缺陷数量])"
+
+[[column]]
+name = "测试经理处理时长"
+format = "Currency"
+total_function = "SUMPRODUCT([缺陷数量],[测试经理处理时长])/SUM([缺陷数量])"
+
+[[column]]
+name = "开发人员处理时长"
+format = "Currency"
+total_function = "SUMPRODUCT([缺陷数量],[开发人员处理时长])/SUM([缺陷数量])"
+
+[[column]]
+name = "测试人员处理时长"
+format = "Currency"
+total_function = "SUMPRODUCT([缺陷数量],[测试人员处理时长])/SUM([缺陷数量])"

@@ -181,3 +181,30 @@ create table if not exists bbap(
     tcrq    text,
     wcys    text
 );
+
+-- 缺陷指标
+create table if not exists qxzb(
+    qxbh   text primary key,  -- 缺陷编号
+    xmbh    text,   -- 项目编号
+    tcbb    text,   -- 投产版本
+    xmjlgh  text,   -- 项目经理工号
+    xmjl    text,   -- 项目经理
+    csjlgh  text,   -- 测试经理工号
+    csjl    text,   -- 测试经理
+    csbm    text,   -- 测试部门
+    yzcd    text,   -- 严重程度
+    zt      text,   -- bug状态
+    sfyq    text,   -- 是否延期
+    xt      text,   -- 系统
+    jhcs    int,    -- 激活次数
+    cjrgh   text,   -- 创建人工号
+    cjr     text,   -- 创建人
+    jjrgh   text,   -- 解决人工号
+    jjr     text,   -- 解决人
+    csjlczsc  real,   -- 测试经理操作时长
+    xmjlczsc  real,   -- 项目经理操作时长
+    kfryczsc  real,   -- 开发人员操作时长
+    csryczsc  real,   -- 测试人员操作时长
+    yzbtgcs     int,    -- 验证不通过次数
+    cjsj    text   -- 创建时间
+);
