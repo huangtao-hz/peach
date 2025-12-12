@@ -83,6 +83,7 @@ func (i *Item) Divide(other *Item) *Item {
 	return nil
 }
 
+// IterAll 计算两个数字所有可能的值
 func (i *Item) IterAll(other *Item) iter.Seq[*Item] {
 	return func(yield func(*Item) bool) {
 		values := []*Item{i.Add(other), i.Sub(other), i.Multiply(other)}
@@ -127,7 +128,7 @@ func permute(nums []int) [][]int {
 	return res
 }
 
-// regular
+// regular 删除重复值
 func regular(s string) string {
 	Jiafa := regexp.MustCompile(`\d+(\+\d+)+`)
 	Chengfa := regexp.MustCompile(`\d+(\*\d+)+`)
