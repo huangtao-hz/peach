@@ -8,15 +8,13 @@ import (
 	"peach/utils"
 )
 
-//go:embed query/db.sql
-var create_sql string
 var Version = "1.0.7"
 
 //go:embed query/update_ysrq.sql
 var update_ysrq string
 
 func CreateDatabse(db *sqlite.DB) {
-	db.ExecScript(create_sql)
+	db.ExecFs(queryFS, "query/db.sql")
 	sqlite.InitLoadFile(db)
 }
 
