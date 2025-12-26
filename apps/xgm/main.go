@@ -58,6 +58,7 @@ func main() {
 		show_touchan(db)
 	}
 	if *update {
+		load_qxzb(db)
 		update_bbmx(db)
 		err = Update(db)
 		Home := utils.NewPath(config.Home)
