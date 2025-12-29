@@ -46,8 +46,8 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 		return
 	}
 	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_jydzb.toml", &f.ExcelBook, path.FileInfo(), date, conv_jydz))
-	fmt.Println("导入分工明细表")
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo(), date))
+	//fmt.Println("导入分工明细表")
+	//utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo(), date))
 	fmt.Println("导入项目人员表")
 	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_xmryb.toml", &f.ExcelBook, path.FileInfo(), date))
 }
@@ -58,7 +58,7 @@ func update_bbmx(db *sqlite.DB) {
 		fmt.Println("处理文件：", path.Name())
 		load_bbmx(db, path)
 		fmt.Print("更新：", path.Base())
-		utils.CheckFatal(ExportXlsx(db, path.String(), "bb_kjtj,bb_ywrytj,bb_ywtj,bb_qxzb,bb_qxzbry,bb_ystm,bb_xjdzb,bb_fgb,bb_xmryb"))
+		utils.CheckFatal(ExportXlsx(db, path.String(), "bb_kjtj,bb_ywrytj,bb_qxzb,bb_qxzbry,bb_ystm,bb_xjdzb,bb_xmryb"))
 		fmt.Println(" 完成！")
 	} else {
 		fmt.Println("未发现文件：柜面版本明细*.xlsx")

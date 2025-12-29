@@ -23,7 +23,7 @@ name = "类型"
 total_string = "合计"
 
 [[column]]
-name = "已完成需求"
+name = "待开发"
 format = "Number"
 total_function = "sum"
 
@@ -43,7 +43,7 @@ format = "Number"
 total_function = "sum"
 
 [[column]]
-name = "投产完成率"
+name = "完成率"
 format = "Percent"
 formula = "[已投产]/[总数]"
 total_function = "各部门统计表[[#Totals],[已投产]]/各部门统计表[[#Totals],[总数]]"
