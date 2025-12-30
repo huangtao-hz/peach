@@ -52,14 +52,19 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_xmryb.toml", &f.ExcelBook, path.FileInfo(), date))
 }
 
+// export_bbmx 导出版本明细
+func export_bbmx(db *sqlite.DB, path *utils.Path) {
+	fmt.Print("更新：", path.Base())
+	utils.CheckFatal(ExportXlsx(db, path.String(), "bb_kjtj,bb_ywrytj,bb_qxzb,bb_qxzbry,bb_ystm,bb_xjdzb,bb_xmryb"))
+	fmt.Println(" 完成！")
+}
+
 // update_bbmx 更新版本明细
 func update_bbmx(db *sqlite.DB) {
 	if path := utils.NewPath(config.Home).Find("*版本条目明细*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Name())
 		load_bbmx(db, path)
-		fmt.Print("更新：", path.Base())
-		utils.CheckFatal(ExportXlsx(db, path.String(), "bb_kjtj,bb_ywrytj,bb_qxzb,bb_qxzbry,bb_ystm,bb_xjdzb,bb_xmryb"))
-		fmt.Println(" 完成！")
+		export_bbmx(db, path)
 	} else {
 		fmt.Println("未发现文件：柜面版本明细*.xlsx")
 	}

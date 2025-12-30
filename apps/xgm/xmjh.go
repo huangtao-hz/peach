@@ -27,8 +27,8 @@ func load_xmjh(db *sqlite.DB, file utils.File) (err error) {
 	return
 }
 
-// Export 更新项目计划表-导出文件
-func Export(db *sqlite.DB, path *utils.Path) {
+// export_xmjh 更新项目计划表-导出文件
+func export_xmjh(db *sqlite.DB, path *utils.Path) {
 	fmt.Print("更新文件：", path.Base())
 	utils.CheckFatal(ExportXlsx(db, path.String(), "jh_gbmtj,jh_gzxtj,jh_ywtj,jh_kfjhtj,jh_kfjhhztj,jh_gzxkfjh,jh_kfjhb,jh_xmjhb,jh_tcjyb,jh_bbap"))
 	fmt.Println(" 完成！")
