@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"peach/utils"
 	"time"
@@ -22,8 +23,8 @@ func prime(x int) (result []int) {
 		result = append(result, i)
 	}
 	var isPrime bool
-	for j = 1; i <= x; j++ {
-		for ; i <= min(x, squre(result[j])); i++ {
+	for j = 1; i < x; j++ {
+		for ; i < min(x, squre(result[j])); i++ {
 			isPrime = true
 			for _, k = range result[:j] {
 				if i%k == 0 {
@@ -42,7 +43,8 @@ func prime(x int) (result []int) {
 // main 主函数
 func main() {
 	defer utils.TimeIt(time.Now())
-	x := 300000
+	x := 3000000
 	xl := prime(x)
 	utils.Printf("count:%,d\n", len(xl))
+	fmt.Println("前100个素数：", xl[:100])
 }
