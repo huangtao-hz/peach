@@ -8,7 +8,7 @@ import (
 	"peach/utils"
 )
 
-var Version = "1.0.9"
+var Version = "1.0.10"
 
 //go:embed query/update_ysrq.sql
 var update_ysrq string

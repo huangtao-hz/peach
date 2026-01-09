@@ -2,4 +2,7 @@
 update kfjh
 set kfzt=ystmb.cszt
 from jydzb,ystmb
-where kfjh.jym=jydzb.yjym and ystmb.bh=jydzb.bh and ystmb.bh is not null and kfzt<>ystmb.cszt
+where kfjh.jym=jydzb.yjym
+and ystmb.bh=jydzb.bh
+and ystmb.bh is not null
+and kfzt not in(ystmb.cszt,"5-已投产")
