@@ -58,7 +58,7 @@ func main() {
 	if *update {
 		load_qxzb(db)
 		update_bbmx(db)
-		err = Update(db)
+		err = update_xmjh(db)
 		Home := utils.NewPath(config.Home)
 		if path := Home.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
 			load_wtgzb(db, path)

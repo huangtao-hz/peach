@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"peach/utils"
 	"time"
@@ -46,5 +45,5 @@ func main() {
 	x := 3000000
 	xl := prime(x)
 	utils.Printf("count:%,d\n", len(xl))
-	fmt.Println("前100个素数：", xl[:100])
+	//fmt.Println("前100个素数：", xl[:100])
 }
