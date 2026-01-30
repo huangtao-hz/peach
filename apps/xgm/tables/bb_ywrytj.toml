@@ -8,6 +8,7 @@ sum(iif(a.cszt like '1%',1,0)),
 sum(iif(a.cszt like '2%',1,0)),
 sum(iif(a.cszt like '3%',1,0)),
 sum(iif(a.cszt like '4%',1,0)),
+sum(iif(a.cszt like '%延期%',1,0)),
 count(a.bh) as sl,sum(d.xjys),sum(d.ljys)
 from ystmb a
 left join (select bh,count(distinct jym)as xjys,count(distinct yjym)as ljys from jydzb group by bh) d on a.bh=d.bh
@@ -48,6 +49,11 @@ total_function = "sum"
 
 [[column]]
 name = "完成验收"
+format = "Number"
+total_function = "sum"
+
+[[column]]
+name = "延期"
 format = "Number"
 total_function = "sum"
 
