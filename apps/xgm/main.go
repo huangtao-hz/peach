@@ -63,7 +63,7 @@ func (c *Client) query_sql(query *string) {
 func (c *Client) update(string) (err error) {
 	c.load_qxzb()
 	c.update_bbmx()
-	err = c.update_xmjh()
+	c.update_xmjh()
 	Home := utils.NewPath(c.Home)
 	if path := Home.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
 		c.load_wtgzb(path)
@@ -107,61 +107,3 @@ func main() {
 	defer client.Close()
 	client.Run()
 }
-
-/*
-func main_bak() {
-	defer utils.Recover()
-	db, err := sqlite.Open(config.Database)
-	utils.CheckFatal(err)
-	defer db.Close()
-	load := flag.Bool("load", false, "导入数据")
-	query_sql := flag.String("query", "", "执行查询")
-	jhbb := flag.String("jhbb", "", "查询计划版本")
-	restore := flag.Bool("restore", false, "导入数据")
-	touchan := flag.Bool("touchan", false, "导入数据")
-	update := flag.Bool("update", false, "更新计划表")
-	jihua := flag.Bool("jihua", false, "投产交易清单")
-	version := flag.Bool("version", false, "查阅程序版本")
-	wenti := flag.String("wenti", "", "统计上报问题，取值：本月、上月、上周、本周")
-
-	flag.Parse()
-	CreateDatabse(db)
-	if *version {
-		fmt.Println("版本：", Version)
-	}
-	if *load {
-		//err = load_jyjh(db)
-		err = Load(db)
-	}
-	if *query_sql != "" {
-		db.Println(*query_sql)
-	}
-	if *jhbb != "" {
-		show_jhbb(db, *jhbb)
-	}
-	if *restore {
-		Restore(db)
-	}
-	if *touchan {
-		show_touchan(db)
-	}
-	if *jihua {
-		kaifajihua(db)
-	}
-	if *wenti != "" {
-		report_wenti(db, *wenti)
-	}
-	if len(flag.Args()) > 0 {
-		PrintVersion(db)
-	}
-	for _, jym := range flag.Args() {
-		if utils.FullMatch(`\d{5}`, jym) {
-			show_new_jy(db, jym)
-		} else if utils.FullMatch(`\d{4}`, jym) {
-			show_old_jy(db, jym)
-		}
-	}
-	utils.CheckErr(err)
-}
-
-*/
