@@ -19,11 +19,11 @@ func conv_gzb(src []string) (dest []string, err error) {
 }
 
 // load_wtgzb 导入问题跟踪表数据
-func load_wtgzb(db *sqlite.DB, file utils.File) (err error) {
+func (c *Client) load_wtgzb(file utils.File) (err error) {
 	name := file.FileInfo().Name()
 	ver := utils.Extract(`\d{8}`, name)
 	fmt.Println("处理文件：", name, "Version:", ver)
-	return db.LoadExcelFile(loaderFS, "loader/wt_wtgzb.toml", file, ver, conv_gzb)
+	return c.LoadExcelFile(loaderFS, "loader/wt_wtgzb.toml", file, ver, conv_gzb)
 }
 
 type wtTongji struct {

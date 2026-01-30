@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"peach/sqlite"
 	"peach/utils"
 )
 
@@ -15,10 +14,10 @@ func conv_qxzb(src []string) (dest []string, err error) {
 }
 
 // load_qxzb 导入缺陷指标
-func load_qxzb(db *sqlite.DB) {
-	if path := utils.NewPath(config.Home).Find("*缺陷指标详情*.xlsx"); path != nil {
+func (c *Client) load_qxzb() {
+	if path := utils.NewPath(c.Home).Find("*缺陷指标详情*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Base())
-		db.LoadExcelFile(loaderFS, "loader/qx_qxzb.toml", path, "", conv_qxzb)
+		c.LoadExcelFile(loaderFS, "loader/qx_qxzb.toml", path, "", conv_qxzb)
 	} else {
 		fmt.Println("Error: 未发现 缺陷指标详情 文件")
 	}

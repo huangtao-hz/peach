@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"peach/excel"
-	"peach/sqlite"
 	"peach/utils"
 	"strings"
 )
@@ -16,7 +15,7 @@ func conv_jym(jym *string) {
 }
 
 // load_bbmx 导入版本明细数据
-func load_bbmx(db *sqlite.DB, path utils.File) {
+func (c *Client) load_bbmx(path utils.File) {
 	name := path.FileInfo().Name()
 	f, err := excel.Open(path)
 	if err != nil {
@@ -34,7 +33,7 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 		dest = append(dest, src...)
 		return
 	}
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_ystm.toml", &f.ExcelBook, path.FileInfo(), date, conv_ystm))
+	utils.CheckErr(c.LoadExcel(loaderFS, "loader/bb_ystm.toml", &f.ExcelBook, path.FileInfo(), date, conv_ystm))
 
 	fmt.Println("导入新旧对照表")
 	conv_jydz := func(src []string) (dest []string, err error) {
@@ -45,26 +44,26 @@ func load_bbmx(db *sqlite.DB, path utils.File) {
 		dest = src
 		return
 	}
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_jydzb.toml", &f.ExcelBook, path.FileInfo(), date, conv_jydz))
+	utils.CheckErr(c.LoadExcel(loaderFS, "loader/bb_jydzb.toml", &f.ExcelBook, path.FileInfo(), date, conv_jydz))
 	//fmt.Println("导入分工明细表")
 	//utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_fgb.toml", &f.ExcelBook, path.FileInfo(), date))
 	fmt.Println("导入项目人员表")
-	utils.CheckErr(db.LoadExcel(loaderFS, "loader/bb_xmryb.toml", &f.ExcelBook, path.FileInfo(), date))
+	utils.CheckErr(c.LoadExcel(loaderFS, "loader/bb_xmryb.toml", &f.ExcelBook, path.FileInfo(), date))
 }
 
 // export_bbmx 导出版本明细
-func export_bbmx(db *sqlite.DB, path *utils.Path) {
+func (c *Client) export_bbmx(path *utils.Path) {
 	fmt.Print("更新：", path.Base())
-	utils.CheckFatal(ExportXlsx(db, path.String(), "bb_kjtj,bb_ywrytj,bb_qxzb,bb_qxzbry,bb_ystm,bb_xjdzb,bb_xmryb"))
+	utils.CheckFatal(ExportXlsx(c.DB, path.String(), "bb_kjtj,bb_ywrytj,bb_qxzb,bb_qxzbry,bb_ystm,bb_xjdzb,bb_xmryb"))
 	fmt.Println(" 完成！")
 }
 
 // update_bbmx 更新版本明细
-func update_bbmx(db *sqlite.DB) {
-	if path := utils.NewPath(config.Home).Find("*版本条目明细*.xlsx"); path != nil {
+func (c *Client) update_bbmx() {
+	if path := utils.NewPath(c.Home).Find("*版本条目明细*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Name())
-		load_bbmx(db, path)
-		export_bbmx(db, path)
+		c.load_bbmx(path)
+		c.export_bbmx(path)
 	} else {
 		fmt.Println("未发现文件：柜面版本明细*.xlsx")
 	}
