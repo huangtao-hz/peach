@@ -60,7 +60,7 @@ func (c *Client) export_bbmx(path *utils.Path) {
 
 // update_bbmx 更新版本明细
 func (c *Client) update_bbmx() {
-	if path := utils.NewPath(c.Home).Find("*版本条目明细*.xlsx"); path != nil {
+	if path := c.HomePath.Find("*版本条目明细*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Name())
 		c.load_bbmx(path)
 		c.export_bbmx(path)

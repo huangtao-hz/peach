@@ -1,6 +1,7 @@
 # 业务统计，按需求人员统计当期验收条目的完成情况
 sheet = "统计表"
 name = "需求人员统计"
+title = "业务需求人员当期验收情况"
 query = """\
 select a.ywry,null,
 sum(iif(a.cszt like '0%',1,0)),

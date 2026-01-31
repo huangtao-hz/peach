@@ -35,7 +35,7 @@ func conv_kfjh(src []string) (dest []string, err error) {
 
 // load_kfjh 导入开发计划表
 func (c *Client) load_kfjh() (err error) {
-	if path := utils.NewPath(c.Home).Find("*开发计划*.xlsx"); path != nil {
+	if path := c.HomePath.Find("*开发计划*.xlsx"); path != nil {
 		fmt.Println("处理文件：", path.Base())
 		date := utils.Extract(`\d{8}`, path.Base())
 		date = strings.Join([]string{date[:4], date[4:6], date[6:]}, "-")

@@ -1,4 +1,5 @@
 sheet = "计划执行情况"
+title = "各小组计划执行情况"
 query = """select jsxz,
 sum(iif(b.sfwc="5-已投产",1,0))as ywc,
 sum(iif(b.sfwc<>"5-已投产",1,0)),

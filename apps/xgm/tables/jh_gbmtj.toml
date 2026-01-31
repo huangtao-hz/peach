@@ -1,6 +1,7 @@
 sheet = "统计表"
 name = "各部门统计表"
 start_col = "B"
+title = "各部门完成情况"
 query = """\
 select lx,
 sum(iif(sfwc in('1-已编写初稿','2-已提交需求/确认需规'),1,0)),       -- 已完成需求

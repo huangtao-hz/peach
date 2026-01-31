@@ -43,11 +43,11 @@ func (c *Client) PrintVersion() {
 
 // update_xmjh 更新计划表
 func (c *Client) update_xmjh() (err error) {
-	path := utils.NewPath(c.Home).Find("*新柜面存量交易迁移*.xlsx")
+	path := c.HomePath.Find("*新柜面存量交易迁移*.xlsx")
 	if path != nil {
 		c.load_xmjh(path)
 	} else {
-		path = utils.NewPath(c.Home).Join(fmt.Sprintf("附件1：新柜面存量交易迁移计划%s.xlsx", utils.Today().Format("%Y%M%D")))
+		path = c.HomePath.Join(fmt.Sprintf("附件1：新柜面存量交易迁移计划%s.xlsx", utils.Today().Format("%Y%M%D")))
 	}
 	//load_kfjh(db) // 导入科技管理部编制的开发计划表
 	fmt.Print("根据投产时间更新验收完成时间:")

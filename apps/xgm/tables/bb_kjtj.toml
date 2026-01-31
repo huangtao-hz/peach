@@ -1,4 +1,5 @@
 sheet = "统计表"
+title = "各小组当期验收情况"
 query = """\
 -- 开发统计，统计各开发小组当期的完成情况
 select ifnull(b.xz,"其他") as jsxz,

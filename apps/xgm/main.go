@@ -20,6 +20,7 @@ type Client struct {
 	*sqlite.DB
 	database string `toml:"database"`
 	Home     string `toml:"home"`
+	HomePath *utils.Path
 }
 
 // Open 打开客户端
@@ -29,6 +30,7 @@ func Open() (client *Client, err error) {
 	if err = utils.GetConfig("xmjh", &client); err != nil {
 		return
 	}
+	client.HomePath = utils.NewPath(client.Home)
 	if client.DB, err = sqlite.Open(client.database); err != nil {
 		return
 	}
@@ -45,11 +47,10 @@ func (c *Client) show_version(string) (err error) {
 
 // load 导入数据
 func (c *Client) load(string) (err error) {
-	Home := utils.NewPath(c.Home)
-	if path := Home.Find("*新柜面存量交易迁移*.xlsx"); path != nil {
+	if path := c.HomePath.Find("*新柜面存量交易迁移*.xlsx"); path != nil {
 		c.load_xmjh(path)
 	}
-	if path := Home.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
+	if path := c.HomePath.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
 		c.load_wtgzb(path)
 	}
 	return
@@ -64,8 +65,7 @@ func (c *Client) update(string) (err error) {
 	c.load_qxzb()
 	c.update_bbmx()
 	c.update_xmjh()
-	Home := utils.NewPath(c.Home)
-	if path := Home.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
+	if path := c.HomePath.Find("*数智综合运营系统问题跟踪表*.xlsx"); path != nil {
 		c.load_wtgzb(path)
 	}
 	return

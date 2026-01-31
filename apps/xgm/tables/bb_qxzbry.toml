@@ -1,4 +1,5 @@
 sheet = "缺陷指标表"
+title = "缺陷指标统计（开发人员）"
 query = """\
 -- 统计各小组的缺陷处理情况
 select jjr,ifnull(b.xz,"其他") as jsxz,
