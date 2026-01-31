@@ -56,11 +56,7 @@ func (c *Client) load(string) (err error) {
 	return
 }
 
-// query_sql 执行查询语句
-func (c *Client) query_sql(query *string) {
-	c.Println(*query)
-
-}
+// update 更新文件
 func (c *Client) update(string) (err error) {
 	c.load_qxzb()
 	c.update_bbmx()
@@ -82,7 +78,7 @@ func (c *Client) Run() {
 	wenti := flag.String("wenti", "", "统计上报问题，取值：本月、上月、上周、本周")
 	flag.Parse()
 	if *query_sql != "" {
-		c.query_sql(query_sql)
+		c.Println(*query_sql)
 	}
 	if *jhbb != "" {
 		c.show_jhbb(*jhbb)
