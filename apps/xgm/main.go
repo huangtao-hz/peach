@@ -8,12 +8,7 @@ import (
 	"peach/utils"
 )
 
-var Version = "1.0.10"
-
-func CreateDatabse(db *sqlite.DB) {
-	db.ExecFs(queryFS, "query/db.sql")
-	sqlite.InitLoadFile(db)
-}
+var Version = "1.0.11"
 
 // Client 定义客户端
 type Client struct {
