@@ -26,5 +26,5 @@ func Extract(pattern, s string) string {
 // FindAll 提取所有匹配记录
 func FindAll(pattern, s string) []string {
 	r := regexp.MustCompile(pattern)
-	return r.FindAllString(s, 0)
+	return r.FindAllString(s, -1)
 }
