@@ -208,3 +208,10 @@ create table if not exists qxzb(
     yzbtgcs     int,    -- 验证不通过次数
     cjsj    text   -- 创建时间
 );
+
+-- 下架交易清单
+create table if not exists xjjy(
+    jym         text primary key,   --交易码
+    xjfs        text,   -- 下架方式
+    xjrq        text    -- 下架日期
+);

@@ -1,0 +1,7 @@
+sheets = "下架交易清单"
+use_cols = "A,F,G"
+skip_rows = 1
+tablename = "xjjy"
+method = "insert or replace"
+check = true
+clear = false

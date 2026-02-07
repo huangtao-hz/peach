@@ -8,7 +8,7 @@ start_col = "A"
 "B,D" = 42
 "E" = 11
 "F" = 12
-"G" = 17
+"G" = 30
 
 [formats]
 "A:G" = "Normal-NoWrap"

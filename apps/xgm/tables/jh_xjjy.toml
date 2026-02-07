@@ -1,0 +1,18 @@
+sheet = "下架交易清单"
+header = "交易码,交易名称,对应新交易码,对应新交易名称,投产日期,下架方式,下架日期"
+query = """\
+select a.yjym,a.yjymc,a.jym,a.jymc,a.tcrq,b.xjfs,b.xjrq
+from xjdz a
+left join xjjy b on a.yjym=b.jym
+where b.jym is not null
+order by b.xjrq,a.tcrq,a.yjym
+"""
+start_col = "A"
+
+[widths]
+"A,C" = 9
+"B,D" = 42
+"E:G" = 14
+
+[formats]
+"A:G" = "Normal-NoWrap"

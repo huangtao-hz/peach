@@ -22,6 +22,8 @@ func (c *Client) load_xmjh(file utils.File) (err error) {
 		c.LoadExcel(loaderFS, "loader/jh_xmjh.toml", &f.ExcelBook, fileinfo, date)
 		fmt.Println("导入版本安排")
 		c.LoadExcel(loaderFS, "loader/jh_bbap.toml", &f.ExcelBook, fileinfo, date)
+		fmt.Println("导入下架交易清单")
+		c.LoadExcel(loaderFS, "loader/jh_xjjy.toml", &f.ExcelBook, fileinfo, date)
 	}
 	return
 }
@@ -29,7 +31,7 @@ func (c *Client) load_xmjh(file utils.File) (err error) {
 // export_xmjh 更新项目计划表-导出文件
 func (c *Client) export_xmjh(path *utils.Path) {
 	fmt.Print("更新文件：", path.Base())
-	utils.CheckFatal(ExportXlsx(c.DB, path.String(), "jh_gbmtj,jh_gzxtj,jh_ywtj,jh_kfjhtj,jh_kfjhhztj,jh_gzxkfjh,jh_kfjhb,jh_xmjhb,jh_tcjyb,jh_bbap"))
+	utils.CheckFatal(ExportXlsx(c.DB, path.String(), "jh_gbmtj,jh_gzxtj,jh_ywtj,jh_kfjhtj,jh_kfjhhztj,jh_gzxkfjh,jh_kfjhb,jh_xmjhb,jh_tcjyb,jh_bbap,jh_xjjy"))
 	fmt.Println(" 完成！")
 }
 
@@ -65,6 +67,8 @@ func (c *Client) update_xmjh() (err error) {
 	c.ExecuteFs(queryFS, "query/update_xmjh_xjy.sql")
 	fmt.Print("更新当前版本已投产交易：")
 	c.ExecuteFs(queryFS, "query/update_xmjh_ytc.sql")
+	fmt.Print("更新开发计划中的已投产交易：")
+	c.ExecuteFs(queryFS, "query/update_kfjh_ytc.sql")
 	c.export_xmjh(path)
 	return
 }
