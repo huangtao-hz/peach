@@ -28,7 +28,7 @@ func test_xls() {
 	file := excel.NewWriter()
 	defer file.SaveAs("~/Documents/abc.xlsx")
 	sheet := file.GetSheet("test")
-	sheet.AddTitle("A:F", "这是一个大标题")
+	sheet.AddTitle("A", 5, "这是一个大标题")
 	sheet.AddHeader("A", "我们,他们,历史,政治,音乐,天空")
 	sheet.AddRow("A", "a", 12, 23, 34, 46)
 	sheet.AddRow("A", "b", 24, 32, 23, 146)

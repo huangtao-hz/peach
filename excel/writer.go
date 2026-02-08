@@ -331,24 +331,16 @@ func (s *WorkSheet) get_cell(col string) (cellname string, err error) {
 	return excelize.JoinCellName(col, s.Row)
 }
 
-// AddTitle 添加标题
-func (s *WorkSheet) AddTitle(rng string, title string) (err error) {
-	cells := strings.Split(rng, ":")
-	if len(cells) == 0 {
-		return fmt.Errorf("%s is not a valid range format", rng)
-	} else if len(cells) == 1 {
-		cells = append(cells, cells[0])
-	}
-	var cell1, cell2 string
-	if cell1, err = s.get_cell(cells[0]); err == nil {
-		if err = s.SetCellValue(cell1, title); err == nil {
-			if cell2, err = s.get_cell(cells[1]); err == nil {
-				if err = s.SetCellStyle(strings.Join([]string{cell1, cell2}, ":"), "Title"); err == nil {
-					s.SetRowHeight(s.Row, 30)
-					s.Row++
-				}
-			}
+// AddTitle 添加标题行
+func (s *WorkSheet) AddTitle(start_col string, count int, title string) (err error) {
+	var col int
+	if col, err = excelize.ColumnNameToNumber(start_col); err == nil {
+		s.SetCell(col, s.Row, title, "Title")
+		for i := 1; i <= count-1; i++ {
+			s.SetCell(col+i, s.Row, nil, "Title")
 		}
+		s.SetRowHeight(s.Row, 30)
+		s.Row++
 	}
 	return
 }

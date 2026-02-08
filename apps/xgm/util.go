@@ -80,10 +80,8 @@ func (r *Reporter) Export(db *sqlite.DB, book *excel.Writer, args ...any) (err e
 			count = len(strings.Split(r.Header, ","))
 		}
 		if count > 0 {
-			i, _ := excelize.ColumnNameToNumber(r.StartColumn)
-			i += count - 1
-			end_col, _ := excelize.ColumnNumberToName(i)
-			err = sheet.AddTitle(fmt.Sprintf("%s:%s", r.StartColumn, end_col), r.Title)
+			//err = sheet.AddTitle(fmt.Sprintf("%s:%s", r.StartColumn, end_col), r.Title)
+			err = sheet.AddTitle(r.StartColumn, count, r.Title)
 		}
 	}
 	var rows *sqlite.Rows
