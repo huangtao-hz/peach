@@ -8,7 +8,7 @@ import (
 	"peach/utils"
 )
 
-var Version = "1.0.11"
+var Version = "1.0.12"
 
 // Client 定义客户端
 type Client struct {
