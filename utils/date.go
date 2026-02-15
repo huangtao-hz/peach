@@ -13,7 +13,7 @@ var Weekdays [7]string = [7]string{
 
 // IsLeapYear 判断指定的年份是否为润年
 func IsLeapYear(year int) bool {
-	return year%400 == 0 || year%4 == 0 && year%100 != 0
+	return year%400 == 0 || (year%4 == 0 && year%100 != 0)
 }
 
 // GetMonthDays 获取指定月份的天数
