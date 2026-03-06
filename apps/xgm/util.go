@@ -119,3 +119,11 @@ func ExportXlsx(db *sqlite.DB, path string, files string) (err error) {
 	}
 	return
 }
+
+// GetPath 获取最近导入的文件名
+func (c *Client) GetPath(name string) (path string) {
+	if err := c.QueryRow(`select path from loadfile where name=? order by mtime desc limit 1`, name).Scan(&path); err != nil {
+		fmt.Println(err)
+	}
+	return
+}
