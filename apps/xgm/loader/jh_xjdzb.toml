@@ -1,5 +1,5 @@
 sheets = "投产交易一览表"
-use_cols = "A:G"
+use_cols = "A:I"
 skip_rows = 1
 tablename = "xjdz"
 method = "insert"
