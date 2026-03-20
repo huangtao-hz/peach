@@ -3,4 +3,4 @@ update xjdz set
 ywbm = xmjh.ywbm,
 lxr = xmjh.lxr
 from xmjh
-where xjdz.ywbm= "" and xjdz.yjm <> "" and xjdz.yjym = xmjh.jym
+where xjdz.ywbm= "" and xjdz.yjym <> "" and xjdz.yjym = xmjh.jym
