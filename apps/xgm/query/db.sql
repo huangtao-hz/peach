@@ -118,12 +118,14 @@ CREATE TABLE if not exists kfjh(
     wcys           text,       -- 完成验收
     primary key(jym)
 );
--- 新旧对照表
+-- 新旧交易对照表
 CREATE TABLE if not exists xjdz(
     jym            text,       -- 交易码
     jymc           text,       -- 交易码称
     yjym           text,       -- 原交易码
     yjymc          text,       -- 原交易码称
+    ywbm           text,       -- 业务部门
+    lxr           text,       -- 联系人
     tcrq           text,       -- 投产日期
     zs             text,       -- 状态
     bz             text       -- 备注
