@@ -69,6 +69,8 @@ func (c *Client) update_xmjh() (err error) {
 	c.ExecuteFs(queryFS, "query/update_xmjh_ytc.sql")
 	fmt.Print("更新开发计划中的已投产交易：")
 	c.ExecuteFs(queryFS, "query/update_kfjh_ytc.sql")
+	fmt.Print("更新已投产交易的业务部门及联系人：")
+	c.ExecuteFs(queryFS, "query/update_tcjy.sql")
 	c.export_xmjh(path)
 	return
 }
